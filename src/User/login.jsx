@@ -25,6 +25,7 @@ const Login = () => {
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
+          localStorage.setItem('user', JSON.stringify(res.data)); // เก็บข้อมูลผู้ใช้ใน localStorage
           navigate('/home'); // ไปหลังจากผู้ใช้กด OK
         });
       } else {
