@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+// เรียกใช้ BASE_URL จาก .env
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+console.log("🌐 API_BASE_URL:", API_BASE_URL); // ตรวจสอบ URL
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -10,10 +14,10 @@ const Login = () => {
   const [phone, setPhone] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ป้องกันหน้ารีเฟรช
+    e.preventDefault();
 
     try {
-      const res = await axios.post('http://localhost:3000/login', {
+      const res = await axios.post(`${API_BASE_URL}/login`, {
         name,
         phone,
       });
@@ -25,8 +29,8 @@ const Login = () => {
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
-          localStorage.setItem('user', JSON.stringify(res.data)); // เก็บข้อมูลผู้ใช้ใน localStorage
-          navigate('/home'); // ไปหลังจากผู้ใช้กด OK
+          localStorage.setItem('user', JSON.stringify(res.data));
+          navigate('/home');
         });
       } else {
         Swal.fire({
