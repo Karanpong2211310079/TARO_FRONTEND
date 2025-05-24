@@ -156,7 +156,7 @@ const Home = () => {
 
   return (
     <div>
-      <div className="bg-amber-600 flex items-center justify-center bg-cover bg-center w-full h-screen">
+      <div className="bg-gray-600 flex items-center justify-center bg-cover bg-center w-full h-screen">
         <div className="bg-white bg-opacity-70 p-6 rounded-xl shadow text-center max-w-xl mx-auto">
           <h1 className="text-2xl font-bold mb-4">🃏 Random Card</h1>
 
