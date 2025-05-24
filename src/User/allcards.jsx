@@ -11,7 +11,7 @@ const AllCards = () => {
 
   const showCard = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/taro-card`);
+      const res = await axios.get(`${API_BASE_URL}taro-card`);
       
       if (res.data && res.data.data) {
         const cardsArray = Object.values(res.data.data);

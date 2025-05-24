@@ -23,7 +23,7 @@ const User = () => {
       const userData = JSON.parse(user);
       const userId = userData.user.user_id;
 
-      const res = await axios.post(`${API_BASE_URL}/user-card`, { user_id: userId });
+      const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
 
       // ตรวจสอบข้อมูลก่อนตั้งค่า
       if (res.data && res.data.data && Array.isArray(res.data.data)) {

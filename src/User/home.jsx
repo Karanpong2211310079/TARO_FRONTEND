@@ -23,7 +23,7 @@ const Home = () => {
       if (result.isConfirmed) {
         const code = result.value;
         try {
-          const response = await axios.post(`${API_BASE_URL}/redeem-code`, {
+          const response = await axios.post(`${API_BASE_URL}redeem-code`, {
             code,
             user_id: userId,
           });
@@ -42,7 +42,7 @@ const Home = () => {
 
   const Bring_Cards = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/taro-card`);
+      const res = await axios.get(`${API_BASE_URL}taro-card`);
       setCardsOriginal(res.data.data);
     } catch (error) {
       Swal.fire({
@@ -67,7 +67,7 @@ const Home = () => {
   const updateUserCards = async (newCardId) => {
     try {
       const cardId = parseInt(newCardId, 10);
-      await axios.post(`${API_BASE_URL}/add-usercard`, {
+      await axios.post(`${API_BASE_URL}add-usercard`, {
         user_id: userId,
         card_id: cardId,
       }, {
@@ -85,7 +85,7 @@ const Home = () => {
 
   const updateUserPoint = async (newPoint) => {
     try {
-      await axios.put(`${API_BASE_URL}/user-point`, {
+      await axios.put(`${API_BASE_URL}user-point`, {
         id: userId,
         point: newPoint,
       }, {
