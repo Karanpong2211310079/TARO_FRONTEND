@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import Home from './User/home'
 import Navbar from './User/main/navbar'
-import Login from './user/login'
+import Login from './User/login'
 import AllCards from './User/allcards'
 import User from './User/user'
 import Manage from '../Admin/main/manage'
@@ -24,6 +24,7 @@ function App() {
       <AllCards />
     </>
   )
+
   const User_Page = () => (
     <>
       <Navbar />
