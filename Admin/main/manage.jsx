@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 const Manage = () => {
   const [users, setUsers] = useState([]);
   const [cards, setCards] = useState([]);
@@ -9,11 +12,13 @@ const Manage = () => {
     totalCards: 0
   });
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const getUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3000/user-profile');
-      const data = await response.json();
+      const response = await axios.get(`${API_BASE_URL}user-profile`);
+      const data = response.data;
       setUsers(data.data);
       setStats(prev => ({ ...prev, totalUsers: data.data.length }));
     } catch (error) {
@@ -23,8 +28,8 @@ const Manage = () => {
 
   const getCards = async () => {
     try {
-      const response = await fetch('http://localhost:3000/taro-card');
-      const data = await response.json();
+      const response = await axios.get(`${API_BASE_URL}taro-card`);
+      const data = response.data;
       setCards(data.data);
       setStats(prev => ({ ...prev, totalCards: data.data.length }));
     } catch (error) {
@@ -51,25 +56,23 @@ const Manage = () => {
         return { title, description, imageUrl };
       }
     });
-  
+
     if (formValues) {
       try {
-        const response = await axios.post('http://localhost:3000/created-card', {
+        await axios.post(`${API_BASE_URL}created-card`, {
           name: formValues.title,
           description: formValues.description,
           image: formValues.imageUrl
         });
-  
+
         Swal.fire({
           icon: 'success',
           title: 'Card Added Successfully',
           showConfirmButton: false,
           timer: 1500
         });
-  
-        // อัปเดตข้อมูลการ์ดใหม่
-        getCards();
-  
+
+        await getCards();
       } catch (error) {
         console.error('Error adding card:', error);
         Swal.fire({
@@ -82,8 +85,18 @@ const Manage = () => {
   };
 
   useEffect(() => {
-    getUsers();
-    getCards();
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([getUsers(), getCards()]);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   return (
@@ -143,60 +156,81 @@ const Manage = () => {
       {/* Main content */}
       <div className="p-4 sm:ml-64">
         <div className="p-4 border-2 border-dashed rounded-lg dark:border-gray-700">
-          {activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <div className="p-6 bg-white rounded-lg shadow text-center">
-                <h3 className="text-lg font-medium text-gray-600">Total Users</h3>
-                <p className="text-3xl font-bold">{stats.totalUsers}</p>
-              </div>
-              <div className="p-6 bg-white rounded-lg shadow text-center">
-                <h3 className="text-lg font-medium text-gray-600">Total Cards</h3>
-                <p className="text-3xl font-bold">{stats.totalCards}</p>
-              </div>
-            </div>
-          )}
+          {loading && <p>Loading...</p>}
+          {error && <p className="text-red-500">{error}</p>}
 
-          {activeTab === 'users' && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Users</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {users.length > 0 ? (
-                  users.map((user, index) => (
-                    <div key={index} className="p-4 bg-white rounded-lg shadow-md">
-                      <h3 className="font-semibold text-lg">{user.name}</h3>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                      <p className="text-sm text-gray-600">{user.phone}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-600">No users found.</p>
-                )}
-              </div>
-            </div>
-          )}
+          {!loading && !error && (
+            <>
+              {activeTab === 'dashboard' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                  <div className="p-6 bg-white rounded-lg shadow text-center">
+                    <h3 className="text-lg font-medium text-gray-600">Total Users</h3>
+                    <p className="text-3xl font-bold">{stats.totalUsers}</p>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow text-center">
+                    <h3 className="text-lg font-medium text-gray-600">Total Cards</h3>
+                    <p className="text-3xl font-bold">{stats.totalCards}</p>
+                  </div>
+                </div>
+              )}
 
-          {activeTab === 'cards' && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Cards</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {cards.length > 0 ? (
-                  cards.map((card, index) => (
-                    <div key={index} className="p-4 bg-white rounded-lg shadow-md">
-                      <img src={card.image_url} alt="img" className="w-full h-48 object-cover mb-2 rounded" />
-                      <h3 className="font-semibold text-lg">{card.title}</h3>
-                      <p className="text-sm text-gray-600">{card.description}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-600">No cards found.</p>
-                )}
-              </div>
-              <button onClick={handleCardSubmit} className="relative inline-flex items-center justify-center p-0.5 m-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
-                <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                  ADD-CARD
+              {activeTab === 'users' && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold mb-4">Users</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {users.length > 0 ? (
+                      users.map((user, index) => (
+                        <div key={index} className="p-4 bg-white rounded-lg shadow-md">
+                          <h3 className="font-semibold text-lg">{user.name}</h3>
+                          <p className="text-sm text-gray-600">{user.email}</p>
+                          <p className="text-sm text-gray-600">{user.phone}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-600">No users found.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'cards' && (
+             <div>
+             <h2 className="text-2xl font-bold mb-4 text-gray-800">Cards</h2>
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+               {cards.length > 0 ? (
+                 cards.map((card, index) => (
+                   <div
+                     key={index}
+                     className="p-3 bg-white rounded-xl shadow-md hover:shadow-lg transition transform hover:-translate-y-1"
+                   >
+                     <img
+                       src={card.image_url}
+                       alt={card.title}
+                       className="w-full h-100 object-cover rounded mb-3"
+                     />
+                     <h3 className="font-semibold text-lg text-gray-900 mb-1">{card.title}</h3>
+                     <p className="text-sm text-gray-600">{card.description}</p>
+                   </div>
+                 ))
+               ) : (
+                 <p className="text-gray-600">No cards found.</p>
+               )}
+             </div>
+             <button
+                onClick={handleCardSubmit}
+                className="relative inline-flex items-center justify-center p-0.5 m-2 mt-6 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
+              >
+                <span className="relative px-6 py-3 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
+                  ADD CARD
                 </span>
               </button>
-            </div>
+           </div>
+           
+           
+           
+            
+              )}
+            </>
           )}
         </div>
       </div>
