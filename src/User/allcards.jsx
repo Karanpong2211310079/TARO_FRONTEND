@@ -9,10 +9,42 @@ console.log("🌐 API_BASE_URL:", API_BASE_URL); // สำหรับตรว�
 const AllCards = () => {
   const [cards, setCards] = useState([]);
 
+  // ✅ handleCardClick ต้องเป็น async และใช้ข้อมูลจาก API
+  const handleCardClick = async (card) => {
+    try {
+      const res = await axios.post(`${API_BASE_URL}taro-detail`, {
+        card_id: card.card_id, // ใช้ card_id ให้ตรงกับ backend
+      });
+
+      const cardDetail = res.data.data;
+
+      Swal.fire({
+        title: cardDetail.name,
+        text: cardDetail.description,
+        imageUrl: cardDetail.image_url,
+        imageWidth: 400,
+        imageHeight: 500,
+        confirmButtonText: "Close",
+        confirmButtonColor: "#3085d6",
+        background: "#f9f9f9",
+        customClass: {
+          popup: "bg-white shadow-lg rounded-lg",
+          title: "text-2xl font-bold text-gray-800",
+          content: "text-gray-600",
+          confirmButton: "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500",
+        },
+      });
+
+    } catch (error) {
+      console.error("Error fetching card detail:", error);
+      Swal.fire("Error", "ไม่สามารถโหลดรายละเอียดไพ่ได้", "error");
+    }
+  };
+
   const showCard = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}taro-card`);
-      
+
       if (res.data && res.data.data) {
         const cardsArray = Object.values(res.data.data);
         setCards(cardsArray);
@@ -46,7 +78,11 @@ const AllCards = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {cards.length > 0 ? (
           cards.map((card, index) => (
-            <div key={index} className="rounded-lg text-black text-center transition-transform duration-300 transform hover:scale-105 shadow-lg">
+            <div
+              key={index}
+              className="rounded-lg text-black text-center transition-transform duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
+              onClick={() => handleCardClick(card)} // ✅ ใส่ onClick ที่ภาพ
+            >
               <img src={card.image_url} alt={card.name} className="w-full h-100 rounded mb-3" />
               <p className="font-bold text-xl">{card.name}</p>
               <p className="text-black mt-2">{card.description}</p>

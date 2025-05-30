@@ -149,7 +149,7 @@ const Home = () => {
             no-repeat`,
           confirmButtonText: 'ยอมรับ',
         });
-      }, index * 500);
+      }, index);
       await updateUserCards(card.card_id);
     }
   };
