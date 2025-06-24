@@ -17,7 +17,7 @@ const Login = () => {
 
     if (password.length < 6) {
       Swal.fire({
-        title: 'Password too short',
+        title: 'Invalid Password',
         text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร',
         icon: 'warning',
         confirmButtonText: 'OK',
@@ -28,7 +28,7 @@ const Login = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}login`, {
         name,
-        password,
+        phone: password, // ✅ ส่งใน key ชื่อ phone เหมือนเดิม
       });
 
       if (res.status === 200 || res.status === 201) {
