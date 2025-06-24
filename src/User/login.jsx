@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-// เรียกใช้ BASE_URL จาก .env
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log("🌐 API_BASE_URL:", API_BASE_URL);
 
@@ -11,17 +10,15 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
-  const [countryCode, setCountryCode] = useState('+66'); // default Thailand
-  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // เช็คความยาวเบอร์ (ปรับได้)
-    if (phone.length < 9 || phone.length > 10) {
+    if (password.length < 6) {
       Swal.fire({
-        title: 'Invalid Phone Number',
-        text: 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง',
+        title: 'Password too short',
+        text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร',
         icon: 'warning',
         confirmButtonText: 'OK',
       });
@@ -29,11 +26,9 @@ const Login = () => {
     }
 
     try {
-      const fullPhoneNumber = `${countryCode}${phone}`;
-
       const res = await axios.post(`${API_BASE_URL}login`, {
         name,
-        phone: fullPhoneNumber,
+        password,
       });
 
       if (res.status === 200 || res.status === 201) {
@@ -46,8 +41,9 @@ const Login = () => {
           localStorage.setItem('user', JSON.stringify(res.data));
           if (res.data.user.role === 'admin') {
             navigate('/admin');
-          }else
-          navigate('/home');
+          } else {
+            navigate('/home');
+          }
         });
       } else {
         Swal.fire({
@@ -86,36 +82,18 @@ const Login = () => {
         </div>
 
         <div className="mb-5">
-          <label className="block mb-2 text-sm font-medium text-gray-900">
-            Phone Number:
+          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+            Password:
           </label>
-          <div className="flex">
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg p-2.5"
-            >
-              <option value="+66">🇹🇭 +66</option>
-              <option value="+1">🇺🇸 +1</option>
-              <option value="+81">🇯🇵 +81</option>
-              <option value="+84">🇻🇳 +84</option>
-              <option value="+60">🇲🇾 +60</option>
-            </select>
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d{0,10}$/.test(value)) {
-                  setPhone(value);
-                }
-              }}
-              required
-              placeholder="Phone number"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-lg block w-full p-2.5"
-            />
-          </div>
-          <p className="text-sm text-gray-500 mt-1">กรอกเฉพาะเบอร์ เช่น 812345678 (ไม่ต้องใส่ 0)</p>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            required
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+          />
         </div>
 
         <button
