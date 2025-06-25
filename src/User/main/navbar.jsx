@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import tarotLogo from '../../assets/tarot.png'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import Swal from 'sweetalert2'
 
-// 🔧 ใช้ URL จากไฟล์ .env
 const API_BASE_URL = import.meta.env.VITE_API_URL
-console.log("🌐 API_BASE_URL:", API_BASE_URL) // ตรวจสอบค่าที่โหลดมา
+console.log("🌐 API_BASE_URL:", API_BASE_URL)
 
 const Navbar = () => {
   const [isMainDropdownOpen, setMainDropdownOpen] = useState(false)
@@ -27,10 +26,8 @@ const Navbar = () => {
 
   useEffect(() => {
     const user = localStorage.getItem('user')
-
     if (user) {
       const userData = JSON.parse(user)
-      console.log(userData.user.name)
       setislogin(true)
       setName(userData.user.name)
     } else {
@@ -40,20 +37,20 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="bg-amber-300 flex justify-between items-center p-4 shadow-2xl relative z-50">
+      <nav className="bg-purple-600 flex justify-between items-center p-4 shadow-2xl relative z-50">
         <div className="flex items-center justify-center my-2">
           <img src={tarotLogo} className="h-10" alt="logo" />
-          <a href='/home' className="text-3xl font-bold font-serif ml-2">Tarot Bamboo</a>
+          <Link to="/home" className="text-3xl font-bold font-serif ml-2 text-white">Tarot Moodma</Link>
         </div>
 
         {islogin ? (
           <div className="flex items-center gap-4 mr-4">
-            <span className="text-lg font-semibold">{name}</span>
-            <a href="/user" className="text-lg font-semibold">My Card</a>
+            <span className="text-lg font-semibold text-white">{name}</span>
+            <Link to="/user" className="text-lg font-semibold text-white">My Card</Link>
           </div>
         ) : (
           <div className="flex items-center gap-4 mr-4">
-            <a href="/" className="text-lg font-semibold">Login</a>
+            <Link to="/" className="text-lg font-semibold text-white">Login</Link>
           </div>
         )}
 
@@ -73,19 +70,19 @@ const Navbar = () => {
             <div className="absolute right-0 mt-2 w-44 z-50 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
               <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                 <li>
-                  <a href="/user" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                  <Link to="/user" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                     PROFILE
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/allcards" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                  <Link to="/allcards" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                     ALL CARDS
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" onClick={handSignout} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                  <button onClick={handSignout} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                     SIGN OUT
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
