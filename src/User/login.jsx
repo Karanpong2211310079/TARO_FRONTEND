@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+// เรียกใช้ BASE_URL จาก .env
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log("🌐 API_BASE_URL:", API_BASE_URL);
 
@@ -15,20 +16,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password.length < 6) {
-      Swal.fire({
-        title: 'Invalid Password',
-        text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร',
-        icon: 'warning',
-        confirmButtonText: 'OK',
-      });
-      return;
-    }
-
     try {
       const res = await axios.post(`${API_BASE_URL}login`, {
         name,
-        phone: password, // ✅ ส่งใน key ชื่อ phone เหมือนเดิม
+        phone: password, // ✅ ยังใช้ key ว่า 'phone' ตามหลังบ้านเดิม
       });
 
       if (res.status === 200 || res.status === 201) {
