@@ -97,3 +97,4 @@ const AllCards = () => {
 };
 
 export default AllCards;
+yg6 

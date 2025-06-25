@@ -43,7 +43,7 @@ const Navbar = () => {
       <nav className="bg-amber-300 flex justify-between items-center p-4 shadow-2xl relative z-50">
         <div className="flex items-center justify-center my-2">
           <img src={tarotLogo} className="h-10" alt="logo" />
-          <a href='/home' className="text-3xl font-bold font-serif ml-2">Tarot Bamboo</a>
+          <a href='/home' className="text-3xl font-bold font-serif ml-2">Moodma Tarot</a>
         </div>
 
         {islogin ? (
