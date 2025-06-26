@@ -35,7 +35,7 @@ const Login = () => {
       if (res.status === 200 || res.status === 201) {
         Swal.fire({
           title: 'Login Successful',
-          text: 'Welcome back!',
+          text: 'เข้าสู่ระบบเพื่อรับคำทำนาย',
           icon: 'success',
           confirmButtonText: 'OK',
         }).then(() => {
@@ -55,7 +55,14 @@ const Login = () => {
         });
       }
     } catch (error) {
-      if (error.response?.data?.message === 'Username already in use') {
+      if (error.response?.data?.message === 'Username already exists with a different password') {
+        Swal.fire({
+          title: 'Username Taken',
+          text: 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      } else if (error.response?.data?.message === 'Username already in use') {
         Swal.fire({
           title: 'Duplicate Username',
           text: 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น',
@@ -76,44 +83,52 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Welcome Back</h2>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#FFDB6E] to-[#D497FF]">
+      <div className="w-full max-w-md p-8 bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
+        <div className="flex justify-center mb-6">
+          <img
+            src="https://i.postimg.cc/sD3GQsnb/IMG-0866.jpg"
+            alt="Logo"
+            className="h-16 w-auto object-contain"
+          />
+        </div>
+        <h2 className="text-2xl font-bold text-center mb-6 text-[#D497FF]">เข้าสู่ระบบเพื่อรับคำทำนาย</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-700">
-              Nickname:
+              ชื่อเล่น:
             </label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your nickname"
+              placeholder="กรอกชื่อเล่นของคุณ"
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="w-full p-3 border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
             />
           </div>
 
           <div>
             <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
-              Password:
+              รหัสผ่าน:
             </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="กรอกรหัสผ่านของคุณ"
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="w-full p-3 border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
             />
+            <p className="mt-2 text-sm text-red-500">ไม่ใช่โค้ดดูดวง</p>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-5 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors duration-200 flex items-center justify-center ${
+            className={`w-full py-3 px-5 text-white bg-[#D497FF] rounded-lg hover:bg-[#c07eff] focus:ring-4 focus:ring-[#FFDB6E] transition-colors duration-200 flex items-center justify-center ${
               isLoading ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
@@ -139,7 +154,7 @@ const Login = () => {
                 />
               </svg>
             ) : null}
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
           </button>
         </form>
       </div>
