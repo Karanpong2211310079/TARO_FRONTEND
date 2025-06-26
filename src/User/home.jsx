@@ -10,21 +10,22 @@ const Home = () => {
   const [point, setPoint] = useState();
   const [userId, setUserId] = useState();
   const [token, setToken] = useState();
+  const [isRevealing, setIsRevealing] = useState(false);
 
   const ReedeemCode = async () => {
     Swal.fire({
-      title: 'กรอกโค้ดหน้าซอง',
+      title: 'ปลดล็อกพลังด้วยโค้ดลับ!',
       input: 'text',
-      inputLabel: 'Enter your Redeem Code',
+      inputLabel: 'ป้อนโค้ดจากหน้าซองเพื่อเพิ่มพลังทำนาย',
       showCancelButton: true,
-      confirmButtonText: 'Submit',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก',
       customClass: {
-        popup: 'w-11/12 max-w-md',
-        title: 'text-lg',
-        inputLabel: 'text-sm',
-        confirmButton: 'px-4 py-1 text-sm',
-        cancelButton: 'px-4 py-1 text-sm',
+        popup: 'w-11/12 max-w-md rounded-xl',
+        title: 'text-lg font-bold text-purple-800',
+        inputLabel: 'text-sm text-gray-600',
+        confirmButton: 'bg-purple-700 hover:bg-purple-800 px-4 py-1.5 text-sm text-white rounded',
+        cancelButton: 'bg-gray-300 hover:bg-gray-400 px-4 py-1.5 text-sm text-gray-800 rounded',
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -37,36 +38,36 @@ const Home = () => {
           if (response.data.success) {
             setPoint(response.data.user.token);
             Swal.fire({
-              title: 'Success',
-              text: 'Code redeemed successfully!',
+              title: 'พลังปลดล็อก!',
+              text: 'โค้ดสำเร็จ! คุณพร้อมทำนายโชคชะตาแล้ว!',
               icon: 'success',
               customClass: {
-                popup: 'w-11/12 max-w-md',
-                title: 'text-lg',
-                confirmButton: 'px-4 py-1 text-sm',
+                popup: 'w-11/12 max-w-md rounded-xl',
+                title: 'text-lg font-bold text-green-600',
+                confirmButton: 'bg-green-600 hover:bg-green-700 px-4 py-1.5 text-sm text-white rounded',
               },
             });
           } else {
             Swal.fire({
-              title: 'Error',
+              title: 'โค้ดผิดพลาด!',
               text: response.data.message,
               icon: 'error',
               customClass: {
-                popup: 'w-11/12 max-w-md',
-                title: 'text-lg',
-                confirmButton: 'px-4 py-1 text-sm',
+                popup: 'w-11/12 max-w-md rounded-xl',
+                title: 'text-lg font-bold text-red-600',
+                confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-1.5 text-sm text-white rounded',
               },
             });
           }
         } catch (error) {
           Swal.fire({
-            title: 'Error',
-            text: 'Unable to redeem code',
+            title: 'เกิดข้อผิดพลาด!',
+            text: 'ไม่สามารถใช้โค้ดได้ ลองอีกครั้ง!',
             icon: 'error',
             customClass: {
-              popup: 'w-11/12 max-w-md',
-              title: 'text-lg',
-              confirmButton: 'px-4 py-1 text-sm',
+              popup: 'w-11/12 max-w-md rounded-xl',
+              title: 'text-lg font-bold text-red-600',
+              confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-1.5 text-sm text-white rounded',
             },
           });
         }
@@ -80,14 +81,14 @@ const Home = () => {
       setCardsOriginal(res.data.data);
     } catch (error) {
       Swal.fire({
-        title: 'Error',
-        text: 'ไม่สามารถโหลดข้อมูลได้',
+        title: 'เกิดข้อผิดพลาด!',
+        text: 'ไม่สามารถโหลดไพ่ทาโรต์ได้ ลองใหม่!',
         icon: 'error',
-        confirmButtonText: 'Retry',
+        confirmButtonText: 'ลองใหม่',
         customClass: {
-          popup: 'w-11/12 max-w-md',
-          title: 'text-lg',
-          confirmButton: 'px-4 py-1 text-sm',
+          popup: 'w-11/12 max-w-md rounded-xl',
+          title: 'text-lg font-bold text-red-600',
+          confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-1.5 text-sm text-white rounded',
         },
       });
     }
@@ -149,101 +150,91 @@ const Home = () => {
   const drawCard = async () => {
     if (point <= 0) {
       Swal.fire({
-        title: 'แต้มของคุณหมดแล้ว',
-        text: 'กรุณาเติมแต้มก่อนสุ่มไพ่',
+        title: 'พลังทำนายหมดแล้ว!',
+        text: 'เติมพลังด้วยโค้ดลับเพื่อสุ่มไพ่ต่อ!',
         icon: 'warning',
-        confirmButtonText: 'ยอมรับ',
+        confirmButtonText: 'ตกลง',
         customClass: {
-          popup: 'w-11/12 max-w-md',
-          title: 'text-lg',
-          confirmButton: 'px-4 py-1 text-sm',
+          popup: 'w-11/12 max-w-md rounded-xl',
+          title: 'text-lg font-bold text-yellow-600',
+          confirmButton: 'bg-yellow-600 hover:bg-yellow-700 px-4 py-1.5 text-sm text-white rounded',
         },
       });
       return;
     }
 
-    const randomCards = [];
-    while (randomCards.length < 2 && cardsOriginal.length > 1) {
-      const randomCard = cardsOriginal[Math.floor(Math.random() * cardsOriginal.length)];
-      if (!randomCards.some(card => card.name === randomCard.name)) {
+    setIsRevealing(true);
+    setCards([]);
+
+    setTimeout(async () => {
+      const randomCards = [];
+      if (cardsOriginal.length > 0) {
+        const randomCard = cardsOriginal[Math.floor(Math.random() * cardsOriginal.length)];
         randomCards.push(randomCard);
       }
-    }
 
-    setCards(randomCards);
+      setCards(randomCards);
+      setIsRevealing(false);
 
-    const updatedPoint = point - 1;
-    setPoint(updatedPoint);
-    await updateUserPoint(updatedPoint);
+      const updatedPoint = point - 1;
+      setPoint(updatedPoint);
+      await updateUserPoint(updatedPoint);
 
-    for (const [index, card] of randomCards.entries()) {
-      setTimeout(() => {
-        Swal.fire({
-          title: card.name,
-          html: `
-            <div class="text-center">
-              <img src="${card.image_url}" alt="${card.name}" class="w-24 h-36 object-cover rounded-lg shadow-lg mx-auto"/>
-              <p class="italic text-gray-700 mt-2 text-sm">${card.description}</p>
-            </div>
-          `,
-          background: "#fff url('src/assets/back.jpg')",
-          backdrop: `rgba(0,0,123,0.4)
-            url('src/assets/cat.gif')
-            left top
-            no-repeat`,
-          confirmButtonText: 'ยอมรับ',
-          customClass: {
-            popup: 'w-11/12 max-w-md',
-            title: 'text-lg',
-            confirmButton: 'px-4 py-1 text-sm',
-          },
-        });
-      }, index);
-      await updateUserCards(card.card_id);
-    }
+      for (const card of randomCards) {
+        await updateUserCards(card.card_id);
+      }
+    }, 5000);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-600 bg-cover bg-center">
       <div className="flex-grow flex items-center justify-center p-4">
-        <div className="bg-white bg-opacity-70 p-4 rounded-xl shadow text-center w-full max-w-md">
-          <h1 className="text-xl font-bold mb-4">🃏 Random Card</h1>
+        <div className="bg-white bg-opacity-70 p-6 rounded-xl shadow-2xl text-center w-full max-w-lg">
+          <h1 className="text-2xl font-bold mb-4 text-purple-800">🃏 เปิดคำทำนายแห่งโชคชะตา</h1>
 
-          {cards.length > 0 ? (
+          {isRevealing ? (
+            <div className="mb-4 flex flex-col justify-center items-center gap-2 animate__animated animate__pulse animate__infinite">
+              <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-lg font-bold text-red-600">
+                โชคชะตากำลังถูกเปิดเผย
+                <span className="animate__animated animate__bounce animate__infinite animate__slower">...</span>
+              </p>
+            </div>
+          ) : cards.length > 0 ? (
             <div className="mb-4">
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <div className="flex flex-col justify-center items-center gap-4">
                 {cards.map(card => (
-                  <div key={card.name} className="w-full sm:w-28 text-center">
+                  <div key={card.name} className="w-full text-center animate__animated animate__zoomIn">
                     <img
                       src={card.image_url}
                       alt={card.name}
-                      className="w-24 h-36 object-cover rounded-lg shadow-lg mx-auto"
+                      className="w-48 h-72 object-contain rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-300"
                     />
-                    <h2 className="text-xs font-semibold mt-2">{card.name}</h2>
-                    <p className="italic text-gray-700 mt-1 text-sm">{card.description}</p>
+                    <h2 className="text-sm font-bold mt-2 text-purple-700">{card.name}</h2>
+                    <p className="italic text-gray-700 mt-1 text-sm max-h-40 overflow-y-auto">{card.description}</p>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="italic text-gray-700 mb-4 text-sm">โปรดกดปุ่มเพื่อสุ่มไพ่ทาโร่</p>
+            <p className="italic text-gray-700 mb-4 text-sm">กดปุ่มเพื่อเปิดไพ่ทาโรต์และลุ้นโชคชะตา!</p>
           )}
 
           <div className="my-3">
             <button
               onClick={ReedeemCode}
               type="button"
-              className="bg-purple-700 hover:bg-purple-800 text-white px-4 py-1.5 rounded text-sm w-full"
+              className="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded text-sm w-full transform hover:scale-105 transition-transform duration-200"
             >
-              กรอกโค้ดหน้าซอง
+              กรอกโค้ดลับ
             </button>
           </div>
           <div>
             <button
               onClick={drawCard}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded font-bold shadow-md text-sm w-full"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold shadow-md text-sm w-full transform hover:scale-105 transition-transform duration-200"
             >
-              {point > 0 ? `Token : ${point}` : 'สุ่มไพ่'}
+              {point > 0 ? `พลังทำนาย: ${point}` : 'สุ่มไพ่ทาโรต์'}
             </button>
           </div>
         </div>
@@ -251,7 +242,7 @@ const Home = () => {
 
       <footer className="bg-amber-300 h-16 flex justify-center items-center p-4 shadow-2xl">
         <div className="text-center">
-          <p className="text-sm font-light italic">© 2023 Tarot Bamboo. All rights reserved.</p>
+          <p className="text-sm font-light italic">© 2025 Tarot Moodma. สงวนลิขสิทธิ์.</p>
         </div>
       </footer>
     </div>
