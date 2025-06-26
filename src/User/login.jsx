@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+// ใช้ environment variable สำหรับ API URL
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
@@ -83,82 +84,106 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[url('https://i.postimg.cc/LXTwdc8G/IMG-0868.png')] bg-cover bg-center bg-no-repeat px-4">
-      <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-6 sm:p-4 bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
-        <div className="flex justify-center mb-4">
-          <img
-            src="https://i.postimg.cc/9MRRshbQ/image.png"
-            alt="Logo"
-            className="h-24 sm:h-20 xs:h-16 w-auto object-contain"
-          />
+    <>
+      {/* Preload รูปพื้นหลังเพื่อให้โหลดเร็วขึ้น */}
+      <link
+        rel="preload"
+        href="https://i.postimg.cc/XNgSymzG/IMG-0869.webp"
+        as="image"
+      />
+      {/* CSS รวมอยู่ในไฟล์เดียว */}
+      <style>
+        {`
+          .login-background {
+            background-image: url('https://i.postimg.cc/XNgSymzG/IMG-0869.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+          }
+        `}
+      </style>
+      <div className="flex justify-center items-center min-h-screen login-background px-4">
+        <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-6 sm:p-4 bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
+          <div className="flex justify-center mb-4">
+            <img
+              src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
+              alt="Logo"
+              loading="lazy"
+              className="h-24 sm:h-20 xs:h-16 w-auto object-contain"
+            />
+          </div>
+          <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-[#D497FF]">
+            เข้าสู่ระบบเพื่อรับคำทำนาย
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block mb-1 text-sm font-medium text-gray-700">
+                username:
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="กรอกชื่อผู้ใช้ของคุณ"
+                required
+                className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
+                password:
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="กรอกรหัสผ่านของคุณ"
+                required
+                className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
+              />
+              <p className="mt-1 text-xs text-red-500">
+                **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-white bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${
+                isLoading ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
+            >
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
+                </svg>
+              ) : null}
+              {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            </button>
+          </form>
         </div>
-        <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-[#D497FF]">เข้าสู่ระบบเพื่อรับคำทำนาย</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block mb-1 text-sm font-medium text-gray-700">
-              username:
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="กรอกชื่อผู้ใช้ของคุณ"
-              required
-              className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
-              password:
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="กรอกรหัสผ่านของคุณ"
-              required
-              className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
-            />
-            <p className="mt-1 text-xs text-red-500">**รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป</p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 sm:py-1.5 px-4 text-sm text-white bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
-          >
-            {isLoading ? (
-              <svg
-                className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
-              </svg>
-            ) : null}
-            {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-          </button>
-        </form>
       </div>
-    </div>
+    </>
   );
 };
 
