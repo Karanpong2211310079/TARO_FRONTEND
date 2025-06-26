@@ -19,7 +19,7 @@ const Login = () => {
       setIsLoading(false);
       Swal.fire({
         title: 'Invalid Password',
-        text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร',
+        text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษรนะจ๊ะ',
         icon: 'warning',
         confirmButtonText: 'OK',
       });
@@ -83,27 +83,27 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#FFDB6E] to-[#D497FF]">
+    <div className="flex justify-center items-center min-h-screen bg-[url('https://i.postimg.cc/LXTwdc8G/IMG-0868.png')] bg-cover bg-center bg-no-repeat">
       <div className="w-full max-w-md p-8 bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
         <div className="flex justify-center mb-6">
           <img
-            src="https://i.postimg.cc/sD3GQsnb/IMG-0866.jpg"
+            src="https://i.postimg.cc/9MRRshbQ/image.png"
             alt="Logo"
-            className="h-16 w-auto object-contain"
+            className="h-48 w-auto object-contain"
           />
         </div>
         <h2 className="text-2xl font-bold text-center mb-6 text-[#D497FF]">เข้าสู่ระบบเพื่อรับคำทำนาย</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-700">
-              ชื่อเล่น:
+              username:
             </label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="กรอกชื่อเล่นของคุณ"
+              placeholder="กรอกชื่อผู้ใช้ของคุณ"
               required
               className="w-full p-3 border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
             />
@@ -111,7 +111,7 @@ const Login = () => {
 
           <div>
             <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
-              รหัสผ่าน:
+              password:
             </label>
             <input
               type="password"
@@ -122,13 +122,13 @@ const Login = () => {
               required
               className="w-full p-3 border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
             />
-            <p className="mt-2 text-sm text-red-500">ไม่ใช่โค้ดดูดวง</p>
+            <p className="mt-2 text-sm text-red-500">**รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป</p>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-5 text-white bg-[#D497FF] rounded-lg hover:bg-[#c07eff] focus:ring-4 focus:ring-[#FFDB6E] transition-colors duration-200 flex items-center justify-center ${
+            className={`w-full py-3 px-5 text-white bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${
               isLoading ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
