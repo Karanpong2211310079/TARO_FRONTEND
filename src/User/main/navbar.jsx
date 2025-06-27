@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL
 console.log("🌐 API_BASE_URL:", API_BASE_URL)
 
 const Navbar = () => {
-  const [isMainDropdownOpen, setMainDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [islogin, setislogin] = useState(false)
   const [name, setName] = useState('')
   const navigate = useNavigate()
@@ -36,60 +36,116 @@ const Navbar = () => {
   }, [])
 
   return (
-    <div>
-      <nav className="bg-purple-600 flex justify-between items-center p-4 shadow-2xl relative z-50">
-        <div className="flex items-center justify-center my-2">
+    <nav className="bg-gradient-to-b from-purple-950 via-purple-800 to-purple-950 text-white p-3 shadow-xl relative z-50 w-full max-w-[100vw] overflow-hidden">
+      <div className="container mx-auto flex justify-between items-center max-w-screen-sm">
+        {/* Logo Section */}
+        <div className="flex items-center space-x-2">
           <img src={tarotLogo} className="h-10" alt="logo" />
-          <Link to="/home" className="text-3xl font-bold font-serif ml-2 text-white">Tarot Mamoo</Link>
+          <Link to="/home" className="text-xl font-bold font-serif tracking-wide">
+            Tarot Mamoo
+          </Link>
         </div>
 
-        {islogin ? (
-          <div className="flex items-center gap-4 mr-4">
-            <span className="text-lg font-semibold text-white">{name}</span>
-            <Link to="/user" className="text-lg font-semibold text-white">My Card</Link>
-          </div>
-        ) : (
-          <div className="flex items-center gap-4 mr-4">
-            <Link to="/" className="text-lg font-semibold text-white">Login</Link>
-          </div>
-        )}
-
-        <div className="relative">
-          <button
-            onClick={() => setMainDropdownOpen(prev => !prev)}
-            type="button"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center gap-2"
-          >
-            Menu
-            <svg className="w-2.5 h-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1l4 4 4-4" />
-            </svg>
-          </button>
-
-          {isMainDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-44 z-50 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
-              <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
-                <li>
-                  <Link to="/user" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                    PROFILE
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/allcards" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                    ALL CARDS
-                  </Link>
-                </li>
-                <li>
-                  <button onClick={handSignout} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                    SIGN OUT
-                  </button>
-                </li>
-              </ul>
-            </div>
+        {/* Desktop Menu */}
+        <div className="hidden sm:flex items-center space-x-4">
+          {islogin ? (
+            <>
+              <div className="flex items-center space-x-2">
+                <img src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
+                <span className="text-base font-medium tracking-wide border-2 border-yellow-200 rounded-md px-2 py-1">{name}</span>
+              </div>
+              <Link to="/user" className="text-base font-medium hover:text-yellow-200 transition-colors border-2 border-yellow-200 rounded-md px-2 py-1">
+                My Card
+              </Link>
+              <Link to="/allcards" className="text-base font-medium hover:text-yellow-200 transition-colors border-2 border-yellow-200 rounded-md px-2 py-1">
+                All Cards
+              </Link>
+              <button
+                onClick={handSignout}
+                className="text-base font-medium hover:text-yellow-200 transition-colors border-2 border-yellow-200 rounded-md px-2 py-1"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link to="/" className="text-base font-medium hover:text-yellow-200 transition-colors">
+              Login
+            </Link>
           )}
         </div>
-      </nav>
-    </div>
+
+        {/* Mobile Menu Button */}
+        <div className="sm:hidden">
+          <button
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            className="text-white focus:outline-none"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="sm:hidden bg-purple-900 py-3">
+          <div className="container mx-auto flex flex-col space-y-3 max-w-screen-sm">
+            {islogin ? (
+              <>
+                <div className="flex items-center space-x-2 px-3">
+                  <img src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
+                  <span className="text-base font-medium">{name}</span>
+                </div>
+                <Link
+                  to="/user"
+                  className="text-base font-medium px-3 hover:text-yellow-200 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  My Card
+                </Link>
+                <Link
+                  to="/allcards"
+                  className="text-base font-medium px-3 hover:text-yellow-200 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  All Cards
+                </Link>
+                <button
+                  onClick={() => {
+                    handSignout()
+                    setMobileMenuOpen(false)
+                  }}
+                  className="text-base font-medium px-3 text-left hover:text-yellow-200 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/"
+                className="text-base font-medium px-3 hover:text-yellow-200 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced Starry Background Effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-1 left-[10%] animate-twinkle"></div>
+        <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full top-2 right-[15%] animate-twinkle delay-150"></div>
+        <div className="absolute w-1 h-1 bg-white rounded-full bottom-1 left-[25%] animate-twinkle delay-300"></div>
+        <div className="absolute w-1.2 h-1.2 bg-yellow-200 rounded-full top-3 right-[30%] animate-twinkle delay-450"></div>
+        <div className="absolute w-1 h-1 bg-white rounded-full bottom-2 left-[40%] animate-twinkle delay-600"></div>
+        <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full top-4 left-[60%] animate-twinkle delay-750"></div>
+        <div className="absolute w-1 h-1 bg-yellow-200 rounded-full bottom-1 right-[20%] animate-twinkle delay-900"></div>
+        <div className="absolute w-1.2 h-1.2 bg-white rounded-full top-2 left-[80%] animate-twinkle delay-1050"></div>
+      </div>
+    </nav>
   )
 }
 

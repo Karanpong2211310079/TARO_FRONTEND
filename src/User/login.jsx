@@ -112,7 +112,7 @@ const Login = () => {
               className="h-24 sm:h-20 xs:h-16 w-auto object-contain"
             />
           </div>
-          <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-[#D497FF]">
+          <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-purple-900">
             เข้าสู่ระบบเพื่อรับคำทำนาย
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -152,13 +152,13 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-white bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${
+              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${
                 isLoading ? 'opacity-70 cursor-not-allowed' : ''
               }`}
             >
               {isLoading ? (
                 <svg
-                  className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-white"
+                  className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-purple-900"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
