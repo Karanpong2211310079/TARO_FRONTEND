@@ -78,7 +78,7 @@ const User = () => {
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-lg shadow-lg p-4 text-center transition-transform duration-300 transform hover:scale-105"
+                  className="bg-white rounded-lg shadow-lg p-3 sm:p-4 text-center transition-transform duration-300 transform hover:scale-105"
                 >
                   <div className="relative w-full" style={{ paddingTop: '150%' }}>
                     <img
@@ -88,8 +88,8 @@ const User = () => {
                       loading="lazy"
                     />
                   </div>
-                  <p className="font-bold text-base sm:text-lg mt-3">{cardInfo.name}</p>
-                  <p className="text-gray-700 text-sm sm:text-base mt-2 leading-relaxed">{cardInfo.description}</p>
+                  <p className="font-bold text-base sm:text-lg mt-2">{cardInfo.name}</p>
+                  <p className="text-gray-700 text-sm sm:text-base mt-1 leading-relaxed">{cardInfo.description}</p>
                 </div>
               );
             })
@@ -108,11 +108,14 @@ const User = () => {
             max-width: 100%;
           }
           img {
-            max-height: 300px; /* ปรับขนาดรูปสำหรับมือถือ */
+            max-height: 300px;
           }
           .text-sm {
-            font-size: 0.875rem; /* ปรับขนาดฟอนต์คำอธิบาย */
+            font-size: 0.875rem;
             line-height: 1.5rem;
+          }
+          .p-3 {
+            padding: 0.75rem;
           }
         }
         @media (min-width: 641px) and (max-width: 768px) {

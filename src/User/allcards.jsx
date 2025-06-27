@@ -89,15 +89,13 @@ const AllCards = () => {
               onClick={() => handleCardClick(card)}
             >
               <div className="relative w-full" style={{ paddingTop: "150%" }}>
-                {" "}
-                {/* Aspect ratio 2:3 for tarot cards */}
                 <img
                   src={card.image_url}
                   alt={card.name}
                   className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
                 />
               </div>
-              <p className="font-bold text-lg sm:text-xl p-3">{card.name}</p>
+              <p className="font-bold text-lg sm:text-xl p-0 sm:p-1">{card.name}</p>
             </div>
           ))
         ) : (
@@ -115,7 +113,13 @@ const AllCards = () => {
             max-width: 100%;
           }
           img {
-            max-height: 350px; /* Adjust based on your card image size */
+            max-height: 350px;
+          }
+          .p-0 {
+            padding: 0;
+          }
+          .font-bold {
+            margin-top: -0.5rem; /* ดึงชื่อขึ้นมาใกล้รูป */
           }
         }
         @media (min-width: 641px) and (max-width: 768px) {
