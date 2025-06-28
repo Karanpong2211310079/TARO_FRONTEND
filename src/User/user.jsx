@@ -6,6 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const User = () => {
   const [cards, setCards] = useState([]);
+  const [username, setUsername] = useState(''); // ใช้ username ให้สอดคล้อง
 
   const BringUserCard = async () => {
     const user = localStorage.getItem('user');
@@ -22,6 +23,8 @@ const User = () => {
     try {
       const userData = JSON.parse(user);
       const userId = userData.user.user_id;
+      // ใช้ username หรือ name ตามข้อมูลที่มี
+      setUsername(userData.user.username || userData.user.name || 'Guest');
 
       const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
 
@@ -38,6 +41,7 @@ const User = () => {
         });
       }
     } catch (error) {
+      console.error('Error fetching data:', error);
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
         text: 'ไม่สามารถโหลดข้อมูลได้',
@@ -59,10 +63,10 @@ const User = () => {
           <div className="flex flex-col items-center py-4">
             <img
               className="w-20 h-20 sm:w-24 sm:h-24 mb-3 rounded-full shadow-lg"
-              src="https://i.pravatar.cc/100"
+              src="https://i.postimg.cc/3N5vPMDq/moodcura.webp"
               alt="User Avatar"
             />
-            <h5 className="mb-1 text-lg sm:text-xl font-medium text-gray-900">Bonnie Green</h5>
+            <h5 className="mb-1 text-lg sm:text-xl font-medium text-gray-900">{username}</h5>
             <span className="text-xs sm:text-sm text-gray-500">Visual Designer</span>
           </div>
         </div>
@@ -70,7 +74,10 @@ const User = () => {
 
       {/* Card Section */}
       <div>
-        <p className="text-lg sm:text-xl font-semibold mb-4 text-center sm:text-left">การ์ดของฉัน</p>
+        <p className="text-lg sm:text-xl font-semibold mb-2 text-center sm:text-left">การ์ดของฉัน</p>
+        <p className="text-sm sm:text-base text-center sm:text-left mb-4 text-gray-700">
+          {cards.length > 0 ? `คุณมี ${cards.length} ใบ` : 'ยังไม่มีการ์ดในครอบครอง'}
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 border border-gray-500 rounded-md p-4 sm:p-5">
           {cards.length > 0 ? (
             cards.map((card, index) => {
@@ -88,7 +95,7 @@ const User = () => {
                       loading="lazy"
                     />
                   </div>
-                  <p className="font-bold text-base sm:text-lg mt-2">{cardInfo.name}</p>
+                  <p className="font-bold text-base sm:text-lg mt-1 sm:mt-2">{cardInfo.name}</p>
                   <p className="text-gray-700 text-sm sm:text-base mt-1 leading-relaxed">{cardInfo.description}</p>
                 </div>
               );
@@ -99,6 +106,7 @@ const User = () => {
         </div>
       </div>
 
+      {/* Responsive Styles */}
       <style jsx>{`
         @media (max-width: 640px) {
           .grid {

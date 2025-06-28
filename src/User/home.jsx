@@ -38,8 +38,8 @@ const Home = () => {
           if (response.data.success) {
             setPoint(response.data.user.token);
             Swal.fire({
-              title: 'พลังปลดล็อก!',
-              text: 'โค้ดสำเร็จ! คุณพร้อมทำนายโชคชะตาแล้ว!',
+              title: 'โปรดตั้งจิตให้มั่น!',
+              text: 'ตั้งคำถามที่อยากให้ไพ่ทำนายก่อนกด OK!',
               icon: 'success',
               customClass: {
                 popup: 'w-11/12 max-w-md rounded-xl',

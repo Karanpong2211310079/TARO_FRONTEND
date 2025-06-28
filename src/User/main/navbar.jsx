@@ -46,36 +46,8 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Desktop Menu */}
-        <div className="hidden sm:flex items-center space-x-4">
-          {islogin ? (
-            <>
-              <div className="flex items-center space-x-2">
-                <img src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
-                <span className="text-base font-medium tracking-wide border-2 border-yellow-200 rounded-md px-2 py-1">{name}</span>
-              </div>
-              <Link to="/user" className="text-base font-medium hover:text-yellow-200 transition-colors border-2 border-yellow-200 rounded-md px-2 py-1">
-                My Card
-              </Link>
-              <Link to="/allcards" className="text-base font-medium hover:text-yellow-200 transition-colors border-2 border-yellow-200 rounded-md px-2 py-1">
-                All Cards
-              </Link>
-              <button
-                onClick={handSignout}
-                className="text-base font-medium hover:text-yellow-200 transition-colors border-2 border-yellow-200 rounded-md px-2 py-1"
-              >
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <Link to="/" className="text-base font-medium hover:text-yellow-200 transition-colors">
-              Login
-            </Link>
-          )}
-        </div>
-
         {/* Mobile Menu Button */}
-        <div className="sm:hidden">
+        <div>
           <button
             onClick={() => setMobileMenuOpen(prev => !prev)}
             className="text-white focus:outline-none"
@@ -89,7 +61,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden bg-purple-900 py-3">
+        <div className="bg-purple-900 py-3">
           <div className="container mx-auto flex flex-col space-y-3 max-w-screen-sm">
             {islogin ? (
               <>

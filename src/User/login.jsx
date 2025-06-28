@@ -145,16 +145,23 @@ const Login = () => {
                 className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
               />
               <p className="mt-1 text-xs text-red-500">
-                **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป
+                **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />**หากลืมรหัสผ่าน ติดต่อเเอดมินที่ IG:
+                <a
+                  href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-blue-600"
+                >
+                  @_moodma_
+                </a>
               </p>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${
-                isLoading ? 'opacity-70 cursor-not-allowed' : ''
-              }`}
+              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
             >
               {isLoading ? (
                 <svg
@@ -178,7 +185,7 @@ const Login = () => {
                   />
                 </svg>
               ) : null}
-              {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+              {isLoading ? 'กำลังเข้าสู่ระบบจ๊ะ...' : 'เข้าสู่ระบบ'}
             </button>
           </form>
         </div>
