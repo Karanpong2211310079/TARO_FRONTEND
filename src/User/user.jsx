@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -9,6 +9,9 @@ const User = () => {
   const [cards, setCards] = useState([]);
   const [username, setUsername] = useState('Guest');
   const [isLoading, setIsLoading] = useState(false);
+  const [visibleCards, setVisibleCards] = useState(10);
+
+  const loadMore = () => setVisibleCards((prev) => prev + 10);
 
   const BringUserCard = async () => {
     setIsLoading(true);
@@ -54,41 +57,51 @@ const User = () => {
 
       const userId = userData.user?.user_id;
       console.log('User data:', userData);
-      setUsername(userData.user?.username || userData.user?.name || 'Guest');
 
-      const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
-      console.log('API response:', res.data);
+      let attempts = 3;
+      while (attempts > 0) {
+        try {
+          const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
+          console.log('API response:', res.data);
 
-      if (res.data?.data && Array.isArray(res.data.data)) {
-        setCards(res.data.data);
-      } else {
-        setCards([]);
-        Swal.fire({
-          title: 'ไม่มีข้อมูล',
-          text: 'ไม่พบข้อมูลการ์ดของผู้ใช้',
-          icon: 'info',
-          confirmButtonText: 'ตกลง',
-          customClass: {
-            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
-            title: 'text-xl sm:text-2xl font-bold text-gray-800',
-            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
-          },
-        });
+          if (res.data?.data && Array.isArray(res.data.data)) {
+            setCards(res.data.data);
+          } else {
+            setCards([]);
+            Swal.fire({
+              title: 'ไม่มีข้อมูล',
+              text: 'ไม่พบข้อมูลการ์ดของผู้ใช้',
+              icon: 'info',
+              confirmButtonText: 'ตกลง',
+              customClass: {
+                popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
+                title: 'text-xl sm:text-2xl font-bold text-gray-800',
+                confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
+              },
+            });
+          }
+          break;
+        } catch (error) {
+          attempts -= 1;
+          if (attempts === 0) {
+            console.error('Error fetching data:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'ไม่สามารถโหลดข้อมูลได้';
+            Swal.fire({
+              title: 'เกิดข้อผิดพลาด',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'ลองใหม่',
+              customClass: {
+                popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
+                title: 'text-xl sm:text-2xl font-bold text-gray-800',
+                confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
+              },
+            });
+          }
+        }
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'ไม่สามารถโหลดข้อมูลได้';
-      Swal.fire({
-        title: 'เกิดข้อผิดพลาด',
-        text: errorMessage,
-        icon: 'error',
-        confirmButtonText: 'ลองใหม่',
-        customClass: {
-          popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
-          title: 'text-xl sm:text-2xl font-bold text-gray-800',
-          confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
-        },
-      });
+      console.error('Unexpected error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -98,16 +111,18 @@ const User = () => {
     BringUserCard();
   }, []);
 
-  const groupedCards = cards.reduce((acc, card) => {
-    const cardInfo = card.cards || card;
-    const key = cardInfo.id || cardInfo.name;
-    if (!key) return acc;
-    if (!acc[key]) {
-      acc[key] = { ...cardInfo, count: 0 };
-    }
-    acc[key].count += 1;
-    return acc;
-  }, {});
+  const groupedCards = useMemo(() => {
+    return cards.reduce((acc, card) => {
+      const cardInfo = card.cards || card;
+      const key = cardInfo.id || cardInfo.name;
+      if (!key) return acc;
+      if (!acc[key]) {
+        acc[key] = { ...cardInfo, count: 0 };
+      }
+      acc[key].count += 1;
+      return acc;
+    }, {});
+  }, [cards]);
 
   const uniqueCards = Object.values(groupedCards).sort((a, b) => a.card_id - b.card_id);
 
@@ -136,25 +151,41 @@ const User = () => {
           {isLoading ? (
             <p className="text-gray-500 col-span-full text-center text-sm sm:text-base">กำลังโหลด...</p>
           ) : uniqueCards.length > 0 ? (
-            uniqueCards.map((cardInfo) => (
-              <div
-                key={cardInfo.id || cardInfo.name}
-                className="bg-white rounded-lg shadow-lg p-3 sm:p-4 text-center transition-transform duration-300 transform hover:scale-105"
-              >
-                <div className="relative w-full aspect-[2/3]">
-                  <img
-                    src={cardInfo.image_url || 'https://via.placeholder.com/300x450?text=Image+Not+Found'}
-                    alt={cardInfo.name}
-                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
-                    loading="eager"
-                    onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
-                  />
+            <>
+              {uniqueCards.slice(0, visibleCards).map((cardInfo) => (
+                <div
+                  key={cardInfo.id || cardInfo.name}
+                  className="bg-white rounded-lg shadow-lg p-3 sm:p-4 text-center transition-transform duration-300 transform hover:scale-105"
+                >
+                  <div className="relative w-full aspect-[2/3]">
+                    <picture>
+                      <source
+                        srcSet={`${cardInfo.image_url}?w=300&h=450`}
+                        media="(max-width: 640px)"
+                      />
+                      <img
+                        src={cardInfo.image_url || 'https://via.placeholder.com/300x450?text=Image+Not+Found'}
+                        alt={cardInfo.name}
+                        className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
+                        loading="eager"
+                        onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
+                      />
+                    </picture>
+                  </div>
+                  <p className="font-bold text-base sm:text-lg p-0 sm:p-1">{cardInfo.name}</p>
+                  <p className="text-gray-700 text-sm sm:text-base mt-1 sm:mt-2 leading-relaxed">{cardInfo.description}</p>
+                  <p className="text-gray-500 text-xs sm:text-sm mt-1">ครอบครอง: {cardInfo.count} ใบ</p>
                 </div>
-                <p className="font-bold text-base sm:text-lg p-0 sm:p-1">{cardInfo.name}</p>
-                <p className="text-gray-700 text-sm sm:text-base mt-1 sm:mt-2 leading-relaxed">{cardInfo.description}</p>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">ครอบครอง: {cardInfo.count} ใบ</p>
-              </div>
-            ))
+              ))}
+              {visibleCards < uniqueCards.length && (
+                <button
+                  onClick={loadMore}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded mx-auto block"
+                >
+                  โหลดเพิ่ม
+                </button>
+              )}
+            </>
           ) : (
             <p className="text-gray-500 col-span-full text-center text-sm sm:text-base">ยังไม่มีการ์ดในครอบครอง</p>
           )}
