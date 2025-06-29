@@ -44,7 +44,9 @@ const AllCards = () => {
 
       if (res.data && res.data.data) {
         const cardsArray = Object.values(res.data.data);
-        setCards(cardsArray);
+        // เรียงลำดับตาม card_id
+        const sortedCards = cardsArray.sort((a, b) => a.card_id - b.card_id);
+        setCards(sortedCards);
       } else {
         throw new Error("Data format is incorrect");
       }
