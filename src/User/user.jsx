@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const User = () => {
+  const navigate = useNavigate();
   const [cards, setCards] = useState([]);
-  const [username] = useState('username' in JSON.parse(localStorage.getItem('user')) ? JSON.parse(localStorage.getItem('user')).username : 'ผู้ใช้');
+  const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [visibleCards, setVisibleCards] = useState(10);
 
@@ -18,8 +20,8 @@ const User = () => {
       text: description || 'ไม่มีคำทำนายสำหรับการ์ดนี้',
       imageUrl: imageUrl || 'https://via.placeholder.com/150?text=Image+Not+Found',
       imageWidth: 150,
-      imageHeight: 225,
-      confirmButtonText: 'ปิด',
+      imageHeight: 250,
+      confirmButtonText: '❌',
       customClass: {
         popup: 'bg-white shadow-lg rounded-lg max-w-[90vw] p-6',
         title: 'text-xl font-bold text-gray-800',
@@ -44,11 +46,14 @@ const User = () => {
             title: 'text-xl font-bold',
             confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
           },
+        }).then(() => {
+          navigate('/login');
         });
         return;
       }
 
       const userData = JSON.parse(user);
+      console.log('User data from localStorage:', userData); // Debug: ตรวจสอบโครงสร้างข้อมูล
       if (!userData?.user?.user_id) {
         localStorage.removeItem('user');
         Swal.fire({
@@ -61,9 +66,14 @@ const User = () => {
             title: 'text-xl font-bold',
             confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
           },
+        }).then(() => {
+          navigate('/login');
         });
         return;
       }
+
+      // Set username from userData, try 'username' or 'name' as fallback
+      setUsername(userData.user.username || userData.user.name || 'ผู้ใช้ไม่ระบุชื่อ');
 
       const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userData.user.user_id }, { timeout: 10000 });
       if (res.data?.data && Array.isArray(res.data.data)) {
@@ -127,7 +137,7 @@ const User = () => {
               alt="User Avatar"
             />
             <h5 className="mb-1 text-lg font-medium text-gray-900">{username}</h5>
-            <span className="text-xs text-gray-500">คลังไพ่ของคุณมีกี่ใบเเล้วนะ</span>
+            <span className="text-xs text-gray-500">สวัสดีผมมูดๆเอง สะสมไพ่เยอะนะครับเด่วผมรางวัลให้moooo</span>
           </div>
         </div>
       </div>
@@ -228,7 +238,8 @@ const User = () => {
         @media (min-width: 641px) and (max-width: 1024px) {
           .grid {
             grid-template-columns: repeat(3, 1fr);
-            gap: 1.25rem;
+            gap:jsx
+$0 1.25rem;
           }
           img {
             max-height: 280px;
