@@ -26,11 +26,14 @@ const User = () => {
       let userData;
       try {
         userData = JSON.parse(user);
+        if (!userData?.user?.user_id) {
+          throw new Error('Invalid user data');
+        }
       } catch (error) {
         console.error('Error parsing user data:', error);
         Swal.fire({
           title: 'ข้อผิดพลาด',
-          text: 'ข้อมูลผู้ใช้ในระบบไม่ถูกต้อง',
+          text: 'ข้อมูลผู้ใช้ไม่ถูกต้อง',
           icon: 'error',
           confirmButtonText: 'ตกลง',
         });
@@ -38,16 +41,6 @@ const User = () => {
       }
 
       const userId = userData.user?.user_id;
-      if (!userId) {
-        Swal.fire({
-          title: 'ข้อผิดพลาด',
-          text: 'ไม่พบรหัสผู้ใช้',
-          icon: 'error',
-          confirmButtonText: 'ตกลง',
-        });
-        return;
-      }
-
       setUsername(userData.user?.username || userData.user?.name || 'Guest');
 
       const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
@@ -65,9 +58,10 @@ const User = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'ไม่สามารถโหลดข้อมูลได้';
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
-        text: error.response?.data?.message || 'ไม่สามารถโหลดข้อมูลได้',
+        text: errorMessage,
         icon: 'error',
         confirmButtonText: 'ลองใหม่',
       });
@@ -80,7 +74,6 @@ const User = () => {
     BringUserCard();
   }, []);
 
-  // จัดกลุ่มไพ่ตาม id หรือ name
   const groupedCards = cards.reduce((acc, card) => {
     const cardInfo = card.cards || card;
     const key = cardInfo.id || cardInfo.name;
@@ -91,7 +84,6 @@ const User = () => {
     return acc;
   }, {});
 
-  // แปลง groupedCards เป็น array และเรียงตาม card_id
   const uniqueCards = Object.values(groupedCards).sort((a, b) => a.card_id - b.card_id);
 
   return (
@@ -126,12 +118,12 @@ const User = () => {
                 key={cardInfo.id || cardInfo.name}
                 className="bg-white rounded-lg shadow-lg p-3 sm:p-4 text-center transition-transform duration-300 transform hover:scale-105"
               >
-                <div className="relative w-full" style={{ paddingTop: '150%' }}>
+                <div className="relative w-full aspect-[2/3]">
                   <img
                     src={cardInfo.image_url}
                     alt={cardInfo.name}
                     className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
-                    loading="lazy"
+                    loading="eager"
                   />
                 </div>
                 <p className="font-bold text-base sm:text-lg mt-1 sm:mt-2">{cardInfo.name}</p>
@@ -145,27 +137,34 @@ const User = () => {
         </div>
       </div>
 
-      {/* Responsive Styles */}
       <style jsx>{`
-        @media (max-width: 640px) {
+        .aspect-[2/3] {
+          aspect-ratio: 2/3;
+        }
+        @media (max-width: 400px) {
+          .grid {
+            gap: 0.5rem;
+          }
+          img {
+            max-height: 200px;
+          }
+          .text-sm {
+            font-size: 0.75rem;
+            line-height: 1.25rem;
+          }
+          .p-3 {
+            padding: 0.5rem;
+          }
+          .mt-1 {
+            margin-top: 0.25rem;
+          }
+        }
+        @media (min-width: 401px) and (max-width: 640px) {
           .grid {
             gap: 1rem;
           }
-          .rounded-lg {
-            max-width: 100%;
-          }
           img {
             max-height: 300px;
-          }
-          .text-sm {
-            font-size: 0.875rem;
-            line-height: 1.5rem;
-          }
-          .p-3 {
-            padding: 0.75rem;
-          }
-          .mt-1 {
-            margin-top: 0.25rem; /* ลดช่องว่างนิดหน่อยบนมือถือ */
           }
         }
         @media (min-width: 641px) and (max-width: 768px) {
