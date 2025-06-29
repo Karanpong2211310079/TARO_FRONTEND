@@ -1,42 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log("🌐 API_BASE_URL:", API_BASE_URL);
 
 const AllCards = () => {
   const [cards, setCards] = useState([]);
-
-  const handleCardClick = async (card) => {
-    try {
-      const res = await axios.post(`${API_BASE_URL}taro-detail`, {
-        card_id: card.card_id,
-      });
-
-      const cardDetail = res.data.data;
-
-      Swal.fire({
-        title: cardDetail.name,
-        imageUrl: cardDetail.image_url,
-        imageWidth: 300, // Reduced for mobile-friendliness
-        imageHeight: 450, // Maintain aspect ratio for tarot cards
-        imageAlt: cardDetail.name,
-        confirmButtonText: "Close",
-        confirmButtonColor: "#3085d6",
-        background: "#f9f9f9",
-        customClass: {
-          popup: "bg-white shadow-lg rounded-lg max-w-[90vw]", // Responsive popup width
-          title: "text-xl sm:text-2xl font-bold text-gray-800",
-          confirmButton:
-            "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500 px-4 py-2",
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching card detail:", error);
-      Swal.fire("Error", "ไม่สามารถโหลดรายละเอียดไพ่ได้", "error");
-    }
-  };
+  const [activeCard, setActiveCard] = useState(null); // Track active card
 
   const showCard = async () => {
     try {
@@ -52,8 +22,16 @@ const AllCards = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      Swal.fire("Error", "ไม่สามารถโหลดข้อมูลไพ่ได้", "error");
+      alert("ไม่สามารถโหลดข้อมูลไพ่ได้");
     }
+  };
+
+  const handleCardInteraction = (index) => {
+    setActiveCard(index); // Set active card on click/tap
+    // Reset scale after 5 seconds
+    setTimeout(() => {
+      setActiveCard(null);
+    }, 5000);
   };
 
   useEffect(() => {
@@ -82,31 +60,38 @@ const AllCards = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-3 gap-4">
         {cards.length > 0 ? (
           cards.map((card, index) => (
             <div
               key={index}
-              className="rounded-lg text-black text-center transition-transform duration-300 transform hover:scale-105 shadow-lg cursor-pointer bg-white"
-              onClick={() => handleCardClick(card)}
+              className={`rounded-lg text-black text-center transition-transform duration-300 ease-in-out transform ${activeCard === index ? "scale-110" : "scale-100"
+                } hover:scale-110 bg-white shadow-lg cursor-pointer`}
+              onClick={() => handleCardInteraction(index)}
             >
               <div className="relative w-full" style={{ paddingTop: "150%" }}>
                 <img
                   src={card.image_url}
                   alt={card.name}
-                  className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
+                  className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg transition-transform duration-300 ease-in-out"
                 />
               </div>
-              <p className="font-bold text-lg sm:text-xl p-0 sm:p-1">{card.name}</p>
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-600">กำลังโหลดอยู่จ๊ะ...</p>
+          <p className="text-center text-gray-600 col-span-3">กำลังโหลดอยู่จ๊ะ...</p>
         )}
       </div>
 
       {/* Custom CSS for precise control */}
       <style jsx>{`
+        .rounded-lg {
+          transition: transform 0.3s ease-in-out;
+        }
+        .rounded-lg:hover {
+          transform: scale(1.5);
+          z-index: 10; /* Ensure the card is above others when scaled */
+        }
         @media (max-width: 640px) {
           .grid {
             gap: 1rem;
@@ -115,18 +100,12 @@ const AllCards = () => {
             max-width: 100%;
           }
           img {
-            max-height: 350px;
-          }
-          .p-0 {
-            padding: 0;
-          }
-          .font-bold {
-            margin-top: -0.5rem; /* ดึงชื่อขึ้นมาใกล้รูป */
+            max-height: 250px; /* Adjusted for 3 columns on mobile */
           }
         }
-        @media (min-width: 641px) and (max-width: 768px) {
+        @media (min-width: 641px) {
           img {
-            max-height: 400px;
+            max-height: 350px; /* Adjusted for 3 columns on larger screens */
           }
         }
       `}</style>
