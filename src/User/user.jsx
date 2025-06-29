@@ -3,6 +3,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+console.log('🌐 API_BASE_URL:', API_BASE_URL);
 
 const User = () => {
   const [cards, setCards] = useState([]);
@@ -19,6 +20,11 @@ const User = () => {
           text: 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
           icon: 'warning',
           confirmButtonText: 'ตกลง',
+          customClass: {
+            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
+            title: 'text-xl sm:text-2xl font-bold text-gray-800',
+            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
+          },
         });
         return;
       }
@@ -31,19 +37,27 @@ const User = () => {
         }
       } catch (error) {
         console.error('Error parsing user data:', error);
+        localStorage.removeItem('user');
         Swal.fire({
           title: 'ข้อผิดพลาด',
-          text: 'ข้อมูลผู้ใช้ไม่ถูกต้อง',
+          text: 'ข้อมูลผู้ใช้ไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่',
           icon: 'error',
           confirmButtonText: 'ตกลง',
+          customClass: {
+            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
+            title: 'text-xl sm:text-2xl font-bold text-gray-800',
+            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
+          },
         });
         return;
       }
 
       const userId = userData.user?.user_id;
+      console.log('User data:', userData);
       setUsername(userData.user?.username || userData.user?.name || 'Guest');
 
       const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
+      console.log('API response:', res.data);
 
       if (res.data?.data && Array.isArray(res.data.data)) {
         setCards(res.data.data);
@@ -54,6 +68,11 @@ const User = () => {
           text: 'ไม่พบข้อมูลการ์ดของผู้ใช้',
           icon: 'info',
           confirmButtonText: 'ตกลง',
+          customClass: {
+            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
+            title: 'text-xl sm:text-2xl font-bold text-gray-800',
+            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
+          },
         });
       }
     } catch (error) {
@@ -64,6 +83,11 @@ const User = () => {
         text: errorMessage,
         icon: 'error',
         confirmButtonText: 'ลองใหม่',
+        customClass: {
+          popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
+          title: 'text-xl sm:text-2xl font-bold text-gray-800',
+          confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
+        },
       });
     } finally {
       setIsLoading(false);
@@ -77,6 +101,7 @@ const User = () => {
   const groupedCards = cards.reduce((acc, card) => {
     const cardInfo = card.cards || card;
     const key = cardInfo.id || cardInfo.name;
+    if (!key) return acc;
     if (!acc[key]) {
       acc[key] = { ...cardInfo, count: 0 };
     }
@@ -88,7 +113,6 @@ const User = () => {
 
   return (
     <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
-      {/* Profile Card */}
       <div className="mb-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
           <div className="flex flex-col items-center py-4">
@@ -103,7 +127,6 @@ const User = () => {
         </div>
       </div>
 
-      {/* Card Section */}
       <div>
         <p className="text-lg sm:text-xl font-semibold mb-2 text-center sm:text-left">ไพ่ของฉัน</p>
         <p className="text-sm sm:text-base text-center sm:text-left mb-4 text-gray-700">
@@ -120,13 +143,14 @@ const User = () => {
               >
                 <div className="relative w-full aspect-[2/3]">
                   <img
-                    src={cardInfo.image_url}
+                    src={cardInfo.image_url || 'https://via.placeholder.com/300x450?text=Image+Not+Found'}
                     alt={cardInfo.name}
                     className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
                     loading="eager"
+                    onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
                   />
                 </div>
-                <p className="font-bold text-base sm:text-lg mt-1 sm:mt-2">{cardInfo.name}</p>
+                <p className="font-bold text-base sm:text-lg p-0 sm:p-1">{cardInfo.name}</p>
                 <p className="text-gray-700 text-sm sm:text-base mt-1 sm:mt-2 leading-relaxed">{cardInfo.description}</p>
                 <p className="text-gray-500 text-xs sm:text-sm mt-1">ครอบครอง: {cardInfo.count} ใบ</p>
               </div>
@@ -141,25 +165,25 @@ const User = () => {
         .aspect-[2/3] {
           aspect-ratio: 2/3;
         }
-        @media (max-width: 400px) {
+        @media (max-width: 360px) {
           .grid {
             gap: 0.5rem;
           }
           img {
-            max-height: 200px;
+            max-height: 180px;
           }
           .text-sm {
-            font-size: 0.75rem;
-            line-height: 1.25rem;
+            font-size: 0.7rem;
+            line-height: 1.2rem;
           }
           .p-3 {
             padding: 0.5rem;
           }
-          .mt-1 {
-            margin-top: 0.25rem;
+          .font-bold {
+            margin-top: -0.5rem;
           }
         }
-        @media (min-width: 401px) and (max-width: 640px) {
+        @media (min-width: 361px) and (max-width: 640px) {
           .grid {
             gap: 1rem;
           }
