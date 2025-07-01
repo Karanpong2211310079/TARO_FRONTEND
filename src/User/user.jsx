@@ -126,6 +126,35 @@ const User = () => {
 
   const uniqueCards = Object.values(groupedCards).sort((a, b) => a.card_id - b.card_id);
 
+  if (isLoading) {
+    return (
+      <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
+        <div className="mb-6">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+            <div className="flex flex-col items-center py-4 animate-pulse">
+              <div className="w-20 h-20 mb-3 rounded-full bg-gray-300"></div>
+              <div className="h-5 w-32 bg-gray-300 rounded mb-1"></div>
+              <div className="h-4 w-48 bg-gray-300 rounded"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="text-lg font-semibold mb-2 text-center">ไพ่ของฉัน</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border border-gray-500 rounded-md p-4">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-lg p-4 animate-pulse">
+                <div className="relative w-full aspect-[2/3] mb-3 bg-gray-300 rounded-t-lg"></div>
+                <div className="h-4 w-3/4 bg-gray-300 rounded mb-2 mx-auto"></div>
+                <div className="h-3 w-1/2 bg-gray-300 rounded mb-2 mx-auto"></div>
+                <div className="h-3 w-1/4 bg-gray-300 rounded mx-auto"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
       <div className="mb-6">
@@ -135,6 +164,7 @@ const User = () => {
               className="w-20 h-20 mb-3 rounded-full shadow-lg"
               src="https://i.postimg.cc/3N5vPMDq/moodcura.webp"
               alt="User Avatar"
+              loading="eager"
             />
             <h5 className="mb-1 text-lg font-medium text-gray-900">{username}</h5>
             <span className="text-xs text-gray-500">สวัสดีผมมูดๆเอง สะสมไพ่เยอะนะครับเด่วผมรางวัลให้moooo</span>
@@ -148,9 +178,7 @@ const User = () => {
           {uniqueCards.length > 0 ? `จำนวนครอบครอง ${uniqueCards.length} ไพ่` : 'ยังไม่มีการ์ดในครอบครอง..เลยหรอ???'}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border border-gray-500 rounded-md p-4">
-          {isLoading ? (
-            <p className="text-gray-500 col-span-full text-center text-sm">กำลังโหลดจ๊ะ...</p>
-          ) : uniqueCards.length > 0 ? (
+          {uniqueCards.length > 0 ? (
             <>
               {uniqueCards.slice(0, visibleCards).map((cardInfo) => (
                 <div
@@ -162,7 +190,7 @@ const User = () => {
                       src={cardInfo.image_url || 'https://via.placeholder.com/300x450?text=Image+Not+Found'}
                       alt={cardInfo.name}
                       className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
-                      loading="eager"
+                      loading="lazy" // เปลี่ยนเป็น lazy เพื่อลดการโหลดครั้งแรก
                       onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
                     />
                   </div>
@@ -238,8 +266,7 @@ const User = () => {
         @media (min-width: 641px) and (max-width: 1024px) {
           .grid {
             grid-template-columns: repeat(3, 1fr);
-            gap:jsx
-$0 1.25rem;
+            gap: 1.25rem;
           }
           img {
             max-height: 280px;
@@ -259,4 +286,4 @@ $0 1.25rem;
   );
 };
 
-export default User;
+export default User;      

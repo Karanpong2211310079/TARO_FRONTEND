@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import tarotLogo from '../../assets/tarot.png';
+import tarotLogo from '../../assets/cards.png';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 // authService.js
 const getUser = () => {
   const user = localStorage.getItem('user');
+  if (!user) return null; // ตรวจสอบก่อน parse เพื่อลดการประมวลผล
   try {
-    return user ? JSON.parse(user) : null;
+    return JSON.parse(user);
   } catch (error) {
     console.error('Error parsing user data:', error);
     return null;
@@ -32,18 +33,28 @@ const Navbar = () => {
       setMobileMenuOpen(false);
       navigate('/');
       await Swal.fire({
-        title: 'Sign Out Successful',
-        text: 'You have been logged out.',
+        title: 'Sign Out สำเร็จ',
+        text: 'คุณออกจากระบบเรียบร้อยแล้ว',
         icon: 'success',
-        confirmButtonText: 'OK',
+        confirmButtonText: 'ตกลง',
+        customClass: {
+          popup: 'w-[90%] max-w-md rounded-xl',
+          title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-green-600',
+          confirmButton: 'bg-green-600 hover:bg-green-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+        },
       });
     } catch (error) {
       console.error('Error during sign out:', error);
       await Swal.fire({
-        title: 'Error',
-        text: 'Something went wrong during sign out.',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'มีบางอย่างผิดพลาดขณะออกจากระบบ',
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: 'ตกลง',
+        customClass: {
+          popup: 'w-[90%] max-w-md rounded-xl',
+          title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-red-600',
+          confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+        },
       });
     }
   };
@@ -59,6 +70,9 @@ const Navbar = () => {
     }
   }, []);
 
+  // ตรวจสอบ prefers-reduced-motion เพื่อปิด animation ในอุปกรณ์ที่ต้องการลดการเคลื่อนไหว
+  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   return (
     <>
       <nav
@@ -68,7 +82,12 @@ const Navbar = () => {
         <div className="container mx-auto flex justify-between items-center max-w-screen-md">
           {/* Logo Section */}
           <div className="flex items-center space-x-2">
-            <img src={tarotLogo} className="h-10" alt="Tarot Mamoo logo" />
+            <img
+              src={tarotLogo}
+              className="h-10"
+              alt="Tarot Mamoo logo"
+              loading="lazy" // เพิ่ม lazy loading สำหรับโลโก้
+            />
             <Link to="/home" className="text-xl font-bold font-serif tracking-wide">
               Tarot Mamoo
             </Link>
@@ -102,6 +121,7 @@ const Navbar = () => {
                       src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
                       alt="Profile"
                       className="h-8 w-8 rounded-full object-cover"
+                      loading="lazy" // เพิ่ม lazy loading สำหรับรูปโปรไฟล์
                     />
                     <span className="text-base font-medium">{name}</span>
                   </div>
@@ -139,14 +159,16 @@ const Navbar = () => {
           </div>
         )}
 
-        {/* Enhanced Starry Background Effect */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-1 left-[10%] animate-twinkle"></div>
-          <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full top-2 right-[15%] animate-twinkle animation-delay-150"></div>
-          <div className="absolute w-1 h-1 bg-white rounded-full bottom-1 left-[25%] animate-twinkle animation-delay-300"></div>
-          <div className="absolute w-1.2 h-1.2 bg-yellow-200 rounded-full top-3 right-[30%] animate-twinkle animation-delay-450"></div>
-          <div className="absolute w-1 h-1 bg-white rounded-full bottom-2 left-[40%] animate-twinkle animation-delay-600"></div>
-        </div>
+        {/* Enhanced Starry Background Effect (ปิดในอุปกรณ์ที่ใช้ prefers-reduced-motion) */}
+        {!isReducedMotion && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-1 left-[10%] animate-twinkle"></div>
+            <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full top-2 right-[15%] animate-twinkle animation-delay-150"></div>
+            <div className="absolute w-1 h-1 bg-white rounded-full bottom-1 left-[25%] animate-twinkle animation-delay-300"></div>
+            <div className="absolute w-1.2 h-1.2 bg-yellow-200 rounded-full top-3 right-[30%] animate-twinkle animation-delay-450"></div>
+            <div className="absolute w-1 h-1 bg-white rounded-full bottom-2 left-[40%] animate-twinkle animation-delay-600"></div>
+          </div>
+        )}
       </nav>
       {/* Spacer to prevent content from being hidden under the fixed navbar */}
       <div className="h-[60px]"></div>

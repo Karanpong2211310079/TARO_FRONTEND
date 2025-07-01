@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-// ใช้ environment variable สำหรับ API URL
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
@@ -11,7 +10,7 @@ const Login = () => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // สถานะสำหรับแสดง/ซ่อนรหัสผ่าน
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,13 +28,32 @@ const Login = () => {
     }
 
     try {
-      const res = await axios.post(`${API_BASE_URL}login`, {
-        name,
-        phone: password,
-      });
+      // เรียก API สำหรับ login
+      const res = await axios.post(
+        `${API_BASE_URL}login`,
+        { name, phone: password },
+        { timeout: 5000 } // เพิ่ม timeout 5 วินาทีเพื่อป้องกัน API ช้า
+      );
 
       if (res.status === 200 || res.status === 201) {
-        // บันทึกข้อมูลผู้ใช้และเปลี่ยนหน้าโดยไม่มี popup
+        // Preload รูปภาพทั่วไปของหน้า Home (ปรับ URL ตามที่ใช้จริง)
+        const preloadImages = () => {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.href = 'https://i.postimg.cc/sX987Gwd/IMG-0870.webp'; // ตัวอย่าง URL รูปภาพที่ใช้ใน Home
+          link.as = 'image';
+          document.head.appendChild(link);
+        };
+        preloadImages();
+
+        // โหลดข้อมูลไพ่ทาโรต์ล่วงหน้าเพื่อลดการเรียก API ในหน้า Home
+        const cachedCards = localStorage.getItem('tarotCards');
+        if (!cachedCards) {
+          const cardsRes = await axios.get(`${API_BASE_URL}taro-card`, { timeout: 5000 });
+          localStorage.setItem('tarotCards', JSON.stringify(cardsRes.data.data));
+        }
+
+        // บันทึกข้อมูลผู้ใช้
         localStorage.setItem('user', JSON.stringify(res.data));
         if (res.data.user.role === 'admin') {
           navigate('/admin');
@@ -80,13 +98,11 @@ const Login = () => {
 
   return (
     <>
-      {/* Preload รูปพื้นหลังเพื่อให้โหลดเร็วขึ้น */}
       <link
         rel="preload"
         href="https://i.postimg.cc/XNgSymzG/IMG-0869.webp"
         as="image"
       />
-      {/* CSS รวมอยู่ในไฟล์เดียว */}
       <style>
         {`
           .login-background {
@@ -100,7 +116,7 @@ const Login = () => {
           }
           .password-toggle {
             position: absolute;
-            right: 15px; /* ขยับไปทางซ้ายจาก 10px เป็น 15px */
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
@@ -118,11 +134,11 @@ const Login = () => {
               src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
               alt="โลโก้"
               loading="lazy"
-              className="h-24 sm:h-20 xs:h-16 w-auto object-contain"
+              className="h-28 sm:h-24 xs:h-18 w-auto object-contain"
             />
           </div>
           <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-purple-900">
-            เข้าสู่ระบบเพื่อรับคำทำนาย
+            🔮Loginเพื่อรับคำทำนาย
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -139,7 +155,6 @@ const Login = () => {
                 className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
               />
             </div>
-
             <div>
               <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
                 รหัสผ่าน:
@@ -194,7 +209,8 @@ const Login = () => {
                 </svg>
               </div>
               <p className="mt-1 text-xs text-red-500">
-                **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />**หากลืมรหัสผ่าน ติดต่อแอดมินที่ IG:
+                **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
+                **หากลืมรหัสผ่าน ติดต่อแอดมินที่ IG:
                 <a
                   href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
                   target="_blank"
@@ -205,35 +221,38 @@ const Login = () => {
                 </a>
               </p>
             </div>
-
             <button
               type="submit"
               disabled={isLoading}
               className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               {isLoading ? (
-                <svg
-                  className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-purple-900"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  />
-                </svg>
-              ) : null}
-              {isLoading ? 'กำลังเข้าสู่ระบบจ๊ะ...' : 'เข้าสู่ระบบ'}
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-purple-900"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    />
+                  </svg>
+                  กำลังเชื่อมจิตนะจ๊ะ...
+                </>
+              ) : (
+                '✨เชื่อมจิต✨'
+              )}
             </button>
           </form>
         </div>

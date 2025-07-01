@@ -2,8 +2,37 @@ import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import backgroundImage from '../assets/background.jpg'; // Assuming you have a background image
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+// Variants สำหรับอนิเมชันสับไพ่
+const cardVariants = {
+    shuffle: {
+        x: [0, -50, 50, 0],
+        rotate: [0, 10, -10, 0],
+        transition: {
+            x: { repeat: Infinity, duration: 1.5, ease: 'easeInOut' },
+            rotate: { repeat: Infinity, duration: 1.5, ease: 'easeInOut' },
+        },
+    },
+    shuffle2: {
+        x: [0, 50, -50, 0],
+        rotate: [0, -10, 10, 0],
+        transition: {
+            x: { repeat: Infinity, duration: 1.7, ease: 'easeInOut' },
+            rotate: { repeat: Infinity, duration: 1.7, ease: 'easeInOut' },
+        },
+    },
+    shuffle3: {
+        scale: [1, 1.1, 1],
+        rotate: [0, 5, -5, 0],
+        transition: {
+            scale: { repeat: Infinity, duration: 1.6, ease: 'easeInOut' },
+            rotate: { repeat: Infinity, duration: 1.6, ease: 'easeInOut' },
+        },
+    },
+};
 
 const Home = () => {
     const [cardsOriginal, setCardsOriginal] = useState([]);
@@ -13,6 +42,14 @@ const Home = () => {
     const [token, setToken] = useState(null);
     const [isRevealing, setIsRevealing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Debug: ตรวจสอบว่า background image โหลดได้หรือไม่
+    useEffect(() => {
+        const img = new Image();
+        img.src = backgroundImage;
+        img.onload = () => console.log('Background image loaded successfully:', backgroundImage);
+        img.onerror = () => console.error('Failed to load background image:', backgroundImage);
+    }, []);
 
     const loadUserFromLocalStorage = () => {
         const user = localStorage.getItem('user');
@@ -28,16 +65,17 @@ const Home = () => {
         const cachedCards = localStorage.getItem('tarotCards');
         if (cachedCards) {
             setCardsOriginal(JSON.parse(cachedCards));
+            setIsLoading(false);
             return;
         }
         try {
-            const res = await axios.get(`${API_BASE_URL}taro-card`);
+            const res = await axios.get(`${API_BASE_URL}taro-card`, { timeout: 5000 });
             setCardsOriginal(res.data.data);
             localStorage.setItem('tarotCards', JSON.stringify(res.data.data));
         } catch (error) {
             Swal.fire({
                 title: 'เกิดข้อผิดพลาด!',
-                text: 'ไม่สามารถโหลดไพ่ทาโรต์ได้ ลองใหม่!',
+                text: 'ไม่สามารถโหลดไพ่ทาโรต์ได้ กรุณาลองใหม่',
                 icon: 'error',
                 confirmButtonText: 'ลองใหม่',
                 customClass: {
@@ -46,6 +84,8 @@ const Home = () => {
                     confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
                 },
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -84,7 +124,7 @@ const Home = () => {
         Swal.fire({
             title: 'เพิ่มพลังด้วยโค้ดลับ!',
             input: 'text',
-            inputLabel: 'กรอกโค้ดจากหน้าซอง',
+            inputLabel: 'ขูด!เเล้วกรอกโค้ดจากหน้าซองเลย',
             showCancelButton: true,
             confirmButtonText: '✨เพิ่มพลัง✨',
             cancelButtonText: 'พลังยังไม่มา',
@@ -100,7 +140,7 @@ const Home = () => {
                 const code = result.value?.trim();
                 if (!code) {
                     Swal.fire({
-                        title: '✋จิตเชื่อมไม่ผ่าน✋',
+                        title: '✋เชื่อมจิตไม่ผ่าน✋',
                         text: 'เอ๊ะ! โค้ดลับผิดนะ (อักษรพิมพ์ใหญ่นะจ๊ะ)',
                         icon: 'error',
                         customClass: {
@@ -129,7 +169,6 @@ const Home = () => {
                             },
                         });
                     } else {
-                        console.log('API response:', response.data); // Debug API response
                         if (response.data.message && (response.data.message.toLowerCase().includes('already used') || response.data.message.toLowerCase().includes('used'))) {
                             Swal.fire({
                                 title: '💀โค้ดลับถูกใช้แล้ว💀',
@@ -155,9 +194,8 @@ const Home = () => {
                         }
                     }
                 } catch (error) {
-                    console.error('Redeem code error:', error.response?.data || error.message); // Debug error
                     Swal.fire({
-                        title: '✋จิตเชื่อมไม่ผ่าน✋',
+                        title: '✋เชื่อมจิตไม่ผ่าน✋',
                         text: 'เอ๊ะ! โค้ดลับผิดนะ (อักษรพิมพ์ใหญ่นะจ๊ะ)',
                         icon: 'error',
                         customClass: {
@@ -171,9 +209,11 @@ const Home = () => {
         });
     };
 
-    const selectRandomCard = () => {
+    // ฟังก์ชันสำหรับสุ่มไพ่ 3 ใบสำหรับอนิเมชันสับไพ่
+    const selectRandomCardsForAnimation = () => {
         if (cardsOriginal.length > 0) {
-            return [cardsOriginal[Math.floor(Math.random() * cardsOriginal.length)]];
+            const shuffled = [...cardsOriginal].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 3); // เลือก 3 ใบแรก
         }
         return [];
     };
@@ -181,10 +221,10 @@ const Home = () => {
     const drawCard = async () => {
         if (point <= 0) {
             Swal.fire({
-                title: 'พลังทำนายหมด!',
+                title: '👀พลังทำนายหมด!',
                 text: 'เติมพลังด้วยโค้ดลับ!',
                 icon: 'warning',
-                confirmButtonText: 'ตกลง',
+                confirmButtonText: 'ปิด',
                 customClass: {
                     popup: 'w-[90%] max-w-md rounded-xl',
                     title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-yellow-600',
@@ -196,8 +236,10 @@ const Home = () => {
 
         setIsRevealing(true);
         setCards([]);
+        console.log('Starting card shuffle animation for 5 seconds'); // Debug
 
         setTimeout(async () => {
+            console.log('Card shuffle animation completed, drawing card'); // Debug
             const randomCards = selectRandomCard();
             setCards(randomCards);
             setIsRevealing(false);
@@ -209,18 +251,25 @@ const Home = () => {
             for (const card of randomCards) {
                 await updateUserCards(card.card_id);
             }
-        }, 3000);
+        }, 5000); // 5 วินาที
+    };
+
+    const selectRandomCard = () => {
+        if (cardsOriginal.length > 0) {
+            return [cardsOriginal[Math.floor(Math.random() * cardsOriginal.length)]];
+        }
+        return [];
     };
 
     const showFullDescription = (description) => {
         Swal.fire({
-            title: 'คำทำนายเต็ม',
+            title: '🔮ชะตาคุณถูกเปิดเผยแล้ว👀',
             text: description,
-            confirmButtonText: 'ปิด',
+            confirmButtonText: '🧿',
             customClass: {
                 popup: 'w-[90%] max-w-md rounded-xl',
-                title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-purple-800',
-                confirmButton: 'bg-purple-700 hover:bg-purple-800 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+                title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-blue-800',
+                confirmButton: 'bg-yellow-700 hover:bg-yellow-800 px-4 py-3 text-sm text-white rounded min-h-[48px]',
             },
         });
     };
@@ -228,23 +277,51 @@ const Home = () => {
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            await loadUserFromLocalStorage();
-            await Bring_Cards();
-            setIsLoading(false);
+            try {
+                await loadUserFromLocalStorage();
+                await Bring_Cards();
+            } catch (error) {
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'ไม่สามารถโหลดหน้าได้ กรุณาลองใหม่',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง',
+                    customClass: {
+                        popup: 'w-[90%] max-w-md rounded-xl',
+                        title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-red-600',
+                        confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+                    },
+                });
+            } finally {
+                setIsLoading(false);
+            }
         };
         loadData();
     }, []);
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gray-600">
-                <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            <div
+                className="flex justify-center items-center min-h-screen bg-gray-600 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(${backgroundImage})` }}
+            >
+                <div className="bg-white bg-opacity-70 p-6 rounded-xl shadow-2xl w-[90%] max-w-md">
+                    <div className="animate-pulse">
+                        <div className="h-6 bg-gray-300 rounded w-3/4 mx-auto mb-4"></div>
+                        <div className="h-40 bg-gray-300 rounded-lg mb-4"></div>
+                        <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-2"></div>
+                        <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-600 bg-cover bg-center px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+        <div
+            className="flex flex-col min-h-screen bg-gray-600 bg-cover bg-center bg-no-repeat px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+            style={{ backgroundImage: `url(${backgroundImage})` }}
+        >
             <div className="flex-grow flex items-center justify-center p-4">
                 <div className="bg-white bg-opacity-70 p-6 rounded-xl shadow-2xl text-center w-[90%] max-w-md">
                     <h1 className="text-[clamp(1.5rem,4vw,1.75rem)] font-bold mb-4 text-purple-800">
@@ -252,8 +329,25 @@ const Home = () => {
                     </h1>
 
                     {isRevealing ? (
-                        <div className="mb-4 flex flex-col justify-center items-center gap-2">
-                            <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="mb-4 flex flex-col justify-center items-center gap-4">
+                            <div className="relative w-[12rem] h-[18rem]">
+                                {selectRandomCardsForAnimation().map((card, index) => (
+                                    <motion.img
+                                        key={card.card_id}
+                                        src={card.image_url}
+                                        alt={`Shuffling card ${card.name}`}
+                                        className="absolute w-[10rem] h-[15rem] aspect-[2/3] object-contain rounded-lg shadow-2xl"
+                                        variants={cardVariants}
+                                        animate={index === 0 ? 'shuffle' : index === 1 ? 'shuffle2' : 'shuffle3'}
+                                        style={{
+                                            top: `${10 + index * 3}%`,
+                                            left: `${5 + index * 5}%`,
+                                        }}
+                                        loading="lazy"
+                                        onError={() => console.error(`Failed to load card image: ${card.image_url}`)}
+                                    />
+                                ))}
+                            </div>
                             <p className="text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-red-600">
                                 🔮 โชคชะตากำลังถูกเปิดเผย...
                             </p>
@@ -273,8 +367,9 @@ const Home = () => {
                                             src={card.image_url}
                                             alt={card.name}
                                             className="w-full max-w-[12rem] aspect-[2/3] object-contain rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-300"
+                                            loading="lazy"
                                         />
-                                        <h2 className="text-sm font-bold mt-2 text-purple-800">{card.name}</h2>
+                                        <h2 className="text-base font-bold mt-2 text-purple-800">{card.name}</h2>
                                         <p className="italic text-gray-800 text-sm line-clamp-3">{card.description}</p>
                                         <button
                                             onClick={() => showFullDescription(card.description)}
@@ -303,16 +398,14 @@ const Home = () => {
                         <button
                             onClick={drawCard}
                             disabled={isRevealing}
-                            className={`bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded font-bold shadow-md text-sm w-full transform hover:scale-105 transition-transform duration-200 min-h-[48px] touch-action-manipulation ${isRevealing ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            className={`bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded font-bold shadow-md text-sm w-full transform hover:scale-105 transition-transform duration-200 min-h-[48px] touch-action-manipulation ${isRevealing ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {point > 0 ? `พลังทำนาย: ${point}` : 'สุ่มไพ่ทาโรต์'}
                         </button>
                     </div>
                 </div>
             </div>
-
-            <footer className="bg-amber-300 min-h-[48px] flex justify-center items-center p-4 shadow-2xl">
+            <footer className="bg-purple-900 min-h-[48px] flex justify-center items-center p-4 shadow-2xl">
                 <div className="text-center">
                     <p className="text-sm font-light italic">© 2025 Tarot Moodma. สงวนลิขสิทธิ์.</p>
                 </div>
