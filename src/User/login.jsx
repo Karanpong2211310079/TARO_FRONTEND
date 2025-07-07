@@ -12,9 +12,34 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const preloadImage = () => {
+    try {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.href = 'https://i.postimg.cc/sX987Gwd/IMG-0870.webp';
+      link.as = 'image';
+      document.head.appendChild(link);
+    } catch (error) {
+      console.error('ข้อผิดพลาดในการโหลดรูปภาพล่วงหน้า:', error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('เริ่มล็อกอินด้วย:', { name, password, API_BASE_URL });
+
+    if (!API_BASE_URL) {
+      setIsLoading(false);
+      Swal.fire({
+        title: 'ข้อผิดพลาด',
+        text: 'ไม่พบที่อยู่เซิร์ฟเวอร์ กรุณาติดต่อแอดมิน',
+        icon: 'error',
+        confirmButtonText: 'ตกลง',
+      });
+      console.error('API_BASE_URL ไม่ได้ตั้งค่า');
+      return;
+    }
 
     if (password.length < 6) {
       setIsLoading(false);
@@ -27,72 +52,81 @@ const Login = () => {
       return;
     }
 
-    try {
-      // เรียก API สำหรับ login
-      const res = await axios.post(
-        `${API_BASE_URL}login`,
-        { name, phone: password },
-        { timeout: 5000 } // เพิ่ม timeout 5 วินาทีเพื่อป้องกัน API ช้า
-      );
+    // ฟังก์ชันลองเรียก API ใหม่สูงสุด 2 ครั้ง
+    const attemptLogin = async (retries = 2) => {
+      try {
+        console.log(`กำลังเรียก API ล็อกอิน (ครั้งที่ ${3 - retries})...`);
+        const res = await axios.post(
+          `${API_BASE_URL}login`,
+          { name, phone: password },
+          { timeout: 10000 }
+        );
+        console.log('ได้รับการตอบกลับจาก API:', res.data);
 
-      if (res.status === 200 || res.status === 201) {
-        // Preload รูปภาพทั่วไปของหน้า Home (ปรับ URL ตามที่ใช้จริง)
-        const preloadImages = () => {
-          const link = document.createElement('link');
-          link.rel = 'preload';
-          link.href = 'https://i.postimg.cc/sX987Gwd/IMG-0870.webp'; // ตัวอย่าง URL รูปภาพที่ใช้ใน Home
-          link.as = 'image';
-          document.head.appendChild(link);
-        };
-        preloadImages();
+        if (res.status === 200 || res.status === 201) {
+          if (!res.data?.user?.role) {
+            console.error('โครงสร้างข้อมูลไม่ถูกต้อง:', res.data);
+            Swal.fire({
+              title: 'ข้อผิดพลาด',
+              text: 'ข้อมูลผู้ใช้จากเซิร์ฟเวอร์ไม่สมบูรณ์',
+              icon: 'error',
+              confirmButtonText: 'ตกลง',
+            });
+            return false;
+          }
 
-        // โหลดข้อมูลไพ่ทาโรต์ล่วงหน้าเพื่อลดการเรียก API ในหน้า Home
-        const cachedCards = localStorage.getItem('tarotCards');
-        if (!cachedCards) {
-          const cardsRes = await axios.get(`${API_BASE_URL}taro-card`, { timeout: 5000 });
-          localStorage.setItem('tarotCards', JSON.stringify(cardsRes.data.data));
-        }
-
-        // บันทึกข้อมูลผู้ใช้
-        localStorage.setItem('user', JSON.stringify(res.data));
-        if (res.data.user.role === 'admin') {
-          navigate('/admin');
+          localStorage.setItem('user', JSON.stringify(res.data));
+          if (res.data.user.role === 'admin') {
+            console.log('เปลี่ยนหน้าไป /admin');
+            navigate('/admin', { replace: true });
+          } else {
+            console.log('เปลี่ยนหน้าไป /home');
+            navigate('/home', { replace: true });
+          }
+          preloadImage(); // โหลดรูปภาพหลังเปลี่ยนหน้า
+          return true;
         } else {
-          navigate('/home');
+          console.error('รหัสสถานะไม่คาดคิด:', res.status);
+          Swal.fire({
+            title: 'ล็อกอินไม่สำเร็จ',
+            text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+            icon: 'error',
+            confirmButtonText: 'ลองใหม่',
+          });
+          return false;
         }
-      } else {
-        Swal.fire({
-          title: 'ล็อกอินไม่สำเร็จ',
-          text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
-          icon: 'error',
-          confirmButtonText: 'ลองใหม่',
-        });
-      }
-    } catch (error) {
-      if (error.response?.data?.message === 'Username already exists with a different password') {
-        Swal.fire({
-          title: 'ชื่อผู้ใช้ถูกใช้แล้ว',
-          text: 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ',
-          icon: 'error',
-          confirmButtonText: 'ตกลง',
-        });
-      } else if (error.response?.data?.message === 'Username already in use') {
-        Swal.fire({
-          title: 'ชื่อผู้ใช้ซ้ำ',
-          text: 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น',
-          icon: 'error',
-          confirmButtonText: 'ตกลง',
-        });
-      } else {
+      } catch (error) {
+        console.error('ข้อผิดพลาดในการล็อกอิน:', error.response?.data || error.message);
+        if (retries > 0) {
+          console.log(`ลองเรียก API ใหม่ (เหลือ ${retries} ครั้ง)`);
+          return attemptLogin(retries - 1); // ลองใหม่
+        }
+        let errorMessage = 'กรุณาลองใหม่';
+        if (error.code === 'ECONNABORTED') {
+          errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่';
+        } else if (error.response?.data?.message === 'Username already exists with a different password') {
+          errorMessage = 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ';
+        } else if (error.response?.data?.message === 'Username already in use') {
+          errorMessage = 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น';
+        } else if (error.message.includes('Network Error')) {
+          errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
+        }
         Swal.fire({
           title: 'เกิดข้อผิดพลาด',
-          text: error.response?.data?.message || 'กรุณาลองใหม่',
+          text: errorMessage,
           icon: 'error',
           confirmButtonText: 'ลองใหม่',
         });
+        return false;
       }
-    } finally {
-      setIsLoading(false);
+    };
+
+    const success = await attemptLogin();
+    setIsLoading(false);
+    if (success) {
+      console.log('ล็อกอินสำเร็จ');
+    } else {
+      console.log('ล็อกอินล้มเหลว');
     }
   };
 
@@ -210,7 +244,7 @@ const Login = () => {
               </div>
               <p className="mt-1 text-xs text-red-500">
                 **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
-                **หากลืมรหัสผ่าน ติดต่อแอดมินที่ IG:
+                **หากลืมรหัสผ่านหรือเว็ปไซด์มีปัญหา ติดต่อแอดมินที่ IG:
                 <a
                   href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
                   target="_blank"
