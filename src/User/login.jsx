@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
@@ -12,37 +11,40 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const preloadImage = () => {
-    try {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.href = 'https://i.postimg.cc/sX987Gwd/IMG-0870.webp';
-      link.as = 'image';
-      document.head.appendChild(link);
-    } catch (error) {
-      console.error('ข้อผิดพลาดในการโหลดรูปภาพล่วงหน้า:', error.message);
-    }
-  };
+  // Preload images on mount (for background & logo)
+  useEffect(() => {
+    [
+      'https://i.postimg.cc/XNgSymzG/IMG-0869.webp',
+      'https://i.postimg.cc/sX987Gwd/IMG-0870.webp',
+    ].forEach(src => {
+      const img = new window.Image();
+      img.src = src;
+    });
+  }, []);
 
+  // Main login handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    console.log('เริ่มล็อกอินด้วย:', { name, password, API_BASE_URL });
-
+    if (isLoading) return;
+    if (!navigator.onLine) {
+      Swal.fire({
+        title: 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
+        text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ',
+        icon: 'warning',
+        confirmButtonText: 'ตกลง',
+      });
+      return;
+    }
     if (!API_BASE_URL) {
-      setIsLoading(false);
       Swal.fire({
         title: 'ข้อผิดพลาด',
         text: 'ไม่พบที่อยู่เซิร์ฟเวอร์ กรุณาติดต่อแอดมิน',
         icon: 'error',
         confirmButtonText: 'ตกลง',
       });
-      console.error('API_BASE_URL ไม่ได้ตั้งค่า');
       return;
     }
-
     if (password.length < 6) {
-      setIsLoading(false);
       Swal.fire({
         title: 'รหัสผ่านไม่ถูกต้อง',
         text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษรนะจ๊ะ',
@@ -51,42 +53,27 @@ const Login = () => {
       });
       return;
     }
-
-    // ฟังก์ชันลองเรียก API ใหม่สูงสุด 2 ครั้ง
+    setIsLoading(true);
+    // Retry login up to 2 times if error
     const attemptLogin = async (retries = 2) => {
       try {
-        console.log(`กำลังเรียก API ล็อกอิน (ครั้งที่ ${3 - retries})...`);
         const res = await axios.post(
           `${API_BASE_URL}login`,
           { name, phone: password },
-          { timeout: 10000 }
+          {
+            timeout: 5000,
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache',
+            },
+          }
         );
-        console.log('ได้รับการตอบกลับจาก API:', res.data);
-
-        if (res.status === 200 || res.status === 201) {
-          if (!res.data?.user?.role) {
-            console.error('โครงสร้างข้อมูลไม่ถูกต้อง:', res.data);
-            Swal.fire({
-              title: 'ข้อผิดพลาด',
-              text: 'ข้อมูลผู้ใช้จากเซิร์ฟเวอร์ไม่สมบูรณ์',
-              icon: 'error',
-              confirmButtonText: 'ตกลง',
-            });
-            return false;
-          }
-
+        if ((res.status === 200 || res.status === 201) && res.data?.user?.role) {
           localStorage.setItem('user', JSON.stringify(res.data));
-          if (res.data.user.role === 'admin') {
-            console.log('เปลี่ยนหน้าไป /admin');
-            navigate('/admin', { replace: true });
-          } else {
-            console.log('เปลี่ยนหน้าไป /home');
-            navigate('/home', { replace: true });
-          }
-          preloadImage(); // โหลดรูปภาพหลังเปลี่ยนหน้า
+          localStorage.setItem('lastLogin', Date.now().toString());
+          navigate(res.data.user.role === 'admin' ? '/admin' : '/home', { replace: true });
           return true;
         } else {
-          console.error('รหัสสถานะไม่คาดคิด:', res.status);
           Swal.fire({
             title: 'ล็อกอินไม่สำเร็จ',
             text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
@@ -96,19 +83,34 @@ const Login = () => {
           return false;
         }
       } catch (error) {
-        console.error('ข้อผิดพลาดในการล็อกอิน:', error.response?.data || error.message);
+        // รวม error message ที่เกี่ยวกับรหัสผิด
+        const msg = error.response?.data?.message || '';
+        if (
+          error.response?.status === 401 ||
+          msg.includes('Invalid') ||
+          msg.includes('incorrect') ||
+          msg.includes('Phone number does not match the registered name')
+        ) {
+          Swal.fire({
+            title: 'รหัสไม่ถูกต้อง',
+            text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+            icon: 'error',
+            confirmButtonText: 'ลองใหม่',
+          });
+          return false;
+        }
         if (retries > 0) {
-          console.log(`ลองเรียก API ใหม่ (เหลือ ${retries} ครั้ง)`);
-          return attemptLogin(retries - 1); // ลองใหม่
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return attemptLogin(retries - 1);
         }
         let errorMessage = 'กรุณาลองใหม่';
         if (error.code === 'ECONNABORTED') {
           errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่';
-        } else if (error.response?.data?.message === 'Username already exists with a different password') {
+        } else if (msg.includes('Username already exists with a different password')) {
           errorMessage = 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ';
-        } else if (error.response?.data?.message === 'Username already in use') {
+        } else if (msg.includes('Username already in use')) {
           errorMessage = 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น';
-        } else if (error.message.includes('Network Error')) {
+        } else if (error.message?.includes('Network Error')) {
           errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
         }
         Swal.fire({
@@ -120,55 +122,39 @@ const Login = () => {
         return false;
       }
     };
-
-    const success = await attemptLogin();
+    await attemptLogin();
     setIsLoading(false);
-    if (success) {
-      console.log('ล็อกอินสำเร็จ');
-    } else {
-      console.log('ล็อกอินล้มเหลว');
-    }
   };
 
   return (
     <>
-      <link
-        rel="preload"
-        href="https://i.postimg.cc/XNgSymzG/IMG-0869.webp"
-        as="image"
-      />
-      <style>
-        {`
-          .login-background {
-            background-image: url('https://i.postimg.cc/XNgSymzG/IMG-0869.webp');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-          }
-          .password-container {
-            position: relative;
-          }
-          .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6B7280;
-          }
-          .password-toggle:hover {
-            color: #4B5563;
-          }
-        `}
-      </style>
+      <style>{`
+        .login-background {
+          background-image: url('https://i.postimg.cc/XNgSymzG/IMG-0869.webp');
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+        }
+        .password-container { position: relative; }
+        .password-toggle {
+          position: absolute;
+          right: 15px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: #6B7280;
+        }
+        .password-toggle:hover { color: #4B5563; }
+      `}</style>
       <div className="flex justify-center items-center min-h-screen login-background px-4">
         <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-6 sm:p-4 bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
           <div className="flex justify-center mb-4">
             <img
               src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
               alt="โลโก้"
-              loading="lazy"
+              loading="eager"
               className="h-28 sm:h-24 xs:h-18 w-auto object-contain"
+              onError={e => (e.target.style.display = 'none')}
             />
           </div>
           <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-purple-900">
@@ -183,10 +169,11 @@ const Login = () => {
                 type="text"
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 placeholder="กรอกชื่อผู้ใช้ของคุณ"
                 required
-                className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
+                autoComplete="username"
+                className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-all duration-200"
               />
             </div>
             <div>
@@ -198,10 +185,11 @@ const Login = () => {
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="กรอกรหัสผ่านของคุณ"
                   required
-                  className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-colors"
+                  autoComplete="current-password"
+                  className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-all duration-200"
                 />
                 <svg
                   onClick={() => setShowPassword(!showPassword)}
@@ -258,7 +246,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-colors duration-200 flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-all duration-200 flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed scale-95' : 'hover:scale-105'}`}
             >
               {isLoading ? (
                 <>
@@ -294,5 +282,4 @@ const Login = () => {
     </>
   );
 };
-
 export default Login;
