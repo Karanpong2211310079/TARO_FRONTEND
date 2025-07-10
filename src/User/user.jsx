@@ -128,7 +128,7 @@ const showCardDescriptionByCategory = (description, cardName) => {
     title: `🔮 ${cardName}`,
     html: `
             <div class="text-center">
-                ${cardSubtitle ? `<p class="card-subtitle text-mobile-sm">${cardSubtitle}</p>` : ''}
+                ${cardSubtitle ? `<p class="card-subtitle mystic-gold-shadow text-mobile-sm">${cardSubtitle}</p>` : ''}
                 <div class="space-y-2">
                     ${buttonsHTML}
                 </div>
@@ -137,9 +137,10 @@ const showCardDescriptionByCategory = (description, cardName) => {
     showConfirmButton: false,
     showCloseButton: true,
     customClass: {
-      popup: 'w-[95vw] max-w-md rounded-xl mx-2',
-      title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold text-purple-800 mb-3',
-      closeButton: 'text-gray-500 hover:text-gray-700'
+      popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+      title: 'mystic-heading text-[clamp(1rem,4vw,1.25rem)] font-bold text-purple-800 mb-3',
+      closeButton: 'text-gray-500 hover:text-gray-700',
+      content: 'mystic-gold-shadow',
     }
   });
 
@@ -170,15 +171,15 @@ const showCardDescriptionByCategory = (description, cardName) => {
 
     Swal.fire({
       title: `${categoryLabels[category]} - ${cardName}`,
-      html: `<div class="category-content text-[clamp(0.875rem,3.5vw,1rem)] text-gray-700">${formattedContent}</div>`,
+      html: `<div class="category-content mystic-gold-shadow text-[clamp(0.875rem,3.5vw,1rem)]">${formattedContent}</div>`,
       showConfirmButton: false,
       showCancelButton: true,
       cancelButtonText: 'ย้อนกลับ',
       customClass: {
-        popup: 'w-[95vw] max-w-md rounded-xl mx-2',
-        title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold text-blue-800 mb-3',
-        content: 'max-h-[60vh] overflow-y-auto px-2',
-        cancelButton: `${categoryColors[category]} px-6 py-3 text-white rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium`
+        popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+        title: 'mystic-heading text-[clamp(1rem,4vw,1.25rem)] font-bold text-blue-800 mb-3',
+        content: 'mystic-gold-text max-h-[60vh] overflow-y-auto px-2',
+        cancelButton: `${categoryColors[category]} px-6 py-3 text-white rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium mystic-btn`
       }
     }).then((result) => {
       if (result.dismiss === Swal.DismissReason.cancel) {
@@ -213,10 +214,10 @@ const User = () => {
           icon: 'warning',
           confirmButtonText: 'ตกลง',
           customClass: {
-            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
-            title: 'text-xl font-bold',
-            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
-          },
+            popup: 'mystic-modal bg-white shadow-lg rounded-lg max-w-[90vw]',
+            title: 'mystic-heading text-xl font-bold',
+            confirmButton: 'mystic-btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2'
+          }
         }).then(() => {
           navigate('/login');
         });
@@ -233,10 +234,10 @@ const User = () => {
           icon: 'error',
           confirmButtonText: 'ตกลง',
           customClass: {
-            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
-            title: 'text-xl font-bold',
-            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
-          },
+            popup: 'mystic-modal bg-white shadow-lg rounded-lg max-w-[90vw]',
+            title: 'mystic-heading text-xl font-bold',
+            confirmButton: 'mystic-btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2'
+          }
         }).then(() => {
           navigate('/login');
         });
@@ -257,10 +258,10 @@ const User = () => {
           icon: 'info',
           confirmButtonText: 'ตกลง',
           customClass: {
-            popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
-            title: 'text-xl font-bold',
-            confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
-          },
+            popup: 'mystic-modal bg-white shadow-lg rounded-lg max-w-[90vw]',
+            title: 'mystic-heading text-xl font-bold',
+            confirmButton: 'mystic-btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2'
+          }
         });
       }
     } catch (error) {
@@ -270,10 +271,10 @@ const User = () => {
         icon: 'error',
         confirmButtonText: 'ลองใหม่',
         customClass: {
-          popup: 'bg-white shadow-lg rounded-lg max-w-[90vw]',
-          title: 'text-xl font-bold',
-          confirmButton: 'bg-blue-500 text-white hover:bg-blue-600 px-4 py-2',
-        },
+          popup: 'mystic-modal bg-white shadow-lg rounded-lg max-w-[90vw]',
+          title: 'mystic-heading text-xl font-bold',
+          confirmButton: 'mystic-btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2'
+        }
       });
     } finally {
       setIsLoading(false);
@@ -301,23 +302,22 @@ const User = () => {
     return (
       <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
         <div className="mb-6">
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+          <div className="mystic-card glassmorphism border-2 border-yellow-300 rounded-xl shadow-xl p-4">
             <div className="flex flex-col items-center py-4 animate-pulse">
-              <div className="w-20 h-20 mb-3 rounded-full bg-gray-300"></div>
-              <div className="h-5 w-32 bg-gray-300 rounded mb-1"></div>
-              <div className="h-4 w-48 bg-gray-300 rounded"></div>
+              <div className="w-20 h-20 mb-3 rounded-full bg-yellow-300"></div>
+              <div className="h-5 w-32 bg-yellow-300 rounded mb-1"></div>
+              <div className="h-4 w-48 bg-yellow-300 rounded"></div>
             </div>
           </div>
         </div>
         <div>
-          <p className="text-lg font-semibold mb-2 text-center">ไพ่ของฉัน</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border border-gray-500 rounded-md p-4">
-            {[...Array(4)].map((_, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-4 animate-pulse">
-                <div className="relative w-full aspect-[2/3] mb-3 bg-gray-300 rounded-t-lg"></div>
-                <div className="h-4 w-3/4 bg-gray-300 rounded mb-2 mx-auto"></div>
-                <div className="h-3 w-1/2 bg-gray-300 rounded mb-2 mx-auto"></div>
-                <div className="h-3 w-1/4 bg-gray-300 rounded mx-auto"></div>
+          <h2 className="mystic-heading text-lg font-semibold mb-2 text-center">ไพ่ของฉัน</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-2 border-yellow-300 rounded-xl p-4 glassmorphism justify-items-center">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="mystic-card glassmorphism rounded-xl shadow-lg animate-pulse">
+                <div className="relative w-full" style={{ paddingTop: '150%' }}>
+                  <div className="absolute top-0 left-0 w-full h-full bg-gray-300 rounded-t-lg"></div>
+                </div>
               </div>
             ))}
           </div>
@@ -329,126 +329,68 @@ const User = () => {
   return (
     <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
       <div className="mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+        <div className="mystic-card glassmorphism border-2 border-yellow-300 rounded-xl shadow-xl p-4">
           <div className="flex flex-col items-center py-4">
             <img
-              className="w-20 h-20 mb-3 rounded-full shadow-lg"
+              className="w-20 h-20 mb-3 rounded-full shadow-lg border-2 border-yellow-300 bg-white/60"
               src="https://i.postimg.cc/3N5vPMDq/moodcura.webp"
               alt="User Avatar"
               loading="eager"
             />
-            <h5 className="mb-1 text-lg font-medium text-gray-900">{username}</h5>
-            <span className="text-xs text-gray-500">สวัสดีผมมูดๆเอง สะสมไพ่เยอะนะครับเด่วผมรางวัลให้moooo</span>
+            <h5 className="mb-1 text-lg font-bold mystic-gold-text font-serif">{username}</h5>
+            <span className="text-xs text-center mystic-gold-text font-serif">สวัสดีผมมูดๆเอง สะสมไพ่เยอะนะครับเด่วผมรางวัลให้moooo</span>
           </div>
         </div>
       </div>
 
       <div>
-        <p className="text-lg font-semibold mb-2 text-center">ไพ่ของฉัน</p>
-        <p className="text-sm text-center mb-4 text-gray-700">
+        <h2 className="mystic-heading text-lg font-semibold mb-2 text-center">ไพ่ของฉัน</h2>
+        <p className="text-sm text-center mb-4 mystic-gold-text font-serif">
           {uniqueCards.length > 0 ? `จำนวนครอบครอง ${uniqueCards.length} ไพ่` : 'ยังไม่มีการ์ดในครอบครอง..เลยหรอ???'}
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border border-gray-500 rounded-md p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-2 border-yellow-300 rounded-xl p-4 glassmorphism">
           {uniqueCards.length > 0 ? (
             <>
               {uniqueCards.slice(0, visibleCards).map((cardInfo) => (
                 <div
                   key={cardInfo.id || cardInfo.name}
-                  className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center transition-transform duration-300 hover:scale-105"
+                  className="mystic-card glassmorphism rounded-xl shadow-lg p-4 flex flex-col items-center transition-transform duration-300 hover:scale-105 cursor-pointer border-2 border-yellow-300"
                 >
-                  <div className="relative w-full aspect-[2/3] mb-3">
+                  <div className="relative w-full" style={{ paddingTop: '150%' }}>
                     <img
                       src={cardInfo.image_url || 'https://via.placeholder.com/300x450?text=Image+Not+Found'}
                       alt={cardInfo.name}
-                      className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg"
-                      loading="lazy" // เปลี่ยนเป็น lazy เพื่อลดการโหลดครั้งแรก
+                      width="200"
+                      height="300"
+                      className="absolute top-0 left-0 h-full w-auto mx-auto object-contain rounded-t-lg border-2 border-yellow-300 shadow-lg bg-white/60 bg-gray-100"
+                      loading="lazy"
                       onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
                     />
                   </div>
-                  <p className="font-bold text-base mb-2">{cardInfo.name}</p>
+                  <p className="mystic-gold-text text-xs font-medium mt-2 font-serif line-clamp-2 text-center">{cardInfo.name}</p>
                   <button
+                    style={{ minHeight: '0', height: 'auto', minWidth: '0' }}
+                    className="user-card-btn mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white text-[0.75rem] px-2 py-1 rounded-md transition-colors font-medium mt-1 shadow-lg border-2 border-yellow-300 sm:text-sm sm:px-3 sm:py-1.5"
                     onClick={() => showPrediction(cardInfo.name, cardInfo.description, cardInfo.image_url)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white text-mobile-sm mb-2 touch-button px-4 py-2 rounded-lg transition-colors font-medium"
                   >
-                    อ่านคำทำนาย
+                    อ่านไพ่
                   </button>
                 </div>
               ))}
               {visibleCards < uniqueCards.length && (
                 <button
                   onClick={loadMore}
-                  className="mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg mx-auto block hover:bg-blue-600 col-span-full text-mobile-base font-medium touch-button"
+                  className="mt-4 px-6 py-3 mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white rounded-lg mx-auto block col-span-full text-mobile-base font-medium touch-button shadow-lg border-2 border-yellow-300"
                 >
                   โหลดไพ่ต่อเลย🫵
                 </button>
               )}
             </>
           ) : (
-            <p className="text-gray-500 col-span-full text-center text-sm">ยังไม่มีการ์ดในครอบครอง..เลยหรอ???</p>
+            <p className="mystic-gold-text col-span-full text-center text-sm">ยังไม่มีการ์ดในครอบครอง..เลยหรอ???</p>
           )}
         </div>
       </div>
-
-      <style jsx>{`
-        .aspect-[2/3] {
-          aspect-ratio: 2/3;
-        }
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .grid {
-          gap: 1rem;
-        }
-        @media (max-width: 360px) {
-          .grid {
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-          }
-          img {
-            max-height: 200px;
-          }
-          .text-sm {
-            font-size: 0.75rem;
-          }
-          .text-base {
-            font-size: 0.875rem;
-          }
-          .p-4 {
-            padding: 0.75rem;
-          }
-        }
-        @media (min-width: 361px) and (max-width: 640px) {
-          .grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-          }
-          img {
-            max-height: 250px;
-          }
-        }
-        @media (min-width: 641px) and (max-width: 1024px) {
-          .grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.25rem;
-          }
-          img {
-            max-height: 280px;
-          }
-        }
-        @media (min-width: 1025px) {
-          .grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-          }
-          img {
-            max-height: 300px;
-          }
-        }
-      `}</style>
     </div>
   );
 };

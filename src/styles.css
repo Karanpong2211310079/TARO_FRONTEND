@@ -1,3 +1,155 @@
+:root {
+    --color-mystic-purple: #6d28d9;
+    --color-mystic-purple-dark: #3b0764;
+    --color-mystic-gold: #ffd700;
+    --color-mystic-gold-dark: #bfa100;
+    --color-mystic-black: #18181b;
+    --color-mystic-white: #f9fafb;
+    --color-mystic-glass: rgba(40, 0, 60, 0.55);
+    --color-mystic-glass-light: rgba(255, 255, 255, 0.15);
+    --color-mystic-shadow: 0 4px 32px 0 rgba(80, 0, 120, 0.25);
+}
+
+body,
+html {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, var(--color-mystic-purple-dark) 0%, var(--color-mystic-black) 100%);
+    color: var(--color-mystic-white);
+    min-height: 100vh;
+}
+
+.mystic-heading {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    color: var(--color-mystic-gold);
+    text-shadow: 0 2px 8px var(--color-mystic-purple-dark), 0 1px 0 #fff2;
+    letter-spacing: 0.04em;
+}
+
+.mystic-btn {
+    background: linear-gradient(90deg, var(--color-mystic-purple) 0%, var(--color-mystic-gold) 100%);
+    color: var(--color-mystic-white);
+    border: none;
+    border-radius: 1.5rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 16px 0 var(--color-mystic-purple-dark), 0 1.5px 0 var(--color-mystic-gold-dark);
+    transition: all 0.18s cubic-bezier(.4, 2, .3, 1);
+    padding: 0.85em 2.2em;
+    position: relative;
+    overflow: hidden;
+}
+
+.mystic-btn:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, var(--color-mystic-gold) 0%, transparent 70%);
+    opacity: 0.12;
+    z-index: 0;
+}
+
+.mystic-btn:hover,
+.mystic-btn:focus {
+    filter: brightness(1.08) drop-shadow(0 0 12px var(--color-mystic-gold));
+    box-shadow: 0 4px 32px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark);
+    outline: none;
+}
+
+.mystic-btn .btn-icon {
+    margin-right: 0.6em;
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+.mystic-card {
+    background: linear-gradient(120deg, var(--color-mystic-glass) 60%, var(--color-mystic-glass-light) 100%);
+    border: 2px solid var(--color-mystic-gold);
+    border-radius: 1.5rem;
+    box-shadow: var(--color-mystic-shadow);
+    color: var(--color-mystic-white);
+    padding: 1.2em 1em 1.5em 1em;
+    transition: transform 0.22s cubic-bezier(.4, 2, .3, 1), box-shadow 0.22s;
+    position: relative;
+    overflow: hidden;
+}
+
+.mystic-card:hover {
+    transform: scale(1.045) rotate(-1deg);
+    box-shadow: 0 8px 48px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark);
+    z-index: 2;
+}
+
+.mystic-card .card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: radial-gradient(circle, var(--color-mystic-gold) 0%, transparent 70%);
+    opacity: 0.08;
+    z-index: 0;
+}
+
+.mystic-glass {
+    background: var(--color-mystic-glass);
+    backdrop-filter: blur(12px) saturate(1.2);
+    border-radius: 1.5rem;
+    border: 1.5px solid var(--color-mystic-gold);
+    box-shadow: 0 2px 24px 0 var(--color-mystic-purple-dark);
+}
+
+.mystic-shadow {
+    box-shadow: var(--color-mystic-shadow);
+}
+
+.mystic-gold-text {
+    color: var(--color-mystic-gold);
+    text-shadow: 0 1px 8px var(--color-mystic-gold-dark);
+}
+
+.mystic-purple-text {
+    color: var(--color-mystic-purple);
+    text-shadow: 0 1px 8px var(--color-mystic-purple-dark);
+}
+
+.mystic-gradient-text {
+    background: linear-gradient(90deg, var(--color-mystic-gold), var(--color-mystic-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mystic-divider {
+    border: none;
+    border-top: 2px solid var(--color-mystic-gold);
+    margin: 1.5em 0;
+    opacity: 0.5;
+}
+
+.mystic-modal {
+    background: linear-gradient(120deg, var(--color-mystic-glass) 60%, var(--color-mystic-glass-light) 100%);
+    border: 2px solid var(--color-mystic-gold);
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 48px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark);
+    color: var(--color-mystic-white);
+    padding: 2em 1.5em 2em 1.5em;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background: var(--color-mystic-black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-mystic-purple-dark);
+    border-radius: 8px;
+}
+
 @layer utilities {
     .animate-twinkle {
         animation: twinkle 2s infinite;
@@ -200,5 +352,132 @@
         50% {
             opacity: 1;
         }
+    }
+}
+
+.mystic-category-btn {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    border-radius: 1.5rem;
+    font-size: 1.08rem;
+    box-shadow: 0 2px 16px 0 rgba(80, 0, 120, 0.18);
+    color: #fff;
+    padding: 0.85em 2.2em;
+    border: 2px solid var(--color-mystic-gold);
+    transition: all 0.18s cubic-bezier(.4, 2, .3, 1);
+    margin-bottom: 0.5em;
+    position: relative;
+    overflow: hidden;
+    outline: none;
+}
+
+.mystic-category-btn:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.13;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.mystic-category-btn-love {
+    background: linear-gradient(90deg, #ff7eb3 0%, #ff758c 100%);
+    box-shadow: 0 2px 16px 0 #ff7eb3cc;
+}
+
+.mystic-category-btn-love:before {
+    background: radial-gradient(circle, #ffb6d5 0%, transparent 70%);
+}
+
+.mystic-category-btn-work {
+    background: linear-gradient(90deg, #3b82f6 0%, #1e3a8a 100%);
+    box-shadow: 0 2px 16px 0 #3b82f6cc;
+}
+
+.mystic-category-btn-work:before {
+    background: radial-gradient(circle, #a5b4fc 0%, transparent 70%);
+}
+
+.mystic-category-btn-money {
+    background: linear-gradient(90deg, #10b981 0%, #047857 100%);
+    box-shadow: 0 2px 16px 0 #10b981cc;
+}
+
+.mystic-category-btn-money:before {
+    background: radial-gradient(circle, #6ee7b7 0%, transparent 70%);
+}
+
+.mystic-category-btn-health {
+    background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+    box-shadow: 0 2px 16px 0 #ef4444cc;
+}
+
+.mystic-category-btn-health:before {
+    background: radial-gradient(circle, #fca5a5 0%, transparent 70%);
+}
+
+.mystic-category-btn-advice {
+    background: linear-gradient(90deg, #a78bfa 0%, #6d28d9 100%);
+    box-shadow: 0 2px 16px 0 #a78bfa99;
+}
+
+.mystic-category-btn-advice:before {
+    background: radial-gradient(circle, #c4b5fd 0%, transparent 70%);
+}
+
+.mystic-category-btn:hover,
+.mystic-category-btn:focus {
+    filter: brightness(1.08) drop-shadow(0 0 12px var(--color-mystic-gold));
+    box-shadow: 0 4px 32px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark);
+}
+
+.mystic-gold-shadow {
+    color: #FFD700;
+    text-shadow: 0 1px 6px #000, 0 0px 2px #FFD700;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+}
+
+.nav-animate-btn {
+    transition: transform 0.18s cubic-bezier(.4, 2, .3, 1), box-shadow 0.18s, background 0.18s;
+    position: relative;
+    z-index: 1;
+}
+
+.nav-animate-btn:hover,
+.nav-animate-btn:focus {
+    background: linear-gradient(90deg, #a78bfa 0%, #ffd700 100%);
+    color: #fff !important;
+    box-shadow: 0 0 12px 2px #ffd70099, 0 2px 8px #6d28d9cc;
+    transform: scale(1.07);
+}
+
+.nav-animate-btn:active {
+    background: linear-gradient(90deg, #ffd700 0%, #a78bfa 100%);
+    color: #3b0764 !important;
+    box-shadow: 0 0 18px 4px #ffd700cc, 0 2px 8px #6d28d9cc;
+    transform: scale(0.96);
+}
+
+@media (max-width: 640px) {
+    .mystic-btn {
+        font-size: 0.92rem !important;
+        padding: 0.55em 1.2em !important;
+        border-radius: 0.9rem !important;
+        min-height: 36px !important;
+        height: auto !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .user-card-btn {
+        font-size: 0.75rem !important;
+        padding: 6px 12px !important;
+        min-height: 0 !important;
+        height: auto !important;
+        min-width: 0 !important;
     }
 }

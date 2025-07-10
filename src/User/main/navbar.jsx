@@ -38,9 +38,11 @@ const Navbar = () => {
         icon: 'success',
         confirmButtonText: 'ตกลง',
         customClass: {
-          popup: 'w-[90%] max-w-md rounded-xl',
-          title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-green-600',
-          confirmButton: 'bg-green-600 hover:bg-green-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
         },
       });
     } catch (error) {
@@ -51,9 +53,11 @@ const Navbar = () => {
         icon: 'error',
         confirmButtonText: 'ตกลง',
         customClass: {
-          popup: 'w-[90%] max-w-md rounded-xl',
-          title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-red-600',
-          confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
         },
       });
     }
@@ -77,64 +81,66 @@ const Navbar = () => {
     <>
       <nav
         role="navigation"
-        className="fixed top-0 left-0 w-full bg-gradient-to-b from-purple-950 via-purple-800 to-purple-950 text-white p-3 shadow-xl z-50 overflow-hidden"
+        className="fixed top-0 left-0 w-full mystic-glass backdrop-blur-lg bg-gradient-to-b from-[#3b0764cc] via-[#6d28d9cc] to-[#18181bcc] border-b-2 border-yellow-300 text-white p-3 shadow-2xl z-50 overflow-hidden"
       >
         <div className="container mx-auto flex justify-between items-center max-w-screen-md">
           {/* Logo Section */}
           <div className="flex items-center space-x-2">
             <img
               src={tarotLogo}
-              className="h-10"
+              className="h-10 w-10 drop-shadow-lg"
               alt="Tarot Mamoo logo"
-              loading="lazy" // เพิ่ม lazy loading สำหรับโลโก้
+              loading="lazy"
+              width={40}
+              height={40}
             />
-            <Link to="/home" className="text-xl font-bold font-serif tracking-wide">
-              Tarot Mamoo
+            <Link to="/home" className="text-2xl mystic-heading tracking-wide flex items-center gap-2">
+              <span className="text-2xl" style={{ minWidth: '1.5em', display: 'inline-block' }}>🪄</span> Tarot Mamoo <span className="text-2xl" style={{ minWidth: '1.5em', display: 'inline-block' }}>🔮</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-6" style={{ minHeight: '40px' }}>
             {isLoggedIn ? (
               <>
                 <div className="flex items-center space-x-2">
                   <img
                     src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
                     alt="Profile"
-                    className="h-8 w-8 rounded-full object-cover"
+                    className="h-8 w-8 rounded-full object-cover border-2 border-yellow-300 shadow-md"
                     loading="lazy"
                   />
-                  <span className="text-base font-medium">{name}</span>
+                  <span className="text-base font-medium mystic-gold-text drop-shadow-lg">{name}</span>
                 </div>
                 <Link
                   to="/user"
-                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                  className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                 >
                   My Card
                 </Link>
                 <Link
                   to="/allcards"
-                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                  className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                 >
                   All Cards
                 </Link>
                 <Link
                   to="/home"
-                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                  className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                 >
                   ทำนาย
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                  className="mystic-btn text-base py-1 px-4 !rounded-lg !text-sm !font-semibold !shadow-md !bg-gradient-to-r !from-purple-700 !to-yellow-400 !border-0 !text-white hover:scale-105 hover:drop-shadow-lg transition-all duration-200"
                 >
-                  Sign Out
+                  <span className="btn-icon">🚪</span> Sign Out
                 </button>
               </>
             ) : (
               <Link
                 to="/"
-                className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200"
               >
                 Login
               </Link>
@@ -144,7 +150,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 rounded"
+            className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 rounded bg-gradient-to-r from-purple-700 to-yellow-400 p-1 shadow-md"
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -160,7 +166,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="bg-purple-900 py-3">
+          <div className="mystic-glass py-3 border-t-2 border-yellow-300 shadow-xl">
             <div className="container mx-auto flex flex-col space-y-3 max-w-screen-md">
               {isLoggedIn ? (
                 <>
@@ -168,43 +174,43 @@ const Navbar = () => {
                     <img
                       src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
                       alt="Profile"
-                      className="h-8 w-8 rounded-full object-cover"
+                      className="h-8 w-8 rounded-full object-cover border-2 border-yellow-300 shadow-md"
                       loading="lazy" // เพิ่ม lazy loading สำหรับรูปโปรไฟล์
                     />
-                    <span className="text-base font-medium">{name}</span>
+                    <span className="text-base font-medium mystic-gold-text drop-shadow-lg">{name}</span>
                   </div>
                   <Link
                     to="/user"
-                    className="text-base font-medium px-3 hover:text-yellow-200 transition-colors duration-200"
+                    className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Card
                   </Link>
                   <Link
                     to="/allcards"
-                    className="text-base font-medium px-3 hover:text-yellow-200 transition-colors duration-200"
+                    className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     All Cards
                   </Link>
                   <Link
                     to="/home"
-                    className="text-base font-medium px-3 hover:text-yellow-200 transition-colors duration-200"
+                    className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     ทำนาย
                   </Link>
                   <button
                     onClick={handleSignOut}
-                    className="text-base font-medium px-3 text-left hover:text-yellow-200 transition-colors duration-200"
+                    className="mystic-btn text-base py-1 px-4 !rounded-lg !text-sm !font-semibold !shadow-md !bg-gradient-to-r !from-purple-700 !to-yellow-400 !border-0 !text-white hover:scale-105 hover:drop-shadow-lg transition-all duration-200 text-left"
                   >
-                    Sign Out
+                    <span className="btn-icon">🚪</span> Sign Out
                   </button>
                 </>
               ) : (
                 <Link
                   to="/"
-                  className="text-base font-medium px-3 hover:text-yellow-200 transition-colors duration-200"
+                  className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login

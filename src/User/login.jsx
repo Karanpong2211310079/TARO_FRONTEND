@@ -35,6 +35,13 @@ const Login = () => {
         text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ',
         icon: 'warning',
         confirmButtonText: 'ตกลง',
+        customClass: {
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
+        }
       });
       return;
     }
@@ -45,6 +52,13 @@ const Login = () => {
         text: 'ไม่พบที่อยู่เซิร์ฟเวอร์ กรุณาติดต่อแอดมิน',
         icon: 'error',
         confirmButtonText: 'ตกลง',
+        customClass: {
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
+        }
       });
       return;
     }
@@ -55,6 +69,13 @@ const Login = () => {
         text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษรนะจ๊ะ',
         icon: 'warning',
         confirmButtonText: 'ตกลง',
+        customClass: {
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
+        }
       });
       return;
     }
@@ -108,6 +129,13 @@ const Login = () => {
           text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
           icon: 'error',
           confirmButtonText: 'ลองใหม่',
+          customClass: {
+            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+            title: 'mystic-heading text-xl mb-2',
+            content: 'mystic-gold-text font-serif',
+            confirmButton: 'mystic-btn w-full mt-4',
+            cancelButton: 'mystic-btn w-full mt-4',
+          }
         });
       }
     } catch (error) {
@@ -124,6 +152,13 @@ const Login = () => {
           text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
           icon: 'error',
           confirmButtonText: 'ลองใหม่',
+          customClass: {
+            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+            title: 'mystic-heading text-xl mb-2',
+            content: 'mystic-gold-text font-serif',
+            confirmButton: 'mystic-btn w-full mt-4',
+            cancelButton: 'mystic-btn w-full mt-4',
+          }
         });
         return;
       }
@@ -144,6 +179,13 @@ const Login = () => {
         text: errorMessage,
         icon: 'error',
         confirmButtonText: 'ลองใหม่',
+        customClass: {
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
+        }
       });
     } finally {
       setIsLoading(false);
@@ -158,6 +200,18 @@ const Login = () => {
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
+          min-height: 100vh;
+          position: relative;
+        }
+        .login-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(120deg, #3b0764cc 0%, #18181bcc 100%);
+          z-index: 1;
+        }
+        .login-content {
+          position: relative;
+          z-index: 2;
         }
         .password-container { position: relative; }
         .password-toggle {
@@ -166,27 +220,28 @@ const Login = () => {
           top: 50%;
           transform: translateY(-50%);
           cursor: pointer;
-          color: #6B7280;
+          color: #ffd700;
+          filter: drop-shadow(0 0 4px #6d28d9);
         }
-        .password-toggle:hover { color: #4B5563; }
+        .password-toggle:hover { color: #fff; filter: drop-shadow(0 0 8px #ffd700); }
       `}</style>
-      <div className="flex justify-center items-center min-h-screen login-background px-4">
-        <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-6 sm:p-4 bg-white bg-opacity-90 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
+      <div className="flex justify-center items-center min-h-screen login-background px-2 sm:px-4">
+        <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-4 sm:p-6 mystic-glass mystic-shadow transition-all duration-300 hover:shadow-2xl relative login-content">
           <div className="flex justify-center mb-4">
             <img
               src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
               alt="โลโก้"
               loading="eager"
-              className="h-28 sm:h-24 xs:h-18 w-auto object-contain"
+              className="h-24 sm:h-28 xs:h-18 w-auto object-contain drop-shadow-lg"
               onError={e => (e.target.style.display = 'none')}
             />
           </div>
-          <h2 className="text-xl sm:text-lg font-bold text-center mb-4 text-purple-900">
-            🔮Loginเพื่อรับคำทำนาย
+          <h2 className="text-2xl sm:text-xl mystic-heading text-center mb-4 flex items-center justify-center gap-2">
+            <span className="text-xl">🔮</span> Login เพื่อรับคำทำนาย <span className="text-3xl">✨</span>
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="name" className="block mb-1 text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="block mb-1 text-sm font-medium mystic-gold-text">
                 ชื่อผู้ใช้:
               </label>
               <input
@@ -197,11 +252,11 @@ const Login = () => {
                 placeholder="กรอกชื่อผู้ใช้ของคุณ"
                 required
                 autoComplete="username"
-                className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-all duration-200"
+                className="w-full p-2 sm:p-1.5 text-base border-2 border-yellow-300 bg-white bg-opacity-90 rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-yellow-400 transition-all duration-200 text-black placeholder:text-gray-500 shadow-inner"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block mb-1 text-sm font-medium mystic-gold-text">
                 รหัสผ่าน:
               </label>
               <div className="password-container">
@@ -213,93 +268,51 @@ const Login = () => {
                   placeholder="กรอกรหัสผ่านของคุณ"
                   required
                   autoComplete="current-password"
-                  className="w-full p-2 sm:p-1.5 text-sm border border-[#FFDB6E] rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-[#D497FF] transition-all duration-200"
+                  className="w-full p-2 sm:p-1.5 text-base border-2 border-yellow-300 bg-white bg-opacity-90 rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-yellow-400 transition-all duration-200 text-black placeholder:text-gray-500 shadow-inner"
                 />
                 <svg
                   onClick={() => setShowPassword(!showPassword)}
                   className="password-toggle"
-                  width="20"
-                  height="20"
+                  width="22"
+                  height="22"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  {showPassword ? (
-                    <>
-                      <path
-                        d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <path
-                        d="M2.99902 3L20.999 21M9.84302 9.913C10.3304 9.39511 10.9926 9.0355 11.7498 8.98734C12.5071 8.93917 13.2475 9.20527 13.8003 9.73883C14.3532 10.2724 14.6814 10.9337 14.7176 11.6397C14.7538 12.3457 14.4957 13.0287 13.999 13.536M9.99902 5C8.75602 5.328 7.67202 6 6.75702 7C4.99602 8.486 3.55702 10.486 2.75202 12C3.55702 13.514 4.99602 15.514 6.75702 17C7.67202 18 8.75602 18.672 9.99902 19M13.999 16.486C15.263 17.172 16.665 18 18.242 19C19.003 18.486 19.669 17.822 20.247 17"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </>
-                  )}
+                  <path d="M1 12C2.73 7.61 7.11 4.5 12 4.5C16.89 4.5 21.27 7.61 23 12C21.27 16.39 16.89 19.5 12 19.5C7.11 19.5 2.73 16.39 1 12Z" stroke="#ffd700" strokeWidth="2" />
+                  <circle cx="12" cy="12" r="3.5" stroke="#ffd700" strokeWidth="2" />
                 </svg>
               </div>
-              <p className="mt-1 text-xs text-red-500">
-                **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
-                **หากลืมรหัสผ่านหรือเว็ปไซด์มีปัญหา ติดต่อแอดมินที่ IG:
-                <a
-                  href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-blue-600"
-                >
-                  @_moodma_
-                </a>
-              </p>
             </div>
             <button
               type="submit"
+              className="mystic-btn w-full flex items-center justify-center gap-2 mt-2"
               disabled={isLoading}
-              className={`w-full py-2 sm:py-1.5 px-4 text-sm text-purple-900 bg-[#FFDB6E] rounded-lg hover:bg-[#e6c563] focus:ring-4 focus:ring-[#D497FF] transition-all duration-200 flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed scale-95' : 'hover:scale-105'}`}
             >
               {isLoading ? (
                 <>
-                  <svg
-                    className="animate-spin h-4 w-4 sm:h-3 sm:w-3 mr-2 text-purple-900"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8z"
-                    />
+                  <svg className="animate-spin h-5 w-5 mr-2 text-yellow-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
-                  กำลังเชื่อมจิตนะจ๊ะ...
+                  กำลังเชื่อมจิต...
                 </>
               ) : (
                 '✨เชื่อมจิต✨'
               )}
             </button>
+            <p className="mt-2 text-sm text-red-500 font-semibold">
+              **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
+              **หากลืมรหัสผ่านหรือเว็ปไซด์มีปัญหา ติดต่อแอดมินที่ IG:
+              <a
+                href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-600"
+              >
+                @_moodma_
+              </a>
+            </p>
           </form>
         </div>
       </div>

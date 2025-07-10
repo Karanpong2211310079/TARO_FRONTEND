@@ -30,9 +30,11 @@ const AllCards = () => {
         icon: 'error',
         confirmButtonText: 'ตกลง',
         customClass: {
-          popup: 'w-[90%] max-w-md rounded-xl',
-          title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-red-600',
-          confirmButton: 'bg-red-600 hover:bg-red-700 px-4 py-3 text-sm text-white rounded min-h-[48px]',
+          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+          title: 'mystic-heading text-xl mb-2',
+          content: 'mystic-gold-text font-serif',
+          confirmButton: 'mystic-btn w-full mt-4',
+          cancelButton: 'mystic-btn w-full mt-4',
         },
       });
     } finally {
@@ -97,17 +99,17 @@ const AllCards = () => {
   return (
     <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
       <div>
-        <h1 className="font-sans text-2xl sm:text-3xl font-bold text-center mb-4">
-          All Cards
+        <h1 className="mystic-heading text-2xl sm:text-3xl font-bold text-center mb-4 flex items-center justify-center gap-2">
+          <span className="text-3xl">🃏</span> My Card <span className="text-3xl">✨</span>
         </h1>
-        <p className="text-center text-gray-600 mb-4">
+        <p className="text-center mystic-gold-text mb-4 font-serif">
           จำนวนไพ่ทั้งหมด: {cards.length} ใบ
         </p>
         <div className="inline-flex items-center justify-center w-full relative">
-          <hr className="w-64 h-1 my-6 bg-gray-200 border-0 rounded-sm dark:bg-gray-700" />
-          <div className="absolute px-4 -translate-x-1/2 bg-white left-1/2 dark:bg-gray-900">
+          <hr className="mystic-divider w-64 h-1 my-6" />
+          <div className="absolute px-4 -translate-x-1/2 bg-transparent left-1/2">
             <svg
-              className="w-4 h-4 text-gray-700 dark:text-gray-300"
+              className="w-4 h-4 text-yellow-300"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
@@ -121,60 +123,60 @@ const AllCards = () => {
 
       {/* Major Arcana Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-center mb-4">Major Arcana ({majorArcana.length} ใบ)</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <h2 className="mystic-heading text-xl font-semibold text-center mb-4">Major Arcana ({majorArcana.length} ใบ)</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {majorArcana.length > 0 ? (
             majorArcana.map((card, index) => (
               <div
                 key={card.card_id || index}
-                className={`rounded-lg text-black text-center transition-transform duration-300 ease-in-out transform ${activeCard === index && !isReducedMotion ? 'scale-110' : 'scale-100'
-                  } hover:${isReducedMotion ? 'scale-100' : 'scale-110'} bg-white shadow-lg cursor-pointer`}
+                className={`mystic-card text-center transition-transform duration-300 ease-in-out transform ${activeCard === index && !isReducedMotion ? 'scale-110' : 'scale-100'} hover:scale-105 cursor-pointer`}
                 onClick={() => handleCardInteraction(index)}
               >
                 <div className="relative w-full" style={{ paddingTop: '150%' }}>
                   <img
                     src={card.image_url}
                     alt={card.name}
-                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg transition-transform duration-300 ease-in-out"
+                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg border-2 border-yellow-300 shadow-lg"
+                    style={{ maxWidth: '100%', maxHeight: '260px', minHeight: '180px' }}
                     loading="lazy"
                     onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
                   />
                 </div>
-                <p className="text-sm font-medium mt-2">{card.name}</p>
+                <p className="mystic-gold-text text-sm font-medium mt-2 font-serif" style={{ fontSize: '0.82rem' }}>{card.name}</p>
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-600 col-span-3">ไม่มีไพ่ Major Arcana</p>
+            <p className="text-center mystic-gold-text col-span-3">ไม่มีไพ่ Major Arcana</p>
           )}
         </div>
       </div>
 
       {/* Minor Arcana Section */}
       <div>
-        <h2 className="text-xl font-semibold text-center mb-4">Minor Arcana ({minorArcana.length} ใบ)</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <h2 className="mystic-heading text-xl font-semibold text-center mb-4">Minor Arcana ({minorArcana.length} ใบ)</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {minorArcana.length > 0 ? (
             minorArcana.map((card, index) => (
               <div
-                key={card.card_id || index + 22} // Offset index เพื่อไม่ให้ key ซ้ำ
-                className={`rounded-lg text-black text-center transition-transform duration-300 ease-in-out transform ${activeCard === index + 22 && !isReducedMotion ? 'scale-110' : 'scale-100'
-                  } hover:${isReducedMotion ? 'scale-100' : 'scale-110'} bg-white shadow-lg cursor-pointer`}
+                key={card.card_id || index + 22}
+                className={`mystic-card text-center transition-transform duration-300 ease-in-out transform ${activeCard === index + 22 && !isReducedMotion ? 'scale-110' : 'scale-100'} hover:scale-105 cursor-pointer`}
                 onClick={() => handleCardInteraction(index + 22)}
               >
                 <div className="relative w-full" style={{ paddingTop: '150%' }}>
                   <img
                     src={card.image_url}
                     alt={card.name}
-                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg transition-transform duration-300 ease-in-out"
+                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg border-2 border-yellow-300 shadow-lg"
+                    style={{ maxWidth: '100%', maxHeight: '260px', minHeight: '180px' }}
                     loading="lazy"
                     onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
                   />
                 </div>
-                <p className="text-sm font-medium mt-2">{card.name}</p>
+                <p className="mystic-gold-text text-sm font-medium mt-2 font-serif" style={{ fontSize: '0.82rem' }}>{card.name}</p>
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-600 col-span-3">ไม่มีไพ่ Minor Arcana</p>
+            <p className="text-center mystic-gold-text col-span-3">ไม่มีไพ่ Minor Arcana</p>
           )}
         </div>
       </div>

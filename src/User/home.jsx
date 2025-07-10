@@ -3,7 +3,6 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import backgroundImage from '../assets/background.jpg';
 import { cacheUtils } from '../utils/cache';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -93,7 +92,7 @@ const useApiCall = () => {
 // Utility functions
 const showAlert = (title, text, icon = 'info', options = {}) => {
     return Swal.fire({
-        title,
+        title: `<span class='mystic-heading text-xl'>${title}</span>`,
         text,
         icon,
         confirmButtonText: options.confirmButtonText || 'ตกลง',
@@ -102,11 +101,12 @@ const showAlert = (title, text, icon = 'info', options = {}) => {
         input: options.input || null,
         inputLabel: options.inputLabel || null,
         customClass: {
-            popup: 'w-[95vw] max-w-md rounded-xl mx-2',
-            title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold',
-            content: 'text-[clamp(0.875rem,3.5vw,1rem)] leading-relaxed max-h-[60vh] overflow-y-auto px-2',
-            confirmButton: 'px-6 py-3 text-white rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium min-h-[48px] touch-action-manipulation',
-            cancelButton: 'px-6 py-3 text-gray-800 rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium min-h-[48px] touch-action-manipulation',
+            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+            title: 'mystic-heading text-xl mb-2',
+            content: 'text-[clamp(0.95rem,3.5vw,1.1rem)] mystic-gold-text font-serif',
+            confirmButton: 'mystic-btn w-full mt-4',
+            cancelButton: 'mystic-btn w-full mt-4',
+            htmlContainer: 'font-serif',
             ...options.customClass,
         },
         ...options,
@@ -202,14 +202,6 @@ const showCardDescriptionByCategory = (description, cardName) => {
         advice: '💡 คำแนะนำ'
     };
 
-    const categoryColors = {
-        love: 'category-love',
-        work: 'category-work',
-        money: 'category-money',
-        health: 'category-health',
-        advice: 'category-advice'
-    };
-
     // หาข้อความหลังชื่อไพ่ (ส่วนแรกของคำอธิบาย)
     const firstLine = description.split('\n')[0]?.trim() || '';
     const cardSubtitle = firstLine && firstLine !== cardName ? firstLine : '';
@@ -218,25 +210,25 @@ const showCardDescriptionByCategory = (description, cardName) => {
     const buttonsHTML = Object.entries(categories)
         .filter(([key, value]) => value.trim())
         .map(([key, value]) => {
-            // ใช้ base64 encoding เพื่อหลีกเลี่ยงปัญหา escape characters
-            const encodedValue = btoa(unescape(encodeURIComponent(value)));
-            const encodedCardName = btoa(unescape(encodeURIComponent(cardName)));
+            // ใช้ JSON.stringify แทน base64 เพื่อรองรับภาษาไทย
+            const encodedValue = encodeURIComponent(JSON.stringify(value));
+            const encodedCardName = encodeURIComponent(JSON.stringify(cardName));
 
             return `
                 <button 
                     onclick="window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
-                    class="w-full mb-3 px-4 py-3 text-white rounded-lg text-mobile-base font-medium category-button ${categoryColors[key]} transition-all duration-200"
+                    class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
                 >
-                    ${categoryLabels[key]}
+                    <span class='btn-icon'>${categoryLabels[key].split(' ')[0]}</span> ${categoryLabels[key].replace(/^[^ ]+ /, '')}
                 </button>
             `;
         }).join('');
 
     Swal.fire({
-        title: `🔮 ${cardName}`,
+        title: `<span class='mystic-heading text-2xl flex items-center justify-center gap-2'>🔮 ${cardName}</span>`,
         html: `
             <div class="text-center">
-                ${cardSubtitle ? `<p class="card-subtitle text-mobile-sm">${cardSubtitle}</p>` : ''}
+                ${cardSubtitle ? `<p class="card-subtitle text-mobile-sm mystic-gold-text mb-2">${cardSubtitle}</p>` : ''}
                 <div class="space-y-2">
                     ${buttonsHTML}
                 </div>
@@ -245,55 +237,64 @@ const showCardDescriptionByCategory = (description, cardName) => {
         showConfirmButton: false,
         showCloseButton: true,
         customClass: {
-            popup: 'w-[95vw] max-w-md rounded-xl mx-2',
-            title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold text-purple-800 mb-3',
-            closeButton: 'text-gray-500 hover:text-gray-700'
+            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+            title: 'mystic-heading text-2xl mb-3',
+            closeButton: 'text-yellow-300 hover:text-yellow-100',
+            htmlContainer: 'font-serif',
         }
     });
 
     // เพิ่มฟังก์ชัน global สำหรับแสดงหมวดหมู่
     window.showCategoryDescription = (category, encodedContent, encodedCardName) => {
         const categoryLabels = {
-            love: '🔮',
-            work: '🔮',
-            money: '🔮',
-            health: '🔮',
-            advice: '🔮'
+            love: '💕 ความรัก',
+            work: '💼 การงาน',
+            money: '💰 การเงิน',
+            health: '🏥 สุขภาพ',
+            advice: '💡 คำแนะนำ'
         };
 
-        const categoryColors = {
-            love: 'category-love',
-            work: 'category-work',
-            money: 'category-money',
-            health: 'category-health',
-            advice: 'category-advice'
-        };
+        try {
+            // Decode ข้อมูลจาก JSON
+            const content = JSON.parse(decodeURIComponent(encodedContent));
+            const cardName = JSON.parse(decodeURIComponent(encodedCardName));
 
-        // Decode ข้อมูลจาก base64
-        const content = decodeURIComponent(escape(atob(encodedContent)));
-        const cardName = decodeURIComponent(escape(atob(encodedCardName)));
+            // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
+            const formattedContent = content.replace(/\n/g, '<br>');
 
-        // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
-        const formattedContent = content.replace(/\n/g, '<br>');
-
-        Swal.fire({
-            title: `${categoryLabels[category]} - ${cardName}`,
-            html: `<div class="category-content text-[clamp(0.875rem,3.5vw,1rem)] text-gray-700">${formattedContent}</div>`,
-            showConfirmButton: false,
-            showCancelButton: true,
-            cancelButtonText: 'ย้อนกลับ',
-            customClass: {
-                popup: 'w-[95vw] max-w-md rounded-xl mx-2',
-                title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold text-blue-800 mb-3',
-                content: 'max-h-[60vh] overflow-y-auto px-2',
-                cancelButton: `${categoryColors[category]} px-6 py-3 text-white rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium`
-            }
-        }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.cancel) {
-                // กลับไปหน้าหมวดหมู่
-                showCardDescriptionByCategory(description, cardName);
-            }
-        });
+            Swal.fire({
+                title: `<span class='mystic-heading text-xl'>${cardName}</span>`,
+                html: `<div class="category-content text-[clamp(0.95rem,3.5vw,1.1rem)] mystic-gold-text font-serif">${formattedContent}</div>`,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'ย้อนกลับ',
+                customClass: {
+                    popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+                    title: 'mystic-heading text-xl mb-2',
+                    content: 'max-h-[60vh] overflow-y-auto px-2',
+                    cancelButton: 'mystic-btn w-full mt-4',
+                    htmlContainer: 'font-serif',
+                }
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.cancel) {
+                    // กลับไปหน้าหมวดหมู่
+                    showCardDescriptionByCategory(description, cardName);
+                }
+            });
+        } catch (error) {
+            console.error('Error decoding content:', error);
+            // Fallback: แสดงข้อความ error
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถแสดงเนื้อหาได้ กรุณาลองใหม่',
+                icon: 'error',
+                confirmButtonText: 'ตกลง',
+                customClass: {
+                    popup: 'mystic-modal',
+                    confirmButton: 'mystic-btn'
+                }
+            });
+        }
     };
 };
 
@@ -610,6 +611,9 @@ const Home = () => {
                     throw new Error('User data not found');
                 }
 
+                // Set loading to false ทันทีหลังโหลด user data
+                setIsInitializing(false);
+
                 // Load cards data in parallel (can be slower, but won't block UI)
                 loadCardsData().catch(error => {
                     console.error('Cards loading failed:', error);
@@ -623,8 +627,6 @@ const Home = () => {
                     'error',
                     { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
                 );
-            } finally {
-                // Set loading to false after user data is loaded, regardless of cards loading
                 setIsInitializing(false);
             }
         };
@@ -635,17 +637,19 @@ const Home = () => {
     // Loading state
     if (isInitializing) {
         return (
-            <div
-                className="flex justify-center items-center min-h-screen bg-gray-600 bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: `url(${backgroundImage})` }}
-            >
-                <div className="bg-white bg-opacity-70 p-6 rounded-xl shadow-2xl w-[90%] max-w-md">
-                    <div className="animate-pulse">
-                        <div className="h-6 bg-gray-300 rounded w-3/4 mx-auto mb-4"></div>
-                        <div className="h-40 bg-gray-300 rounded-lg mb-4"></div>
-                        <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-2"></div>
-                        <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
-                    </div>
+            <div className="flex justify-center items-center min-h-screen login-home-bg">
+                <style>{`
+                  .login-home-bg {
+                    background: linear-gradient(135deg, var(--color-mystic-purple-dark) 0%, var(--color-mystic-black) 100%);
+                  }
+                `}</style>
+                <div className="mystic-card flex flex-col items-center justify-center p-8 shadow-2xl">
+                    <svg className="animate-spin h-12 w-12 text-yellow-300 mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    <div className="mystic-heading text-xl text-center mb-2">กำลังโหลดหน้า Home...</div>
+                    <div className="text-yellow-200 text-center">โปรดรอสักครู่ กำลังเชื่อมจิตกับจักรวาล...</div>
                 </div>
             </div>
         );
@@ -653,24 +657,43 @@ const Home = () => {
 
     return (
         <div
-            className="flex flex-col min-h-screen bg-gray-600 bg-cover bg-center bg-no-repeat px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
-            style={{ backgroundImage: `url(${backgroundImage})` }}
+            className="flex flex-col min-h-screen px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] login-home-bg"
+            style={{ position: 'relative' }}
         >
-            <div className="flex-grow flex items-center justify-center p-4">
-                <div className="bg-white bg-opacity-70 p-6 rounded-xl shadow-2xl text-center w-[90%] max-w-md">
-                    <h1 className="text-[clamp(1.5rem,4vw,1.75rem)] font-bold mb-4 text-purple-800">
-                        🃏 ทำนายโชคชะตา ✨
+            {/* Twinkle stars background - now always first */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+                <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-6 left-[10%] animate-twinkle"></div>
+                <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full top-12 right-[15%] animate-twinkle animation-delay-150"></div>
+                <div className="absolute w-1 h-1 bg-white rounded-full bottom-8 left-[25%] animate-twinkle animation-delay-300"></div>
+                <div className="absolute w-1.5 h-1.5 bg-yellow-200 rounded-full top-20 right-[30%] animate-twinkle animation-delay-450"></div>
+                <div className="absolute w-1 h-1 bg-white rounded-full bottom-16 left-[40%] animate-twinkle animation-delay-600"></div>
+                <div className="absolute w-1 h-1 bg-yellow-100 rounded-full top-10 left-[60%] animate-twinkle animation-delay-200"></div>
+                <div className="absolute w-1.5 h-1.5 bg-white rounded-full top-24 left-[80%] animate-twinkle animation-delay-350"></div>
+                <div className="absolute w-1 h-1 bg-yellow-200 rounded-full bottom-20 right-[10%] animate-twinkle animation-delay-500"></div>
+                <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full bottom-10 right-[25%] animate-twinkle animation-delay-700"></div>
+                <div className="absolute w-1 h-1 bg-white rounded-full top-1/2 left-[15%] animate-twinkle animation-delay-800"></div>
+                <div className="absolute w-1.5 h-1.5 bg-yellow-200 rounded-full top-[70%] left-[50%] animate-twinkle animation-delay-900"></div>
+                <div className="absolute w-1 h-1 bg-yellow-100 rounded-full bottom-[30%] right-[40%] animate-twinkle animation-delay-1000"></div>
+                <div className="absolute w-1.5 h-1.5 bg-white rounded-full top-[60%] left-[80%] animate-twinkle animation-delay-1100"></div>
+                <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-[80%] left-[20%] animate-twinkle animation-delay-1200"></div>
+                <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full bottom-[15%] left-[60%] animate-twinkle animation-delay-1300"></div>
+            </div>
+            <div className="flex-grow flex items-center justify-center p-2 sm:p-4">
+                <div className="mystic-card w-full max-w-md mx-auto text-center relative">
+                    <div className="card-glow"></div>
+                    <h1 className="mystic-heading text-[clamp(1.5rem,4vw,1.75rem)] font-bold mb-4 flex items-center justify-center gap-2">
+                        <span className="text-3xl">🃏</span> ทำนายโชคชะตา <span className="text-3xl">✨</span>
                     </h1>
 
                     {isRevealing ? (
                         <div className="mb-4 flex flex-col justify-center items-center gap-4">
-                            <div className="relative w-[12rem] h-[18rem]">
+                            <div className="relative w-[10rem] h-[15rem] sm:w-[12rem] sm:h-[18rem] mx-auto">
                                 {animationCards.map((card, index) => (
                                     <motion.img
                                         key={`${card.card_id}-${index}`}
                                         src={card.image_url}
                                         alt={`Shuffling card ${card.name}`}
-                                        className="absolute w-[10rem] h-[15rem] aspect-[2/3] object-contain rounded-lg shadow-2xl"
+                                        className="absolute w-[8rem] h-[12rem] sm:w-[10rem] sm:h-[15rem] aspect-[2/3] object-contain rounded-lg shadow-2xl border-2 border-yellow-300"
                                         variants={cardVariants}
                                         animate={index === 0 ? 'shuffle' : index === 1 ? 'shuffle2' : 'shuffle3'}
                                         style={{
@@ -685,7 +708,7 @@ const Home = () => {
                                     />
                                 ))}
                             </div>
-                            <p className="text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-red-600">
+                            <p className="text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-yellow-300 drop-shadow-lg">
                                 🔮 โชคชะตากำลังถูกเปิดเผย...
                             </p>
                         </div>
@@ -703,26 +726,26 @@ const Home = () => {
                                         <img
                                             src={card.image_url}
                                             alt={card.name}
-                                            className="w-full max-w-[12rem] aspect-[2/3] object-contain rounded-lg shadow-2xl mx-auto transform hover:scale-105 transition-transform duration-300"
+                                            className="w-full max-w-[10rem] sm:max-w-[12rem] aspect-[2/3] object-contain rounded-lg shadow-2xl mx-auto border-2 border-yellow-300"
                                             loading="lazy"
                                             onError={(e) => {
                                                 console.error(`Failed to load card image: ${card.image_url}`);
                                                 e.target.style.display = 'none';
                                             }}
                                         />
-                                        <h2 className="text-lg font-bold mt-2 text-purple-800">{card.name}</h2>
+                                        <h2 className="text-lg font-bold mt-2 mystic-gold-text drop-shadow-lg">{card.name}</h2>
                                         <button
                                             onClick={() => showCardDescription(card.description, card.name)}
-                                            className="bg-yellow-400 hover:bg-yellow-500 text-black px-8 py-4 rounded-lg text-mobile-base font-medium w-full transform hover:scale-105 transition-transform duration-200 touch-button mt-2"
+                                            className="mystic-btn w-full flex items-center justify-center gap-2 mt-2"
                                         >
-                                            👀ดูคำทำนายของไพ่ใบนี้👀
+                                            <span className="btn-icon">👁️</span> ดูคำทำนายของไพ่ใบนี้
                                         </button>
                                     </motion.div>
                                 ))}
                             </div>
                         </div>
                     ) : (
-                        <p className="italic text-gray-800 mb-4 text-sm">🫵 โปรดเติมพลังก่อนสุ่มไพ่ทาโรต์!</p>
+                        <p className="italic text-yellow-200 mb-4 text-sm">🫵 โปรดเติมพลังก่อนสุ่มไพ่ทาโรต์!</p>
                     )}
 
                     <div className="my-3">
@@ -730,10 +753,9 @@ const Home = () => {
                             onClick={handleRedeemCode}
                             disabled={apiLoading}
                             type="button"
-                            className={`bg-purple-700 hover:bg-purple-800 text-white px-6 py-4 rounded-lg text-mobile-base font-medium w-full transform hover:scale-105 transition-transform duration-200 touch-button ${apiLoading ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            className="mystic-btn w-full flex items-center justify-center gap-2"
                         >
-                            {apiLoading ? 'กำลังเชื่อมจิต...' : 'กรอกโค้ดลับ'}
+                            <span className="btn-icon">✨</span> {apiLoading ? 'กำลังเชื่อมจิต...' : 'กรอกโค้ดลับ'}
                         </button>
                     </div>
 
@@ -741,18 +763,17 @@ const Home = () => {
                         <button
                             onClick={drawCard}
                             disabled={!canDrawCard}
-                            className={`bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold shadow-md text-mobile-base w-full transform hover:scale-105 transition-transform duration-200 touch-button ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            className={`mystic-btn w-full flex items-center justify-center gap-2 font-bold shadow-md ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            {userData.point > 0 ? `ใช้พลังทำนาย: ${userData.point}` : 'สุ่มไพ่ทาโรต์'}
+                            <span className="btn-icon">🔮</span> {userData.point > 0 ? `ใช้พลังทำนาย: ${userData.point}` : 'สุ่มไพ่ทาโรต์'}
                         </button>
                     </div>
                 </div>
             </div>
 
-            <footer className="bg-purple-900 min-h-[48px] flex justify-center items-center p-4 shadow-2xl">
+            <footer className="bg-transparent min-h-[48px] flex justify-center items-center p-4 mt-4">
                 <div className="text-center">
-                    <p className="text-sm font-light italic">© 2025 Tarot Moodma. สงวนลิขสิทธิ์.</p>
+                    <p className="text-sm font-light italic mystic-black-text">© 2025 Tarot Moodma. สงวนลิขสิทธิ์.</p>
                 </div>
             </footer>
         </div>
