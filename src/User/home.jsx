@@ -674,9 +674,9 @@ const Home = () => {
                                         <h2 className="text-lg font-bold mt-2 text-purple-800">{card.name}</h2>
                                         <button
                                             onClick={() => showCardDescription(card.description, card.name)}
-                                            className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-4 rounded-lg text-mobile-base font-medium w-full transform hover:scale-105 transition-transform duration-200 touch-button mt-2"
+                                            className="bg-yellow-400 hover:bg-yellow-500 text-black px-8 py-4 rounded-lg text-mobile-base font-medium w-full transform hover:scale-105 transition-transform duration-200 touch-button mt-2"
                                         >
-                                            คำทำนาย
+                                            👀ดูคำทำนายของไพ่ใบนี้👀
                                         </button>
                                     </motion.div>
                                 ))}

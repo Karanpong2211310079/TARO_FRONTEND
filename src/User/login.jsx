@@ -54,14 +54,14 @@ const Login = () => {
       return;
     }
     setIsLoading(true);
-    // Retry login up to 2 times if error
-    const attemptLogin = async (retries = 2) => {
+    // Retry login 0 times if error (no retry)
+    const attemptLogin = async (retries = 0) => {
       try {
         const res = await axios.post(
           `${API_BASE_URL}login`,
           { name, phone: password },
           {
-            timeout: 5000,
+            timeout: 5000, // ลด timeout เหลือ 5000ms
             headers: {
               'Content-Type': 'application/json',
               'Cache-Control': 'no-cache',
