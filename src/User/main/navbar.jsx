@@ -93,10 +93,58 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center space-x-2">
+                  <img
+                    src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
+                    alt="Profile"
+                    className="h-8 w-8 rounded-full object-cover"
+                    loading="lazy"
+                  />
+                  <span className="text-base font-medium">{name}</span>
+                </div>
+                <Link
+                  to="/user"
+                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                >
+                  My Card
+                </Link>
+                <Link
+                  to="/allcards"
+                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                >
+                  All Cards
+                </Link>
+                <Link
+                  to="/home"
+                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                >
+                  ทำนาย
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/"
+                className="text-base font-medium hover:text-yellow-200 transition-colors duration-200"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 rounded"
+            className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 rounded"
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -138,6 +186,13 @@ const Navbar = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     All Cards
+                  </Link>
+                  <Link
+                    to="/home"
+                    className="text-base font-medium px-3 hover:text-yellow-200 transition-colors duration-200"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    ทำนาย
                   </Link>
                   <button
                     onClick={handleSignOut}

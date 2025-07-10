@@ -102,14 +102,199 @@ const showAlert = (title, text, icon = 'info', options = {}) => {
         input: options.input || null,
         inputLabel: options.inputLabel || null,
         customClass: {
-            popup: 'w-[90%] max-w-md rounded-xl',
-            title: 'text-[clamp(1rem,3.5vw,1.25rem)] font-bold',
-            confirmButton: 'px-4 py-3 text-sm text-white rounded min-h-[48px]',
-            cancelButton: 'px-4 py-3 text-sm text-gray-800 rounded min-h-[48px]',
+            popup: 'w-[95vw] max-w-md rounded-xl mx-2',
+            title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold',
+            content: 'text-[clamp(0.875rem,3.5vw,1rem)] leading-relaxed max-h-[60vh] overflow-y-auto px-2',
+            confirmButton: 'px-6 py-3 text-white rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium min-h-[48px] touch-action-manipulation',
+            cancelButton: 'px-6 py-3 text-gray-800 rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium min-h-[48px] touch-action-manipulation',
             ...options.customClass,
         },
         ...options,
     });
+};
+
+// ฟังก์ชันสำหรับแยกคำอธิบายออกเป็นหมวดต่างๆ
+const parseCardDescription = (description) => {
+    const categories = {
+        love: '',
+        work: '',
+        money: '',
+        health: '',
+        advice: ''
+    };
+
+    if (!description) return categories;
+
+    // แยกข้อความตามหมวดหมู่
+    const lines = description.split('\n').filter(line => line.trim());
+
+    let currentCategory = '';
+
+    lines.forEach(line => {
+        const trimmedLine = line.trim();
+
+        // ตรวจสอบหมวดหมู่จากคำสำคัญและ emoji
+        if (trimmedLine.includes('ความรัก') || trimmedLine.includes('รัก') || trimmedLine.includes('❤️') || trimmedLine.includes('💕') ||
+            trimmedLine.includes('ความสัมพันธ์') || trimmedLine.includes('คู่รัก') || trimmedLine.includes('คนรัก') ||
+            trimmedLine.includes('การแต่งงาน') || trimmedLine.includes('ความโรแมนติก') || trimmedLine.includes('แฟน')) {
+            currentCategory = 'love';
+        } else if (trimmedLine.includes('การงาน') || trimmedLine.includes('งาน') || trimmedLine.includes('💼') || trimmedLine.includes('🏢') ||
+            trimmedLine.includes('อาชีพ') || trimmedLine.includes('ธุรกิจ') || trimmedLine.includes('การทำงาน') ||
+            trimmedLine.includes('เพื่อนร่วมงาน') || trimmedLine.includes('เจ้านาย') || trimmedLine.includes('บริษัท') ||
+            trimmedLine.includes('โครงการ') || trimmedLine.includes('ตำแหน่ง')) {
+            currentCategory = 'work';
+        } else if (trimmedLine.includes('การเงิน') || trimmedLine.includes('เงิน') || trimmedLine.includes('💰') || trimmedLine.includes('💵') ||
+            trimmedLine.includes('การลงทุน') || trimmedLine.includes('ธุรกิจ') || trimmedLine.includes('ความมั่งคั่ง') ||
+            trimmedLine.includes('การออม') || trimmedLine.includes('รายได้') || trimmedLine.includes('กำไร') ||
+            trimmedLine.includes('ขาดทุน') || trimmedLine.includes('งบประมาณ')) {
+            currentCategory = 'money';
+        } else if (trimmedLine.includes('สุขภาพ') || trimmedLine.includes('ร่างกาย') || trimmedLine.includes('🏥') || trimmedLine.includes('💊') ||
+            trimmedLine.includes('การรักษา') || trimmedLine.includes('ความเจ็บป่วย') || trimmedLine.includes('การออกกำลังกาย') ||
+            trimmedLine.includes('จิตใจ') || trimmedLine.includes('ความเครียด') || trimmedLine.includes('โรค') ||
+            trimmedLine.includes('อาการ') || trimmedLine.includes('การพักผ่อน')) {
+            currentCategory = 'health';
+        } else if (trimmedLine.includes('คำแนะนำ') || trimmedLine.includes('แนะนำ') || trimmedLine.includes('💡') || trimmedLine.includes('✨') ||
+            trimmedLine.includes('ควร') || trimmedLine.includes('ไม่ควร') || trimmedLine.includes('วิธี') ||
+            trimmedLine.includes('เคล็ดลับ') || trimmedLine.includes('ข้อควรระวัง') || trimmedLine.includes('#') ||
+            trimmedLine.includes('ข้อคิด') || trimmedLine.includes('แนวทาง')) {
+            currentCategory = 'advice';
+        }
+
+        // เพิ่มข้อความลงในหมวดหมู่ปัจจุบัน
+        if (currentCategory && trimmedLine) {
+            if (categories[currentCategory]) {
+                categories[currentCategory] += '\n' + trimmedLine;
+            } else {
+                categories[currentCategory] = trimmedLine;
+            }
+        }
+    });
+
+    // ถ้าไม่พบหมวดหมู่ที่ชัดเจน ให้แบ่งตามความยาว
+    if (!Object.values(categories).some(cat => cat)) {
+        const words = description.split(' ');
+        const chunkSize = Math.ceil(words.length / 5);
+
+        for (let i = 0; i < 5; i++) {
+            const start = i * chunkSize;
+            const end = start + chunkSize;
+            const chunk = words.slice(start, end).join(' ');
+
+            if (chunk.trim()) {
+                const categoryKeys = Object.keys(categories);
+                categories[categoryKeys[i]] = chunk.trim();
+            }
+        }
+    }
+
+    return categories;
+};
+
+// ฟังก์ชันสำหรับแสดงคำอธิบายแยกตามหมวดหมู่
+const showCardDescriptionByCategory = (description, cardName) => {
+    const categories = parseCardDescription(description);
+
+    const categoryLabels = {
+        love: '💕 ความรัก',
+        work: '💼 การงาน',
+        money: '💰 การเงิน',
+        health: '🏥 สุขภาพ',
+        advice: '💡 คำแนะนำ'
+    };
+
+    const categoryColors = {
+        love: 'category-love',
+        work: 'category-work',
+        money: 'category-money',
+        health: 'category-health',
+        advice: 'category-advice'
+    };
+
+    // หาข้อความหลังชื่อไพ่ (ส่วนแรกของคำอธิบาย)
+    const firstLine = description.split('\n')[0]?.trim() || '';
+    const cardSubtitle = firstLine && firstLine !== cardName ? firstLine : '';
+
+    // สร้าง HTML สำหรับปุ่มแต่ละหมวด
+    const buttonsHTML = Object.entries(categories)
+        .filter(([key, value]) => value.trim())
+        .map(([key, value]) => {
+            // ใช้ base64 encoding เพื่อหลีกเลี่ยงปัญหา escape characters
+            const encodedValue = btoa(unescape(encodeURIComponent(value)));
+            const encodedCardName = btoa(unescape(encodeURIComponent(cardName)));
+
+            return `
+                <button 
+                    onclick="window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
+                    class="w-full mb-3 px-4 py-3 text-white rounded-lg text-mobile-base font-medium category-button ${categoryColors[key]} transition-all duration-200"
+                >
+                    ${categoryLabels[key]}
+                </button>
+            `;
+        }).join('');
+
+    Swal.fire({
+        title: `🔮 ${cardName}`,
+        html: `
+            <div class="text-center">
+                ${cardSubtitle ? `<p class="card-subtitle text-mobile-sm">${cardSubtitle}</p>` : ''}
+                <div class="space-y-2">
+                    ${buttonsHTML}
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: {
+            popup: 'w-[95vw] max-w-md rounded-xl mx-2',
+            title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold text-purple-800 mb-3',
+            closeButton: 'text-gray-500 hover:text-gray-700'
+        }
+    });
+
+    // เพิ่มฟังก์ชัน global สำหรับแสดงหมวดหมู่
+    window.showCategoryDescription = (category, encodedContent, encodedCardName) => {
+        const categoryLabels = {
+            love: '🔮',
+            work: '🔮',
+            money: '🔮',
+            health: '🔮',
+            advice: '🔮'
+        };
+
+        const categoryColors = {
+            love: 'category-love',
+            work: 'category-work',
+            money: 'category-money',
+            health: 'category-health',
+            advice: 'category-advice'
+        };
+
+        // Decode ข้อมูลจาก base64
+        const content = decodeURIComponent(escape(atob(encodedContent)));
+        const cardName = decodeURIComponent(escape(atob(encodedCardName)));
+
+        // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
+        const formattedContent = content.replace(/\n/g, '<br>');
+
+        Swal.fire({
+            title: `${categoryLabels[category]} - ${cardName}`,
+            html: `<div class="category-content text-[clamp(0.875rem,3.5vw,1rem)] text-gray-700">${formattedContent}</div>`,
+            showConfirmButton: false,
+            showCancelButton: true,
+            cancelButtonText: 'ย้อนกลับ',
+            customClass: {
+                popup: 'w-[95vw] max-w-md rounded-xl mx-2',
+                title: 'text-[clamp(1rem,4vw,1.25rem)] font-bold text-blue-800 mb-3',
+                content: 'max-h-[60vh] overflow-y-auto px-2',
+                cancelButton: `${categoryColors[category]} px-6 py-3 text-white rounded-lg text-[clamp(0.875rem,3.5vw,1rem)] font-medium`
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.cancel) {
+                // กลับไปหน้าหมวดหมู่
+                showCardDescriptionByCategory(description, cardName);
+            }
+        });
+    };
 };
 
 const isCacheValid = (timestamp) => {
@@ -149,25 +334,35 @@ const Home = () => {
     }, []);
 
     const updateUserCards = useCallback(async (cardId) => {
-        await axios.post(
-            `${API_BASE_URL}add-usercard`,
-            { user_id: userData.userId, card_id: cardId },
-            {
-                headers: { Authorization: `Bearer ${userData.token}` },
-                timeout: API_TIMEOUT
-            }
-        );
+        try {
+            await axios.post(
+                `${API_BASE_URL}add-usercard`,
+                { user_id: userData.userId, card_id: cardId },
+                {
+                    headers: { Authorization: `Bearer ${userData.token}` },
+                    timeout: API_TIMEOUT
+                }
+            );
+        } catch (error) {
+            console.error('Error adding user card:', error);
+            // ไม่ throw error เพื่อไม่ให้กระทบการแสดงการ์ด
+        }
     }, [userData.userId, userData.token]);
 
     const updateUserPoint = useCallback(async (newPoint) => {
-        await axios.put(
-            `${API_BASE_URL}user-point`,
-            { id: userData.userId, point: newPoint },
-            {
-                headers: { Authorization: `Bearer ${userData.token}` },
-                timeout: API_TIMEOUT
-            }
-        );
+        try {
+            await axios.put(
+                `${API_BASE_URL}user-point`,
+                { id: userData.userId, point: newPoint },
+                {
+                    headers: { Authorization: `Bearer ${userData.token}` },
+                    timeout: API_TIMEOUT
+                }
+            );
+        } catch (error) {
+            console.error('Error updating user point:', error);
+            // ไม่ throw error เพื่อไม่ให้กระทบการแสดงการ์ด
+        }
     }, [userData.userId, userData.token]);
 
     const redeemCode = useCallback(async (code) => {
@@ -313,16 +508,33 @@ const Home = () => {
 
         setTimeout(async () => {
             try {
-                const randomCard = cardsData.cards[Math.floor(Math.random() * cardsData.cards.length)];
+                // ตรวจสอบว่ามีการ์ดในข้อมูลหรือไม่
+                if (!cardsData.cards || cardsData.cards.length === 0) {
+                    throw new Error('No cards available');
+                }
+
+                // สุ่มไพ่แบบเท่าเทียม - ทุกใบมีโอกาสเท่ากัน
+                const randomIndex = Math.floor(Math.random() * cardsData.cards.length);
+                const randomCard = cardsData.cards[randomIndex];
+
+                // ตรวจสอบว่าการ์ดที่สุ่มได้มีข้อมูลครบหรือไม่
+                if (!randomCard || !randomCard.card_id || !randomCard.name) {
+                    throw new Error('Invalid card data');
+                }
+
                 setDrawnCards([randomCard]);
 
                 const newPoint = userData.point - 1;
                 setUserData(prev => ({ ...prev, point: newPoint }));
 
-                await Promise.all([
-                    updateUserPoint(newPoint),
-                    updateUserCards(randomCard.card_id)
-                ]);
+                // เรียก API แยกกันโดยไม่รอผล
+                updateUserPoint(newPoint).catch(error => {
+                    console.error('Error updating user point:', error);
+                });
+
+                updateUserCards(randomCard.card_id).catch(error => {
+                    console.error('Error updating user cards:', error);
+                });
 
                 // แจ้งเตือนว่าการ์ดถูกเพิ่มเข้าไปในคอลเลกชัน
                 showAlert(
@@ -339,6 +551,7 @@ const Home = () => {
                 );
             } catch (error) {
                 console.error('Error drawing card:', error);
+                // แสดง error เฉพาะเมื่อไม่สามารถสุ่มการ์ดได้
                 showAlert(
                     'เกิดข้อผิดพลาด!',
                     'ไม่สามารถสุ่มไพ่ได้ กรุณาลองใหม่',
@@ -351,18 +564,8 @@ const Home = () => {
         }, ANIMATION_DURATION);
     }, [canDrawCard, userData.point, cardsData.cards, updateUserPoint, updateUserCards]);
 
-    const showCardDescription = useCallback((description) => {
-        showAlert(
-            '🔮ชะตาคุณถูกเปิดเผยแล้ว👀',
-            description,
-            {
-                confirmButtonText: '🧿',
-                customClass: {
-                    title: 'text-blue-800',
-                    confirmButton: 'bg-yellow-700 hover:bg-yellow-800'
-                }
-            }
-        );
+    const showCardDescription = useCallback((description, cardName) => {
+        showCardDescriptionByCategory(description, cardName);
     }, []);
 
     // Effects
@@ -468,13 +671,12 @@ const Home = () => {
                                                 e.target.style.display = 'none';
                                             }}
                                         />
-                                        <h2 className="text-base font-bold mt-2 text-purple-800">{card.name}</h2>
-                                        <p className="italic text-gray-800 text-sm line-clamp-3">{card.description}</p>
+                                        <h2 className="text-lg font-bold mt-2 text-purple-800">{card.name}</h2>
                                         <button
-                                            onClick={() => showCardDescription(card.description)}
-                                            className="text-purple-600 hover:text-purple-800 text-xs underline mt-1"
+                                            onClick={() => showCardDescription(card.description, card.name)}
+                                            className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-4 rounded-lg text-mobile-base font-medium w-full transform hover:scale-105 transition-transform duration-200 touch-button mt-2"
                                         >
-                                            อ่านต่อ...
+                                            คำทำนาย
                                         </button>
                                     </motion.div>
                                 ))}
@@ -489,7 +691,7 @@ const Home = () => {
                             onClick={handleRedeemCode}
                             disabled={apiLoading}
                             type="button"
-                            className={`bg-purple-700 hover:bg-purple-800 text-white px-4 py-3 rounded text-sm w-full transform hover:scale-105 transition-transform duration-200 min-h-[48px] touch-action-manipulation ${apiLoading ? 'opacity-50 cursor-not-allowed' : ''
+                            className={`bg-purple-700 hover:bg-purple-800 text-white px-6 py-4 rounded-lg text-mobile-base font-medium w-full transform hover:scale-105 transition-transform duration-200 touch-button ${apiLoading ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                         >
                             {apiLoading ? 'กำลังเชื่อมจิต...' : 'กรอกโค้ดลับ'}
@@ -500,7 +702,7 @@ const Home = () => {
                         <button
                             onClick={drawCard}
                             disabled={!canDrawCard}
-                            className={`bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded font-bold shadow-md text-sm w-full transform hover:scale-105 transition-transform duration-200 min-h-[48px] touch-action-manipulation ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''
+                            className={`bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold shadow-md text-mobile-base w-full transform hover:scale-105 transition-transform duration-200 touch-button ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                         >
                             {userData.point > 0 ? `ใช้พลังทำนาย: ${userData.point}` : 'สุ่มไพ่ทาโรต์'}

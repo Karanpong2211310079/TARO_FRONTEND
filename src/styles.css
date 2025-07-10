@@ -19,6 +19,177 @@
         animation-delay: 600ms;
     }
 
+    /* Line clamp utilities for text truncation */
+    .line-clamp-1 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+    }
+
+    .line-clamp-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+
+    .line-clamp-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+    }
+
+    .line-clamp-4 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+    }
+
+    /* Mobile-friendly text utilities */
+    .text-mobile-sm {
+        font-size: clamp(0.75rem, 3vw, 0.875rem);
+    }
+
+    .text-mobile-base {
+        font-size: clamp(0.875rem, 3.5vw, 1rem);
+    }
+
+    .text-mobile-lg {
+        font-size: clamp(1rem, 4vw, 1.125rem);
+    }
+
+    .text-mobile-xl {
+        font-size: clamp(1.125rem, 4.5vw, 1.25rem);
+    }
+
+    /* Touch-friendly button utilities */
+    .touch-button {
+        min-height: 48px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Category button styles */
+    .category-button {
+        min-height: 48px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .category-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-button:active {
+        transform: translateY(0);
+    }
+
+    /* Category colors */
+    .category-love {
+        background: linear-gradient(135deg, #ec4899, #be185d);
+    }
+
+    .category-work {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    }
+
+    .category-money {
+        background: linear-gradient(135deg, #10b981, #047857);
+    }
+
+    .category-health {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .category-advice {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    }
+
+    /* Back button styles */
+    .back-button {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        min-height: 48px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .back-button:hover {
+        background: linear-gradient(135deg, #4b5563, #374151);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Text formatting styles */
+    .card-description {
+        text-align: left;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    .card-subtitle {
+        font-style: italic;
+        color: #6b7280;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Category content styles */
+    .category-content {
+        text-align: left;
+        line-height: 1.7;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .category-content br {
+        margin-bottom: 0.5rem;
+    }
+
+    /* SweetAlert2 mobile improvements */
+    .swal2-popup {
+        width: 95vw !important;
+        max-width: 28rem !important;
+        margin: 0.5rem !important;
+        border-radius: 1rem !important;
+    }
+
+    .swal2-title {
+        font-size: clamp(1rem, 4vw, 1.25rem) !important;
+        font-weight: bold !important;
+        margin-bottom: 1rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .swal2-content {
+        font-size: clamp(0.875rem, 3.5vw, 1rem) !important;
+        line-height: 1.6 !important;
+        max-height: 60vh !important;
+        overflow-y: auto !important;
+        padding: 0 0.5rem !important;
+    }
+
+    .swal2-confirm,
+    .swal2-cancel {
+        min-height: 48px !important;
+        padding: 0.75rem 1.5rem !important;
+        font-size: clamp(0.875rem, 3.5vw, 1rem) !important;
+        font-weight: 500 !important;
+        border-radius: 0.5rem !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
     @keyframes twinkle {
 
         0%,

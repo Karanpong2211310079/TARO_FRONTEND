@@ -5,63 +5,72 @@ import Login from './User/login';
 import AllCards from './User/allcards';
 import User from './User/user';
 import Manage from '../Admin/main/manage';
+import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSpinner from './components/LoadingSpinner';
+import ProtectedRoute from './components/ProtectedRoute';
+import NotFound from './components/NotFound';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Lazy load คอมโพเนนต์เพื่อลดการโหลดครั้งแรก
+// Lazy load components for better performance
 const Home = lazy(() => import('./User/home'));
 
+// Wrapper component for pages with navbar
+const PageWithNavbar = ({ children }) => (
+  <Suspense fallback={<LoadingSpinner />}>
+    <Navbar />
+    {children}
+  </Suspense>
+);
+
 function App() {
-  const [count, setCount] = useState(0);
-
-  const Main = () => (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center min-h-screen bg-gray-600">
-          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }
-    >
-      <Navbar />
-      <Home />
-    </Suspense>
-  );
-
-  const AllCard = () => (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center min-h-screen bg-gray-600">
-          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }
-    >
-      <Navbar />
-      <AllCards />
-    </Suspense>
-  );
-
-  const User_Page = () => (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center min-h-screen bg-gray-600">
-          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }
-    >
-      <Navbar />
-      <User />
-    </Suspense>
-  );
-
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/home" element={<Main />} />
-        <Route path="/allcards" element={<AllCard />} />
-        <Route path="/user" element={<User_Page />} />
-        <Route path="/admin" element={<Manage />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <PageWithNavbar>
+                  <Home />
+                </PageWithNavbar>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/allcards"
+            element={
+              <ProtectedRoute>
+                <PageWithNavbar>
+                  <AllCards />
+                </PageWithNavbar>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user"
+            element={
+              <ProtectedRoute>
+                <PageWithNavbar>
+                  <User />
+                </PageWithNavbar>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <Manage />
+              </ProtectedRoute>
+            }
+          />
+          {/* 404 - Catch all unmatched routes */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
