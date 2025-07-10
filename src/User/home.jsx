@@ -4,12 +4,12 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background.jpg';
+import { cacheUtils } from '../utils/cache';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Constants
 const ANIMATION_DURATION = 5000;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const API_TIMEOUT = 10000;
 
 // Animation variants
@@ -134,7 +134,7 @@ const parseCardDescription = (description) => {
         const trimmedLine = line.trim();
 
         // ตรวจสอบหมวดหมู่จากคำสำคัญและ emoji
-        if (trimmedLine.includes('💘 ความรัก') || trimmedLine.includes('รัก') || trimmedLine.includes('❤️') || trimmedLine.includes('💕') ||
+        if (trimmedLine.includes('💘 ความรัก') || trimmedLine.includes('❤️') || trimmedLine.includes('💕') ||
             trimmedLine.includes('ความสัมพันธ์') || trimmedLine.includes('คู่รัก') || trimmedLine.includes('คนรัก') ||
             trimmedLine.includes('การแต่งงาน') || trimmedLine.includes('ความโรแมนติก') || trimmedLine.includes('แฟน')) {
             currentCategory = 'love';
@@ -298,7 +298,7 @@ const showCardDescriptionByCategory = (description, cardName) => {
 };
 
 const isCacheValid = (timestamp) => {
-    return timestamp && (Date.now() - timestamp) < CACHE_DURATION;
+    return timestamp && (Date.now() - timestamp) < cacheUtils.CACHE_DURATION;
 };
 
 const Home = () => {
@@ -328,7 +328,10 @@ const Home = () => {
     // API functions
     const fetchCards = useCallback(async () => {
         const response = await axios.get(`${API_BASE_URL}taro-card`, {
-            timeout: API_TIMEOUT
+            timeout: API_TIMEOUT,
+            headers: {
+                'Cache-Control': 'no-cache',
+            }
         });
         return response.data.data;
     }, []);
@@ -397,20 +400,22 @@ const Home = () => {
 
     const loadCardsData = useCallback(async () => {
         try {
-            const cached = localStorage.getItem('tarotCardsCache');
-            if (cached) {
-                const { cards, timestamp } = JSON.parse(cached);
-                if (isCacheValid(timestamp)) {
-                    setCardsData({ cards, timestamp });
-                    return;
-                }
+            // Use cache utility to get cached data
+            const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+            if (cachedCards) {
+                setCardsData({ cards: cachedCards, timestamp: Date.now() });
+                return;
             }
 
+            // Load from API if cache is invalid or doesn't exist
             const cards = await callApi(fetchCards);
             const timestamp = Date.now();
             setCardsData({ cards, timestamp });
-            localStorage.setItem('tarotCardsCache', JSON.stringify({ cards, timestamp }));
+
+            // Save to cache using utility
+            cacheUtils.setCachedData('tarotCardsCache', cards);
         } catch (error) {
+            console.error('Error loading cards data:', error);
             showAlert(
                 'เกิดข้อผิดพลาด!',
                 'ไม่สามารถโหลดไพ่ทาโรต์ได้ กรุณาลองใหม่',
@@ -419,6 +424,32 @@ const Home = () => {
             );
         }
     }, [callApi, fetchCards]);
+
+    // Preload cards data in background
+    useEffect(() => {
+        const preloadCards = async () => {
+            try {
+                // Use cache utility to check and preload
+                const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+                if (cachedCards) {
+                    setCardsData({ cards: cachedCards, timestamp: Date.now() });
+                    return;
+                }
+
+                // Load in background without blocking UI
+                fetchCards().then(cards => {
+                    setCardsData({ cards, timestamp: Date.now() });
+                    cacheUtils.setCachedData('tarotCardsCache', cards);
+                }).catch(error => {
+                    console.error('Background cards loading failed:', error);
+                });
+            } catch (error) {
+                console.error('Error in preload cards:', error);
+            }
+        };
+
+        preloadCards();
+    }, [fetchCards]);
 
     const handleRedeemCode = useCallback(async () => {
         const result = await showAlert(
@@ -573,12 +604,19 @@ const Home = () => {
         const initialize = async () => {
             setIsInitializing(true);
             try {
+                // Load user data first (fast, from localStorage)
                 const userLoaded = loadUserData();
                 if (!userLoaded) {
                     throw new Error('User data not found');
                 }
-                await loadCardsData();
+
+                // Load cards data in parallel (can be slower, but won't block UI)
+                loadCardsData().catch(error => {
+                    console.error('Cards loading failed:', error);
+                    // Don't throw error here, let user continue with cached data
+                });
             } catch (error) {
+                console.error('Initialization error:', error);
                 showAlert(
                     'เกิดข้อผิดพลาด!',
                     'ไม่สามารถโหลดหน้าได้ กรุณาลองใหม่',
@@ -586,6 +624,7 @@ const Home = () => {
                     { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
                 );
             } finally {
+                // Set loading to false after user data is loaded, regardless of cards loading
                 setIsInitializing(false);
             }
         };

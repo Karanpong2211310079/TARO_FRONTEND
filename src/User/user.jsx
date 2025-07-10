@@ -26,7 +26,7 @@ const parseCardDescription = (description) => {
     const trimmedLine = line.trim();
 
     // ตรวจสอบหมวดหมู่จากคำสำคัญและ emoji
-    if (trimmedLine.includes('💘 ความรัก') || trimmedLine.includes('รัก') || trimmedLine.includes('❤️') || trimmedLine.includes('💕') ||
+    if (trimmedLine.includes('💘 ความรัก') || trimmedLine.includes('❤️') || trimmedLine.includes('💕') ||
       trimmedLine.includes('ความสัมพันธ์') || trimmedLine.includes('คู่รัก') || trimmedLine.includes('คนรัก') ||
       trimmedLine.includes('การแต่งงาน') || trimmedLine.includes('ความโรแมนติก') || trimmedLine.includes('แฟน')) {
       currentCategory = 'love';

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { cacheUtils } from '../utils/cache';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
@@ -26,6 +28,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoading) return;
+
     if (!navigator.onLine) {
       Swal.fire({
         title: 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
@@ -35,6 +38,7 @@ const Login = () => {
       });
       return;
     }
+
     if (!API_BASE_URL) {
       Swal.fire({
         title: 'ข้อผิดพลาด',
@@ -44,6 +48,7 @@ const Login = () => {
       });
       return;
     }
+
     if (password.length < 6) {
       Swal.fire({
         title: 'รหัสผ่านไม่ถูกต้อง',
@@ -53,77 +58,96 @@ const Login = () => {
       });
       return;
     }
+
     setIsLoading(true);
-    // Retry login 0 times if error (no retry)
-    const attemptLogin = async (retries = 0) => {
-      try {
-        const res = await axios.post(
-          `${API_BASE_URL}login`,
-          { name, phone: password },
-          {
-            timeout: 5000, // ลด timeout เหลือ 5000ms
-            headers: {
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-cache',
-            },
+
+    try {
+      const res = await axios.post(
+        `${API_BASE_URL}login`,
+        { name, phone: password },
+        {
+          timeout: 8000, // เพิ่ม timeout เป็น 8 วินาที
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+          },
+        }
+      );
+
+      if ((res.status === 200 || res.status === 201) && res.data?.user?.role) {
+        // Save user data immediately
+        localStorage.setItem('user', JSON.stringify(res.data));
+        localStorage.setItem('lastLogin', Date.now().toString());
+
+        // Preload some data in background before navigation
+        const preloadData = async () => {
+          try {
+            // Preload cards data if not cached
+            const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+            if (!cachedCards) {
+              const cardsRes = await axios.get(`${API_BASE_URL}taro-card`, {
+                timeout: 5000,
+                headers: { 'Cache-Control': 'no-cache' }
+              });
+              cacheUtils.setCachedData('tarotCardsCache', cardsRes.data.data);
+            }
+          } catch (error) {
+            console.error('Background preload failed:', error);
+            // Don't block navigation for preload errors
           }
-        );
-        if ((res.status === 200 || res.status === 201) && res.data?.user?.role) {
-          localStorage.setItem('user', JSON.stringify(res.data));
-          localStorage.setItem('lastLogin', Date.now().toString());
-          navigate(res.data.user.role === 'admin' ? '/admin' : '/home', { replace: true });
-          return true;
-        } else {
-          Swal.fire({
-            title: 'ล็อกอินไม่สำเร็จ',
-            text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
-            icon: 'error',
-            confirmButtonText: 'ลองใหม่',
-          });
-          return false;
-        }
-      } catch (error) {
-        // รวม error message ที่เกี่ยวกับรหัสผิด
-        const msg = error.response?.data?.message || '';
-        if (
-          error.response?.status === 401 ||
-          msg.includes('Invalid') ||
-          msg.includes('incorrect') ||
-          msg.includes('Phone number does not match the registered name')
-        ) {
-          Swal.fire({
-            title: 'รหัสไม่ถูกต้อง',
-            text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
-            icon: 'error',
-            confirmButtonText: 'ลองใหม่',
-          });
-          return false;
-        }
-        if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          return attemptLogin(retries - 1);
-        }
-        let errorMessage = 'กรุณาลองใหม่';
-        if (error.code === 'ECONNABORTED') {
-          errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่';
-        } else if (msg.includes('Username already exists with a different password')) {
-          errorMessage = 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ';
-        } else if (msg.includes('Username already in use')) {
-          errorMessage = 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น';
-        } else if (error.message?.includes('Network Error')) {
-          errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
-        }
+        };
+
+        // Start preloading in background
+        preloadData();
+
+        // Navigate immediately
+        navigate(res.data.user.role === 'admin' ? '/admin' : '/home', { replace: true });
+      } else {
         Swal.fire({
-          title: 'เกิดข้อผิดพลาด',
-          text: errorMessage,
+          title: 'ล็อกอินไม่สำเร็จ',
+          text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
           icon: 'error',
           confirmButtonText: 'ลองใหม่',
         });
-        return false;
       }
-    };
-    await attemptLogin();
-    setIsLoading(false);
+    } catch (error) {
+      // รวม error message ที่เกี่ยวกับรหัสผิด
+      const msg = error.response?.data?.message || '';
+      if (
+        error.response?.status === 401 ||
+        msg.includes('Invalid') ||
+        msg.includes('incorrect') ||
+        msg.includes('Phone number does not match the registered name')
+      ) {
+        Swal.fire({
+          title: 'รหัสไม่ถูกต้อง',
+          text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+          icon: 'error',
+          confirmButtonText: 'ลองใหม่',
+        });
+        return;
+      }
+
+      let errorMessage = 'กรุณาลองใหม่';
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่';
+      } else if (msg.includes('Username already exists with a different password')) {
+        errorMessage = 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ';
+      } else if (msg.includes('Username already in use')) {
+        errorMessage = 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น';
+      } else if (error.message?.includes('Network Error')) {
+        errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
+      }
+
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'ลองใหม่',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

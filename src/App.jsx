@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import './App.css';
 import Navbar from './User/main/navbar';
 import Login from './User/login';
@@ -22,7 +22,26 @@ const PageWithNavbar = ({ children }) => (
   </Suspense>
 );
 
+// Preload critical data
+const preloadCriticalData = () => {
+  // Preload images
+  const criticalImages = [
+    'https://i.postimg.cc/XNgSymzG/IMG-0869.webp',
+    'https://i.postimg.cc/sX987Gwd/IMG-0870.webp',
+  ];
+
+  criticalImages.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+};
+
 function App() {
+  useEffect(() => {
+    // Preload critical data when app starts
+    preloadCriticalData();
+  }, []);
+
   return (
     <ErrorBoundary>
       <Router>

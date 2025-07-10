@@ -4,10 +4,10 @@ import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
-    const { user, loading, isAuthenticated, isAdmin } = useAuth();
+    const { user, loading, initialized, isAuthenticated, isAdmin } = useAuth();
 
     // Show loading while checking authentication
-    if (loading) {
+    if (loading || !initialized) {
         return <LoadingSpinner />;
     }
 
