@@ -638,11 +638,7 @@ const Home = () => {
     if (isInitializing) {
         return (
             <div className="flex justify-center items-center min-h-screen login-home-bg">
-                <style>{`
-                  .login-home-bg {
-                    background: linear-gradient(135deg, var(--color-mystic-purple-dark) 0%, var(--color-mystic-black) 100%);
-                  }
-                `}</style>
+
                 <div className="mystic-card flex flex-col items-center justify-center p-8 shadow-2xl">
                     <svg className="animate-spin h-12 w-12 text-yellow-300 mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

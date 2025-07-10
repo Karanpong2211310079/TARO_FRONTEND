@@ -181,31 +181,7 @@ const AllCards = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        .rounded-lg {
-          transition: transform 0.3s ease-in-out;
-        }
-        .rounded-lg:hover {
-          transform: ${isReducedMotion ? 'scale(1)' : 'scale(1.1)'};
-          z-index: 10;
-        }
-        @media (max-width: 640px) {
-          .grid {
-            gap: 1rem;
-          }
-          .rounded-lg {
-            max-width: 100%;
-          }
-          img {
-            max-height: 250px;
-          }
-        }
-        @media (min-width: 641px) {
-          img {
-            max-height: 350px;
-          }
-        }
-      `}</style>
+
     </div>
   );
 };

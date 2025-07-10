@@ -369,8 +369,7 @@ const User = () => {
                   </div>
                   <p className="mystic-gold-text text-xs font-medium mt-2 font-serif line-clamp-2 text-center">{cardInfo.name}</p>
                   <button
-                    style={{ minHeight: '0', height: 'auto', minWidth: '0' }}
-                    className="user-card-btn mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white text-[0.75rem] px-2 py-1 rounded-md transition-colors font-medium mt-1 shadow-lg border-2 border-yellow-300 sm:text-sm sm:px-3 sm:py-1.5"
+                    className="user-card-btn mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white text-[0.75rem] px-2 py-1 rounded-md font-medium mt-1 shadow-lg border-2 border-yellow-300 sm:text-sm sm:px-3 sm:py-1.5"
                     onClick={() => showPrediction(cardInfo.name, cardInfo.description, cardInfo.image_url)}
                   >
                     อ่านไพ่

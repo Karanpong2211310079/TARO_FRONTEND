@@ -34,10 +34,16 @@ html {
     font-weight: 700;
     font-size: 1.1rem;
     box-shadow: 0 2px 16px 0 var(--color-mystic-purple-dark), 0 1.5px 0 var(--color-mystic-gold-dark);
-    transition: all 0.18s cubic-bezier(.4, 2, .3, 1);
+    transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
     padding: 0.85em 2.2em;
     position: relative;
     overflow: hidden;
+    will-change: transform, box-shadow;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
 .mystic-btn:before {
@@ -54,9 +60,14 @@ html {
 
 .mystic-btn:hover,
 .mystic-btn:focus {
-    filter: brightness(1.08) drop-shadow(0 0 12px var(--color-mystic-gold));
-    box-shadow: 0 4px 32px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark);
+    transform: translateY(-1px) translateZ(0);
+    box-shadow: 0 4px 24px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark);
     outline: none;
+}
+
+.mystic-btn:active {
+    transform: translateY(0) translateZ(0);
+    transition: transform 0.06s ease-out;
 }
 
 .mystic-btn .btn-icon {
@@ -246,7 +257,7 @@ html {
         transform: translateY(0);
     }
 
-    /* Category colors */
+    /* Category colors - Optimized */
     .category-love {
         background: linear-gradient(135deg, #ec4899, #be185d);
     }
@@ -308,19 +319,28 @@ html {
         margin-bottom: 0.5rem;
     }
 
-    /* SweetAlert2 mobile improvements */
+    /* SweetAlert2 Mystic Theme - All Popups */
     .swal2-popup {
         width: 95vw !important;
         max-width: 28rem !important;
         margin: 0.5rem !important;
-        border-radius: 1rem !important;
+        border-radius: 1.5rem !important;
+        background: linear-gradient(135deg, rgba(40, 0, 60, 0.55) 0%, rgba(24, 24, 27, 0.6) 100%) !important;
+        backdrop-filter: blur(16px) saturate(1.2) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        box-shadow: 0 8px 48px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark) !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
     }
 
     .swal2-title {
         font-size: clamp(1rem, 4vw, 1.25rem) !important;
-        font-weight: bold !important;
+        font-weight: 700 !important;
         margin-bottom: 1rem !important;
         line-height: 1.4 !important;
+        color: var(--color-mystic-gold) !important;
+        text-shadow: 0 2px 8px var(--color-mystic-purple-dark), 0 1px 0 #fff2 !important;
+        letter-spacing: 0.04em !important;
     }
 
     .swal2-content {
@@ -329,6 +349,7 @@ html {
         max-height: 60vh !important;
         overflow-y: auto !important;
         padding: 0 0.5rem !important;
+        color: var(--color-mystic-white) !important;
     }
 
     .swal2-confirm,
@@ -336,17 +357,241 @@ html {
         min-height: 48px !important;
         padding: 0.75rem 1.5rem !important;
         font-size: clamp(0.875rem, 3.5vw, 1rem) !important;
-        font-weight: 500 !important;
-        border-radius: 0.5rem !important;
+        font-weight: 700 !important;
+        border-radius: 1.5rem !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+        transition: all 0.18s cubic-bezier(.4, 2, .3, 1) !important;
+        border: none !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .swal2-confirm {
+        background: linear-gradient(90deg, var(--color-mystic-purple) 0%, var(--color-mystic-gold) 100%) !important;
+        color: var(--color-mystic-white) !important;
+        box-shadow: 0 2px 16px 0 var(--color-mystic-purple-dark), 0 1.5px 0 var(--color-mystic-gold-dark) !important;
+    }
+
+    .swal2-confirm:before {
+        content: '' !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: radial-gradient(circle, var(--color-mystic-gold) 0%, transparent 70%) !important;
+        opacity: 0.12 !important;
+        z-index: 0 !important;
+    }
+
+    .swal2-confirm:hover,
+    .swal2-confirm:focus {
+        filter: brightness(1.08) drop-shadow(0 0 12px var(--color-mystic-gold)) !important;
+        box-shadow: 0 4px 32px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark) !important;
+        outline: none !important;
+    }
+
+    .swal2-cancel {
+        background: linear-gradient(90deg, rgba(107, 114, 128, 0.8) 0%, rgba(75, 85, 99, 0.9) 100%) !important;
+        color: var(--color-mystic-white) !important;
+        box-shadow: 0 2px 16px 0 rgba(75, 85, 99, 0.5) !important;
+    }
+
+    .swal2-cancel:hover,
+    .swal2-cancel:focus {
+        filter: brightness(1.08) !important;
+        box-shadow: 0 4px 32px 0 rgba(75, 85, 99, 0.7) !important;
+        outline: none !important;
+    }
+
+    /* SweetAlert2 Icon Styling */
+    .swal2-icon {
+        border: 3px solid var(--color-mystic-gold) !important;
+        box-shadow: 0 0 20px var(--color-mystic-gold-dark) !important;
+    }
+
+    .swal2-icon.swal2-success {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+    }
+
+    .swal2-icon.swal2-error {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.5) !important;
+    }
+
+    .swal2-icon.swal2-warning {
+        border-color: #f59e0b !important;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.5) !important;
+    }
+
+    .swal2-icon.swal2-info {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5) !important;
+    }
+
+    /* SweetAlert2 Progress Bar */
+    .swal2-timer-progress-bar {
+        background: linear-gradient(90deg, var(--color-mystic-gold), var(--color-mystic-purple)) !important;
+    }
+
+    /* SweetAlert2 Close Button */
+    .swal2-close {
+        color: var(--color-mystic-gold) !important;
+        font-size: 1.5rem !important;
+        transition: all 0.18s cubic-bezier(.4, 2, .3, 1) !important;
+    }
+
+    .swal2-close:hover {
+        color: var(--color-mystic-white) !important;
+        text-shadow: 0 0 12px var(--color-mystic-gold) !important;
+        transform: scale(1.1) !important;
+    }
+
+    /* SweetAlert2 Input Fields */
+    .swal2-input,
+    .swal2-textarea {
+        background: rgba(40, 0, 60, 0.6) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        border-radius: 1rem !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+        backdrop-filter: blur(8px) !important;
+    }
+
+    .swal2-input:focus,
+    .swal2-textarea:focus {
+        border-color: var(--color-mystic-purple) !important;
+        box-shadow: 0 0 12px var(--color-mystic-purple-dark) !important;
+        outline: none !important;
+    }
+
+    /* SweetAlert2 Select */
+    .swal2-select {
+        background: rgba(40, 0, 60, 0.6) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        border-radius: 1rem !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+        backdrop-filter: blur(8px) !important;
+    }
+
+    .swal2-select:focus {
+        border-color: var(--color-mystic-purple) !important;
+        box-shadow: 0 0 12px var(--color-mystic-purple-dark) !important;
+        outline: none !important;
+    }
+
+    /* SweetAlert2 Radio and Checkbox */
+    .swal2-radio input[type="radio"]:checked+label,
+    .swal2-checkbox input[type="checkbox"]:checked+label {
+        color: var(--color-mystic-gold) !important;
+        text-shadow: 0 1px 8px var(--color-mystic-gold-dark) !important;
+    }
+
+    /* SweetAlert2 File Input */
+    .swal2-file {
+        background: rgba(40, 0, 60, 0.6) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        border-radius: 1rem !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+        backdrop-filter: blur(8px) !important;
+    }
+
+    /* SweetAlert2 Range Input */
+    .swal2-range input {
+        background: rgba(40, 0, 60, 0.6) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        border-radius: 1rem !important;
+        color: var(--color-mystic-white) !important;
+    }
+
+    .swal2-range output {
+        color: var(--color-mystic-gold) !important;
+        text-shadow: 0 1px 8px var(--color-mystic-gold-dark) !important;
+    }
+
+    /* General Popup/Modal Styling for all types */
+    .modal,
+    .popup,
+    .dialog,
+    [role="dialog"],
+    .alert,
+    .notification {
+        background: linear-gradient(135deg, rgba(40, 0, 60, 0.55) 0%, rgba(24, 24, 27, 0.6) 100%) !important;
+        backdrop-filter: blur(16px) saturate(1.2) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        border-radius: 1.5rem !important;
+        box-shadow: 0 8px 48px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark) !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+    }
+
+    /* Error, Success, Warning, Info Alerts */
+    .alert-error,
+    .alert-danger,
+    .error-message,
+    .danger-message {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.55) 0%, rgba(185, 28, 28, 0.6) 100%) !important;
+        border-color: #ef4444 !important;
+        box-shadow: 0 8px 48px 0 rgba(239, 68, 68, 0.5), 0 2px 0 rgba(185, 28, 28, 0.8) !important;
+    }
+
+    .alert-success,
+    .success-message {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.55) 0%, rgba(5, 122, 85, 0.6) 100%) !important;
+        border-color: #10b981 !important;
+        box-shadow: 0 8px 48px 0 rgba(16, 185, 129, 0.5), 0 2px 0 rgba(5, 122, 85, 0.8) !important;
+    }
+
+    .alert-warning,
+    .warning-message {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.55) 0%, rgba(217, 119, 6, 0.6) 100%) !important;
+        border-color: #f59e0b !important;
+        box-shadow: 0 8px 48px 0 rgba(245, 158, 11, 0.5), 0 2px 0 rgba(217, 119, 6, 0.8) !important;
+    }
+
+    .alert-info,
+    .info-message {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.55) 0%, rgba(37, 99, 235, 0.6) 100%) !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 8px 48px 0 rgba(59, 130, 246, 0.5), 0 2px 0 rgba(37, 99, 235, 0.8) !important;
+    }
+
+    /* Toast Notifications */
+    .toast,
+    .toast-notification,
+    .notification-toast {
+        background: linear-gradient(135deg, rgba(40, 0, 60, 0.55) 0%, rgba(24, 24, 27, 0.6) 100%) !important;
+        backdrop-filter: blur(16px) saturate(1.2) !important;
+        border: 2px solid var(--color-mystic-gold) !important;
+        border-radius: 1rem !important;
+        box-shadow: 0 8px 48px 0 var(--color-mystic-gold-dark), 0 2px 0 var(--color-mystic-purple-dark) !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+    }
+
+    /* Tooltip Styling */
+    .tooltip,
+    [data-tooltip],
+    .tippy-box {
+        background: linear-gradient(135deg, rgba(40, 0, 60, 0.6) 0%, rgba(24, 24, 27, 0.65) 100%) !important;
+        backdrop-filter: blur(16px) saturate(1.2) !important;
+        border: 1px solid var(--color-mystic-gold) !important;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 4px 24px 0 var(--color-mystic-gold-dark), 0 1px 0 var(--color-mystic-purple-dark) !important;
+        color: var(--color-mystic-white) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
     }
 
     @keyframes twinkle {
 
         0%,
         100% {
-            opacity: 0.2;
+            opacity: 0.3;
         }
 
         50% {
@@ -380,7 +625,6 @@ html {
     bottom: 0;
     opacity: 0.13;
     z-index: 0;
-    pointer-events: none;
 }
 
 .mystic-category-btn-love {
@@ -469,6 +713,69 @@ html {
         border-radius: 0.9rem !important;
         min-height: 36px !important;
         height: auto !important;
+        transition: transform 0.06s ease-out, box-shadow 0.06s ease-out !important;
+        will-change: transform, box-shadow !important;
+        transform: translateZ(0) !important;
+        backface-visibility: hidden !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        user-select: none !important;
+    }
+
+    .mystic-btn:hover,
+    .mystic-btn:focus {
+        transform: translateY(-0.5px) translateZ(0) !important;
+        box-shadow: 0 2px 16px 0 var(--color-mystic-gold-dark), 0 1px 0 var(--color-mystic-purple-dark) !important;
+        outline: none !important;
+    }
+
+    .mystic-btn:active {
+        transform: translateY(0) translateZ(0) !important;
+        transition: transform 0.04s ease-out !important;
+    }
+
+}
+
+/* Full-width mystic buttons */
+.mystic-btn.w-full {
+    width: 100%;
+}
+
+.mystic-btn.w-full.flex {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Button icon styling */
+.mystic-btn .btn-icon {
+    margin-right: 0.6em;
+    font-size: 1.2em;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .mystic-btn {
+        transition: transform 0.04s ease-out, box-shadow 0.04s ease-out !important;
+        min-height: 44px !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        will-change: transform, box-shadow !important;
+        transform: translateZ(0) !important;
+        backface-visibility: hidden !important;
+        user-select: none !important;
+    }
+
+    .mystic-btn:hover {
+        transform: none !important;
+    }
+
+    .mystic-btn:active {
+        transform: scale(0.98) translateZ(0) !important;
+        transition: transform 0.02s ease-out !important;
     }
 }
 
@@ -479,5 +786,109 @@ html {
         min-height: 0 !important;
         height: auto !important;
         min-width: 0 !important;
+    }
+}
+
+/* Glassmorphism effect for cards */
+.glassmorphism {
+    background: linear-gradient(135deg, rgba(40, 0, 60, 0.55) 0%, rgba(24, 24, 27, 0.6) 100%);
+    backdrop-filter: blur(16px) saturate(1.2);
+    border: 1.5px solid var(--color-mystic-gold);
+    box-shadow: 0 2px 24px 0 var(--color-mystic-purple-dark);
+}
+
+/* Login background */
+.login-background {
+    background-image: url('https://i.postimg.cc/XNgSymzG/IMG-0869.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    position: relative;
+}
+
+.login-background::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, #3b0764cc 0%, #18181bcc 100%);
+    z-index: 1;
+}
+
+.login-background>* {
+    position: relative;
+    z-index: 2;
+}
+
+/* Login home background */
+.login-home-bg {
+    min-height: 100vh;
+    position: relative;
+}
+
+/* AllCards page styling */
+.mystic-card.rounded-lg {
+    transition: transform 0.22s cubic-bezier(.4, 2, .3, 1);
+}
+
+.mystic-card.rounded-lg:hover {
+    transform: scale(1.045) rotate(-1deg);
+    z-index: 10;
+}
+
+@media (max-width: 640px) {
+    .grid {
+        gap: 1rem;
+    }
+
+    .mystic-card.rounded-lg {
+        max-width: 100%;
+    }
+
+    .mystic-card.rounded-lg img {
+        max-height: 250px;
+    }
+}
+
+@media (min-width: 641px) {
+    .mystic-card.rounded-lg img {
+        max-height: 350px;
+    }
+}
+
+/* Basic styling */
+* {
+    box-sizing: border-box;
+}
+
+/* Image optimization */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .animate-twinkle {
+        animation: none !important;
+    }
+
+    .mystic-card:hover,
+    .mystic-btn:hover,
+    .mystic-category-btn:hover,
+    .category-button:hover,
+    .back-button:hover,
+    .nav-animate-btn:hover {
+        transform: none !important;
     }
 }

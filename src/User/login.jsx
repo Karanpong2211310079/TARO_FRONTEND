@@ -195,24 +195,6 @@ const Login = () => {
   return (
     <>
       <style>{`
-        .login-background {
-          background-image: url('https://i.postimg.cc/XNgSymzG/IMG-0869.webp');
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-          min-height: 100vh;
-          position: relative;
-        }
-        .login-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(120deg, #3b0764cc 0%, #18181bcc 100%);
-          z-index: 1;
-        }
-        .login-content {
-          position: relative;
-          z-index: 2;
-        }
         .password-container { position: relative; }
         .password-toggle {
           position: absolute;
@@ -222,8 +204,15 @@ const Login = () => {
           cursor: pointer;
           color: #ffd700;
           filter: drop-shadow(0 0 4px #6d28d9);
+          transition: all 0.12s ease-out;
+          will-change: transform, filter;
+          user-select: none;
         }
-        .password-toggle:hover { color: #fff; filter: drop-shadow(0 0 8px #ffd700); }
+        .password-toggle:hover { 
+          color: #fff; 
+          filter: drop-shadow(0 0 8px #ffd700); 
+          transform: translateY(-50%) scale(1.05);
+        }
       `}</style>
       <div className="flex justify-center items-center min-h-screen login-background px-2 sm:px-4">
         <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-4 sm:p-6 mystic-glass mystic-shadow transition-all duration-300 hover:shadow-2xl relative login-content">
