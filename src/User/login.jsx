@@ -7,9 +7,56 @@ import clickSound from '../assets/click.mp3';
 const clickSoundObj = new window.Audio(clickSound);
 import failSound from '../assets/fail.mp3';
 const failSoundObj = new window.Audio(failSound);
+
+// ฟังก์ชันเล่นเสียงที่ปลอดภัยสำหรับ Safari
+const playClickSound = () => {
+  try {
+    // ตรวจสอบว่าเป็น Safari หรือไม่
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (clickSoundObj && clickSoundObj.readyState >= 2) {
+      clickSoundObj.currentTime = 0;
+      const playPromise = clickSoundObj.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          // Safari อาจจะไม่ให้เล่นเสียงถ้าไม่มี user interaction
+          if (isSafari && error.name === 'NotAllowedError') {
+            console.log('Safari blocked audio play - user interaction required');
+          } else {
+            console.log('Click sound play failed:', error);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.log('Click sound error:', error);
+  }
+};
+
 const playFailSound = () => {
-  failSoundObj.currentTime = 0;
-  failSoundObj.play();
+  try {
+    // ตรวจสอบว่าเป็น Safari หรือไม่
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (failSoundObj && failSoundObj.readyState >= 2) {
+      failSoundObj.currentTime = 0;
+      const playPromise = failSoundObj.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          // Safari อาจจะไม่ให้เล่นเสียงถ้าไม่มี user interaction
+          if (isSafari && error.name === 'NotAllowedError') {
+            console.log('Safari blocked audio play - user interaction required');
+          } else {
+            console.log('Fail sound play failed:', error);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.log('Fail sound error:', error);
+  }
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -30,13 +77,21 @@ const Login = () => {
       const img = new window.Image();
       img.src = src;
     });
+
+    // Preload audio for Safari compatibility
+    try {
+      if (clickSoundObj) {
+        clickSoundObj.load();
+      }
+      if (failSoundObj) {
+        failSoundObj.load();
+      }
+    } catch (error) {
+      console.log('Audio preload failed:', error);
+    }
   }, []);
 
-  // ฟังก์ชันเล่นเสียงคลิก
-  const playClickSound = () => {
-    clickSoundObj.currentTime = 0;
-    clickSoundObj.play();
-  };
+  // ฟังก์ชันเล่นเสียงคลิก (ใช้ฟังก์ชันที่ปลอดภัยจากด้านบน)
 
   // Main login handler
   const handleSubmit = async (e) => {

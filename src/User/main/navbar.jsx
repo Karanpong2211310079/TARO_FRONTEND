@@ -23,8 +23,28 @@ const signOut = () => {
 
 // ฟังก์ชันเล่นเสียงคลิก
 const playClickSound = () => {
-  clickSoundObj.currentTime = 0;
-  clickSoundObj.play();
+  try {
+    // ตรวจสอบว่าเป็น Safari หรือไม่
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (clickSoundObj && clickSoundObj.readyState >= 2) {
+      clickSoundObj.currentTime = 0;
+      const playPromise = clickSoundObj.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          // Safari อาจจะไม่ให้เล่นเสียงถ้าไม่มี user interaction
+          if (isSafari && error.name === 'NotAllowedError') {
+            console.log('Safari blocked audio play - user interaction required');
+          } else {
+            console.log('Click sound play failed:', error);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.log('Click sound error:', error);
+  }
 };
 
 const Navbar = () => {
@@ -79,6 +99,15 @@ const Navbar = () => {
     } else {
       setIsLoggedIn(false);
       setName('');
+    }
+
+    // Preload audio for Safari compatibility
+    try {
+      if (clickSoundObj) {
+        clickSoundObj.load();
+      }
+    } catch (error) {
+      console.log('Audio preload failed:', error);
     }
   }, []);
 
