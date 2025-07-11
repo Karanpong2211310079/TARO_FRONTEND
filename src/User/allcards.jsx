@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import clickSound from '../assets/click.mp3';
+const clickSoundObj = new window.Audio(clickSound);
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log('🌐 API_BASE_URL:', API_BASE_URL);
@@ -57,6 +59,12 @@ const AllCards = () => {
     setTimeout(() => {
       setActiveCard(null);
     }, 5000);
+  };
+
+  // ฟังก์ชันเล่นเสียงคลิก
+  const playClickSound = () => {
+    clickSoundObj.currentTime = 0;
+    clickSoundObj.play();
   };
 
   useEffect(() => {
@@ -133,7 +141,7 @@ const AllCards = () => {
             <button
               key={opt.value}
               className={`px-3 py-1 rounded-full border transition font-serif text-sm ${filter === opt.value ? 'bg-yellow-300 text-purple-900 font-bold border-yellow-400' : 'bg-white/80 text-gray-700 border-gray-300 hover:bg-yellow-100'}`}
-              onClick={() => setFilter(opt.value)}
+              onClick={() => { playClickSound(); setFilter(opt.value); }}
             >
               {opt.label}
             </button>
@@ -162,7 +170,7 @@ const AllCards = () => {
             <div
               key={card.card_id || index}
               className={`mystic-card text-center transition-transform duration-300 ease-in-out transform hover:scale-105 cursor-pointer`}
-              onClick={() => handleCardInteraction(index)}
+              onClick={() => { playClickSound(); handleCardInteraction(index); }}
             >
               <div className="relative w-full" style={{ paddingTop: '150%' }}>
                 <img

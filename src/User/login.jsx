@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { cacheUtils } from '../utils/cache';
+import clickSound from '../assets/click.mp3';
+const clickSoundObj = new window.Audio(clickSound);
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -24,9 +26,16 @@ const Login = () => {
     });
   }, []);
 
+  // ฟังก์ชันเล่นเสียงคลิก
+  const playClickSound = () => {
+    clickSoundObj.currentTime = 0;
+    clickSoundObj.play();
+  };
+
   // Main login handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+    playClickSound();
     if (isLoading) return;
 
     if (!navigator.onLine) {
@@ -407,6 +416,7 @@ const Login = () => {
               type="submit"
               className="mystic-btn w-full flex items-center justify-center gap-2 mt-2"
               disabled={isLoading}
+              onClick={playClickSound}
             >
               {isLoading ? (
                 <>

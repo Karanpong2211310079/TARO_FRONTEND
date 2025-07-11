@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import clickSound from '../assets/click.mp3';
+const clickSoundObj = new window.Audio(clickSound);
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -106,6 +108,8 @@ const showCardDescriptionByCategory = (description, cardName) => {
   const firstLine = description.split('\n')[0]?.trim() || '';
   const cardSubtitle = firstLine && firstLine !== cardName ? firstLine : '';
 
+  // ฟังก์ชัน JS สำหรับเล่นเสียง (inject ลง onclick)
+  const playClickSoundJS = `window.__playClickSound = window.__playClickSound || (function(){ if(!window.__clickSoundObj){ window.__clickSoundObj = new Audio('${clickSound}'); } window.__clickSoundObj.currentTime = 0; window.__clickSoundObj.play(); });`;
   // สร้าง HTML สำหรับปุ่มแต่ละหมวด
   const buttonsHTML = Object.entries(categories)
     .filter(([key, value]) => value.trim())
@@ -116,8 +120,8 @@ const showCardDescriptionByCategory = (description, cardName) => {
 
       return `
                 <button 
-                    onclick="window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
-                    class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
+                    onclick=\"${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')\"
+                    class=\"w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base\"
                 >
                     <span class='btn-icon'>${categoryLabels[key].split(' ')[0]}</span> ${categoryLabels[key].replace(/^[^ ]+ /, '')}
                 </button>
@@ -201,6 +205,12 @@ const User = () => {
 
   const showPrediction = (cardName, description, imageUrl) => {
     showCardDescriptionByCategory(description, cardName);
+  };
+
+  // ฟังก์ชันเล่นเสียงคลิก
+  const playClickSound = () => {
+    clickSoundObj.currentTime = 0;
+    clickSoundObj.play();
   };
 
   const BringUserCard = async () => {
@@ -385,7 +395,7 @@ const User = () => {
             <button
               key={opt.value}
               className={`px-3 py-1 rounded-full border transition font-serif text-sm ${filter === opt.value ? 'bg-yellow-300 text-purple-900 font-bold border-yellow-400' : 'bg-white/80 text-gray-700 border-gray-300 hover:bg-yellow-100'}`}
-              onClick={() => setFilter(opt.value)}
+              onClick={() => { playClickSound(); setFilter(opt.value); }}
             >
               {opt.label}
             </button>
@@ -414,7 +424,7 @@ const User = () => {
                   <p className="mystic-gold-text text-xs font-medium mt-2 font-serif line-clamp-2 text-center">{cardInfo.name}</p>
                   <button
                     className="user-card-btn mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white text-[0.75rem] px-2 py-1 rounded-md font-medium mt-1 shadow-lg border-2 border-yellow-300 sm:text-sm sm:px-3 sm:py-1.5"
-                    onClick={() => showPrediction(cardInfo.name, cardInfo.description, cardInfo.image_url)}
+                    onClick={() => { playClickSound(); showPrediction(cardInfo.name, cardInfo.description, cardInfo.image_url); }}
                   >
                     อ่านไพ่
                   </button>
@@ -422,10 +432,10 @@ const User = () => {
               ))}
               {visibleCards < filteredCards.length && (
                 <button
-                  onClick={loadMore}
+                  onClick={() => { playClickSound(); loadMore(); }}
                   className="mt-4 px-6 py-3 mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white rounded-lg mx-auto block col-span-full text-mobile-base font-medium touch-button shadow-lg border-2 border-yellow-300"
                 >
-                  โหลดไพ่ต่อเลย🫵
+                  โหลดไพ่ต่อเลย🧵
                 </button>
               )}
             </>

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import tarotLogo from '../../assets/cards.png';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import clickSound from '../../assets/click.mp3';
+const clickSoundObj = new window.Audio(clickSound);
 
 // authService.js
 const getUser = () => {
@@ -17,6 +19,12 @@ const getUser = () => {
 
 const signOut = () => {
   localStorage.removeItem('user');
+};
+
+// ฟังก์ชันเล่นเสียงคลิก
+const playClickSound = () => {
+  clickSoundObj.currentTime = 0;
+  clickSoundObj.play();
 };
 
 const Navbar = () => {
@@ -115,23 +123,26 @@ const Navbar = () => {
                 <Link
                   to="/user"
                   className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
+                  onClick={playClickSound}
                 >
                   My Card
                 </Link>
                 <Link
                   to="/allcards"
                   className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
+                  onClick={playClickSound}
                 >
                   All Cards
                 </Link>
                 <Link
                   to="/home"
                   className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
+                  onClick={playClickSound}
                 >
                   ทำนาย
                 </Link>
                 <button
-                  onClick={handleSignOut}
+                  onClick={() => { playClickSound(); handleSignOut(); }}
                   className="mystic-btn text-base py-1 px-4 !rounded-lg !text-sm !font-semibold !shadow-md !bg-gradient-to-r !from-purple-700 !to-yellow-400 !border-0 !text-white hover:scale-105 hover:drop-shadow-lg transition-all duration-200"
                 >
                   <span className="btn-icon">🚪</span> Sign Out
@@ -141,6 +152,7 @@ const Navbar = () => {
               <Link
                 to="/"
                 className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200"
+                onClick={playClickSound}
               >
                 Login
               </Link>
@@ -183,6 +195,7 @@ const Navbar = () => {
                     to="/user"
                     className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                     onClick={() => setMobileMenuOpen(false)}
+                    onClickCapture={playClickSound}
                   >
                     My Card
                   </Link>
@@ -190,6 +203,7 @@ const Navbar = () => {
                     to="/allcards"
                     className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                     onClick={() => setMobileMenuOpen(false)}
+                    onClickCapture={playClickSound}
                   >
                     All Cards
                   </Link>
@@ -197,11 +211,12 @@ const Navbar = () => {
                     to="/home"
                     className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                     onClick={() => setMobileMenuOpen(false)}
+                    onClickCapture={playClickSound}
                   >
                     ทำนาย
                   </Link>
                   <button
-                    onClick={handleSignOut}
+                    onClick={() => { playClickSound(); handleSignOut(); }}
                     className="mystic-btn text-base py-1 px-4 !rounded-lg !text-sm !font-semibold !shadow-md !bg-gradient-to-r !from-purple-700 !to-yellow-400 !border-0 !text-white hover:scale-105 hover:drop-shadow-lg transition-all duration-200 text-left"
                   >
                     <span className="btn-icon">🚪</span> Sign Out
@@ -212,6 +227,7 @@ const Navbar = () => {
                   to="/"
                   className="text-base font-medium px-3 mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200"
                   onClick={() => setMobileMenuOpen(false)}
+                  onClickCapture={playClickSound}
                 >
                   Login
                 </Link>

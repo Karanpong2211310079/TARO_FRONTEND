@@ -4,6 +4,8 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { cacheUtils } from '../utils/cache';
+import clickSound from '../assets/click.mp3';
+const clickSoundObj = new window.Audio(clickSound);
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -206,6 +208,8 @@ const showCardDescriptionByCategory = (description, cardName) => {
     const firstLine = description.split('\n')[0]?.trim() || '';
     const cardSubtitle = firstLine && firstLine !== cardName ? firstLine : '';
 
+    // ฟังก์ชัน JS สำหรับเล่นเสียง (inject ลง onclick)
+    const playClickSoundJS = `window.__playClickSound = window.__playClickSound || (function(){ if(!window.__clickSoundObj){ window.__clickSoundObj = new Audio('${clickSound}'); } window.__clickSoundObj.currentTime = 0; window.__clickSoundObj.play(); });`;
     // สร้าง HTML สำหรับปุ่มแต่ละหมวด
     const buttonsHTML = Object.entries(categories)
         .filter(([key, value]) => value.trim())
@@ -216,7 +220,7 @@ const showCardDescriptionByCategory = (description, cardName) => {
 
             return `
                 <button 
-                    onclick="window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
+                    onclick="${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
                     class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
                 >
                     <span class='btn-icon'>${categoryLabels[key].split(' ')[0]}</span> ${categoryLabels[key].replace(/^[^ ]+ /, '')}
@@ -264,7 +268,6 @@ const showCardDescriptionByCategory = (description, cardName) => {
 
             Swal.fire({
                 title: `<span class='mystic-heading text-xl'>${cardName}</span>`,
-                html: `<div class="category-content text-[clamp(0.95rem,3.5vw,1.1rem)] mystic-gold-text font-serif">${formattedContent}</div>`,
                 showConfirmButton: false,
                 showCancelButton: true,
                 cancelButtonText: '👈',
@@ -651,6 +654,13 @@ const Home = () => {
         );
     }
 
+    // ฟังก์ชันเล่นเสียงคลิก
+    const playClickSound = () => {
+        const audio = new window.Audio(clickSound);
+        audio.currentTime = 0;
+        audio.play();
+    };
+
     return (
         <div
             className="flex flex-col min-h-screen px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] login-home-bg"
@@ -731,7 +741,7 @@ const Home = () => {
                                         />
                                         <h2 className="text-lg font-bold mt-2 mystic-gold-text drop-shadow-lg">{card.name}</h2>
                                         <button
-                                            onClick={() => showCardDescription(card.description, card.name)}
+                                            onClick={() => { playClickSound(); showCardDescription(card.description, card.name); }}
                                             className="mystic-btn w-full flex items-center justify-center gap-2 mt-2"
                                         >
                                             <span className="btn-icon">👁️</span> ดูคำทำนายของไพ่ใบนี้
@@ -746,7 +756,7 @@ const Home = () => {
 
                     <div className="my-3">
                         <button
-                            onClick={handleRedeemCode}
+                            onClick={(e) => { playClickSound(); handleRedeemCode(e); }}
                             disabled={apiLoading}
                             type="button"
                             className="mystic-btn w-full flex items-center justify-center gap-2"
@@ -757,7 +767,7 @@ const Home = () => {
 
                     <div>
                         <button
-                            onClick={drawCard}
+                            onClick={(e) => { playClickSound(); drawCard(e); }}
                             disabled={!canDrawCard}
                             className={`mystic-btn w-full flex items-center justify-center gap-2 font-bold shadow-md ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
