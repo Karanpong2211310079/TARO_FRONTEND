@@ -6,6 +6,18 @@ import { useNavigate } from 'react-router-dom';
 import { cacheUtils } from '../utils/cache';
 import clickSound from '../assets/click.mp3';
 const clickSoundObj = new window.Audio(clickSound);
+import failSound from '../assets/fail.mp3';
+const failSoundObj = new window.Audio(failSound);
+const playFailSound = () => {
+    failSoundObj.currentTime = 0;
+    failSoundObj.play();
+};
+import magicSound from '../assets/magic.mp3';
+const magicSoundObj = new window.Audio(magicSound);
+const playMagicSound = () => {
+    magicSoundObj.currentTime = 0;
+    magicSoundObj.play();
+};
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -140,7 +152,7 @@ const parseCardDescription = (description) => {
             trimmedLine.includes('ความสัมพันธ์') || trimmedLine.includes('คู่รัก') || trimmedLine.includes('คนรัก') ||
             trimmedLine.includes('การแต่งงาน') || trimmedLine.includes('ความโรแมนติก') || trimmedLine.includes('แฟน')) {
             currentCategory = 'love';
-        } else if (trimmedLine.includes('💼 การงาน') || trimmedLine.includes('งาน') || trimmedLine.includes('💼') || trimmedLine.includes('🏢') ||
+        } else if (trimmedLine.includes('💼 การงาน') || trimmedLine.includes('งาน') || trimmedLine.includes('🏢') || trimmedLine.includes('💼') ||
             trimmedLine.includes('อาชีพ') || trimmedLine.includes('ธุรกิจ') || trimmedLine.includes('การทำงาน') ||
             trimmedLine.includes('เพื่อนร่วมงาน') || trimmedLine.includes('เจ้านาย') || trimmedLine.includes('บริษัท') ||
             trimmedLine.includes('โครงการ') || trimmedLine.includes('ตำแหน่ง')) {
@@ -214,14 +226,14 @@ const showCardDescriptionByCategory = (description, cardName) => {
     const buttonsHTML = Object.entries(categories)
         .filter(([key, value]) => value.trim())
         .map(([key, value]) => {
-            // ใช้ JSON.stringify แทน base64 เพื่อรองรับภาษาไทย
-            const encodedValue = encodeURIComponent(JSON.stringify(value));
-            const encodedCardName = encodeURIComponent(JSON.stringify(cardName));
+            // ใช้ base64 encoding เพื่อหลีกเลี่ยงปัญหา escape characters
+            const encodedValue = btoa(unescape(encodeURIComponent(value)));
+            const encodedCardName = btoa(unescape(encodeURIComponent(cardName)));
 
             return `
                 <button 
-                    onclick="${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
-                    class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
+                    onclick=\"${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')\"
+                    class=\"w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base\"
                 >
                     <span class='btn-icon'>${categoryLabels[key].split(' ')[0]}</span> ${categoryLabels[key].replace(/^[^ ]+ /, '')}
                 </button>
@@ -229,7 +241,7 @@ const showCardDescriptionByCategory = (description, cardName) => {
         }).join('');
 
     Swal.fire({
-        title: `<span class='mystic-heading text-2xl flex items-center justify-center gap-2'>🔮 ${cardName}</span>`,
+        title: `🔮 ${cardName}`,
         html: `
             <div class="text-center">
                 ${cardSubtitle ? `<p class="card-subtitle text-mobile-sm mystic-gold-text mb-2">${cardSubtitle}</p>` : ''}
@@ -251,53 +263,43 @@ const showCardDescriptionByCategory = (description, cardName) => {
     // เพิ่มฟังก์ชัน global สำหรับแสดงหมวดหมู่
     window.showCategoryDescription = (category, encodedContent, encodedCardName) => {
         const categoryLabels = {
-            love: '💕 ความรัก',
-            work: '💼 การงาน',
-            money: '💰 การเงิน',
-            health: '🏥 สุขภาพ',
-            advice: '💡 คำแนะนำ'
+            love: '🔮',
+            work: '🔮',
+            money: '🔮',
+            health: '🔮',
+            advice: '🔮'
         };
-
-        try {
-            // Decode ข้อมูลจาก JSON
-            const content = JSON.parse(decodeURIComponent(encodedContent));
-            const cardName = JSON.parse(decodeURIComponent(encodedCardName));
-
-            // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
-            const formattedContent = content.replace(/\n/g, '<br>');
-
-            Swal.fire({
-                title: `<span class='mystic-heading text-xl'>${cardName}</span>`,
-                showConfirmButton: false,
-                showCancelButton: true,
-                cancelButtonText: '👈',
-                customClass: {
-                    popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-                    title: 'mystic-heading text-xl mb-2',
-                    content: 'max-h-[60vh] overflow-y-auto px-2',
-                    cancelButton: 'mystic-btn w-full mt-4',
-                    htmlContainer: 'font-serif',
-                }
-            }).then((result) => {
-                if (result.dismiss === Swal.DismissReason.cancel) {
-                    // กลับไปหน้าหมวดหมู่
-                    showCardDescriptionByCategory(description, cardName);
-                }
-            });
-        } catch (error) {
-            console.error('Error decoding content:', error);
-            // Fallback: แสดงข้อความ error
-            Swal.fire({
-                title: 'เกิดข้อผิดพลาด',
-                text: 'ไม่สามารถแสดงเนื้อหาได้ กรุณาลองใหม่',
-                icon: 'error',
-                confirmButtonText: 'ตกลง',
-                customClass: {
-                    popup: 'mystic-modal',
-                    confirmButton: 'mystic-btn'
-                }
-            });
-        }
+        const categoryColors = {
+            love: 'category-love',
+            work: 'category-work',
+            money: 'category-money',
+            health: 'category-health',
+            advice: 'category-advice'
+        };
+        // Decode ข้อมูลจาก base64
+        const content = decodeURIComponent(escape(atob(encodedContent)));
+        const cardName = decodeURIComponent(escape(atob(encodedCardName)));
+        // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
+        const formattedContent = content.replace(/\n/g, '<br>');
+        Swal.fire({
+            title: `${categoryLabels[category]} - ${cardName}`,
+            html: `<div class=\"category-content mystic-gold-shadow text-[clamp(0.875rem,3.5vw,1rem)]\">${formattedContent}</div>`,
+            showConfirmButton: false,
+            showCancelButton: true,
+            cancelButtonText: '👈',
+            customClass: {
+                popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+                title: 'mystic-heading text-2xl mb-3',
+                content: 'mystic-gold-text max-h-[60vh] overflow-y-auto px-2',
+                cancelButton: 'mystic-btn w-full mt-4',
+                htmlContainer: 'font-serif',
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.cancel) {
+                // กลับไปหน้าหมวดหมู่
+                showCardDescriptionByCategory(description, cardName);
+            }
+        });
     };
 };
 
@@ -474,6 +476,7 @@ const Home = () => {
         );
 
         if (!result.isConfirmed || !result.value?.trim()) {
+            playFailSound();
             showAlert(
                 '✋เชื่อมจิตไม่ผ่าน✋',
                 'เอ๊ะ! โค้ดลับผิดนะ (อักษรพิมพ์ใหญ่นะจ๊ะ)',
@@ -516,6 +519,7 @@ const Home = () => {
                 }
             );
         } catch (error) {
+            playFailSound();
             showAlert(
                 '✋เชื่อมจิตไม่ผ่าน✋',
                 'เอ๊ะ! โค้ดลับผิดนะ (อักษรพิมพ์ใหญ่นะจ๊ะ)',
@@ -528,6 +532,7 @@ const Home = () => {
     const drawCard = useCallback(async () => {
         if (!canDrawCard) {
             if (userData.point <= 0) {
+                playFailSound();
                 showAlert(
                     '👀พลังทำนายหมด!',
                     'เติมพลังด้วยโค้ดลับ!',
@@ -572,6 +577,7 @@ const Home = () => {
                 });
 
                 // แจ้งเตือนว่าการ์ดถูกเพิ่มเข้าไปในคอลเลกชัน
+                playMagicSound();
                 showAlert(
                     '🎉 ได้รับไพ่ใหม่!',
                     `ไพ่ "${randomCard.name}" ถูกเพิ่มเข้าไปในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
@@ -587,6 +593,7 @@ const Home = () => {
             } catch (error) {
                 console.error('Error drawing card:', error);
                 // แสดง error เฉพาะเมื่อไม่สามารถสุ่มการ์ดได้
+                playFailSound();
                 showAlert(
                     'เกิดข้อผิดพลาด!',
                     'ไม่สามารถสุ่มไพ่ได้ กรุณาลองใหม่',

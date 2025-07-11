@@ -5,6 +5,12 @@ import Swal from 'sweetalert2';
 import { cacheUtils } from '../utils/cache';
 import clickSound from '../assets/click.mp3';
 const clickSoundObj = new window.Audio(clickSound);
+import failSound from '../assets/fail.mp3';
+const failSoundObj = new window.Audio(failSound);
+const playFailSound = () => {
+  failSoundObj.currentTime = 0;
+  failSoundObj.play();
+};
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -119,10 +125,11 @@ const Login = () => {
         console.log('Server health check:', healthCheck.status);
       } catch (healthError) {
         console.log('Server health check failed:', healthError.message);
+        playFailSound();
         Swal.fire({
           title: 'เซิร์ฟเวอร์ไม่พร้อมใช้งาน',
           text: 'เซิร์ฟเวอร์อาจจะปิดอยู่หรือมีปัญหา กรุณาลองใหม่ในภายหลัง',
-          icon: 'warning',
+          icon: 'error',
           confirmButtonText: 'ตกลง',
           customClass: {
             popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
@@ -169,6 +176,7 @@ const Login = () => {
 
       if (!res) {
         console.log('All endpoints failed, last error:', lastError);
+        playFailSound();
         Swal.fire({
           title: 'ชื่อนี้ถูกใช้แล้วหรือรหัสผ่านไม่ถูกต้อง',
           text: 'หากลืมรหัสผ่านกรุณาติดต่อแอดมิน ทักIG: _moodma_',
@@ -243,6 +251,7 @@ const Login = () => {
         msg.includes('incorrect') ||
         msg.includes('Phone number does not match the registered name')
       ) {
+        playFailSound();
         Swal.fire({
           title: 'รหัสไม่ถูกต้อง',
           text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
@@ -259,6 +268,7 @@ const Login = () => {
         return;
       }
 
+      playFailSound();
       let errorMessage = 'กรุณาลองใหม่';
       if (error.code === 'ECONNABORTED') {
         errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง (Timeout) กรุณาลองใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
@@ -276,6 +286,7 @@ const Login = () => {
         errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
       }
 
+      playFailSound();
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
         text: errorMessage,

@@ -4,6 +4,12 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import clickSound from '../assets/click.mp3';
 const clickSoundObj = new window.Audio(clickSound);
+import failSound from '../assets/fail.mp3';
+const failSoundObj = new window.Audio(failSound);
+const playFailSound = () => {
+  failSoundObj.currentTime = 0;
+  failSoundObj.play();
+};
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -285,6 +291,8 @@ const User = () => {
           title: 'mystic-heading text-xl font-bold',
           confirmButton: 'mystic-btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2'
         }
+      }).then(() => {
+        playFailSound();
       });
     } finally {
       setIsLoading(false);
@@ -424,7 +432,7 @@ const User = () => {
                   <p className="mystic-gold-text text-xs font-medium mt-2 font-serif line-clamp-2 text-center">{cardInfo.name}</p>
                   <button
                     className="user-card-btn mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white text-[0.75rem] px-2 py-1 rounded-md font-medium mt-1 shadow-lg border-2 border-yellow-300 sm:text-sm sm:px-3 sm:py-1.5"
-                    onClick={() => { playClickSound(); showPrediction(cardInfo.name, cardInfo.description, cardInfo.image_url); }}
+                    onClick={() => { playClickSound(); showPrediction(cardInfo.name, cardInfo.description || 'ไม่มีคำอธิบาย', cardInfo.image_url); }}
                   >
                     อ่านไพ่
                   </button>
