@@ -107,10 +107,10 @@ html {
 }
 
 .mystic-glass {
-    background: var(--color-mystic-glass);
-    backdrop-filter: blur(12px) saturate(1.2);
-    border-radius: 1.5rem;
-    border: 1.5px solid var(--color-mystic-gold);
+    background: rgba(40, 0, 60, 0.25);
+    backdrop-filter: blur(8px) saturate(1.1);
+    border-radius: 2rem;
+    border: 2px solid var(--color-mystic-gold);
     box-shadow: 0 2px 24px 0 var(--color-mystic-purple-dark);
 }
 
@@ -818,6 +818,14 @@ html {
 .login-background>* {
     position: relative;
     z-index: 2;
+}
+
+.login-content {
+    background: rgba(40, 0, 60, 0.12) !important;
+    backdrop-filter: blur(4px) saturate(1.02) !important;
+    border: 3px solid rgba(255, 215, 0, 0.6) !important;
+    border-radius: 2rem !important;
+    box-shadow: 0 4px 32px 0 rgba(80, 0, 120, 0.2) !important;
 }
 
 /* Login home background */
