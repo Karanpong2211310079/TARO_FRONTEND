@@ -161,8 +161,8 @@ const Login = () => {
       if (!res) {
         console.log('All endpoints failed, last error:', lastError);
         Swal.fire({
-          title: 'ไม่พบ API endpoint',
-          text: 'ไม่สามารถหาจุดเชื่อมต่อที่ถูกต้องได้ กรุณาติดต่อแอดมิน',
+          title: 'ชื่อนี้ถูกใช้แล้วหรือรหัสผ่านไม่ถูกต้อง',
+          text: 'หากลืมรหัสผ่านกรุณาติดต่อแอดมิน ทักIG: _moodma_',
           icon: 'error',
           confirmButtonText: 'ตกลง',
           customClass: {
@@ -367,7 +367,7 @@ const Login = () => {
                   id="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="กรอกรหัสผ่านของคุณ"
+                  placeholder="กรอกรหัสผ่านของคุณ(ไม่ใช่โค้ดดูดวง)"
                   required
                   autoComplete="current-password"
                   className="w-full p-2 sm:p-1.5 text-base border-2 border-yellow-300 bg-white bg-opacity-90 rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-yellow-400 transition-all duration-200 text-black placeholder:text-gray-500 shadow-inner"
@@ -421,7 +421,7 @@ const Login = () => {
               )}
             </button>
             <p className="mt-2 text-sm text-red-500 font-semibold">
-              **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง ให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
+              **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง❗เข้าครั้งเเรกให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
               **หากลืมรหัสผ่านหรือเว็ปไซด์มีปัญหา ติดต่อแอดมินที่ IG:
               <a
                 href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
