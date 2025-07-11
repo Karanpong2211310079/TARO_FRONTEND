@@ -267,7 +267,7 @@ const showCardDescriptionByCategory = (description, cardName) => {
                 html: `<div class="category-content text-[clamp(0.95rem,3.5vw,1.1rem)] mystic-gold-text font-serif">${formattedContent}</div>`,
                 showConfirmButton: false,
                 showCancelButton: true,
-                cancelButtonText: 'ย้อนกลับ',
+                cancelButtonText: '👈',
                 customClass: {
                     popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
                     title: 'mystic-heading text-xl mb-2',

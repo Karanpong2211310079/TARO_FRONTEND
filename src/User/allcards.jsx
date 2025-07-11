@@ -5,10 +5,20 @@ import Swal from 'sweetalert2';
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log('🌐 API_BASE_URL:', API_BASE_URL);
 
+const filterOptions = [
+  { label: 'All', value: 'all' },
+  { label: 'Major Arcana', value: 'major' },
+  { label: 'Cups', value: 'cups' },
+  { label: 'Pentacles', value: 'pentacles' },
+  { label: 'Swords', value: 'swords' },
+  { label: 'Wands', value: 'wands' },
+];
+
 const AllCards = () => {
   const [cards, setCards] = useState([]);
   const [activeCard, setActiveCard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
 
   const showCard = async () => {
     setIsLoading(true);
@@ -56,6 +66,18 @@ const AllCards = () => {
   // แยกไพ่เป็น Major Arcana (22 ใบแรก) และ Minor Arcana (ที่เหลือ)
   const majorArcana = cards.slice(0, 22);
   const minorArcana = cards.slice(22);
+
+  // ฟังก์ชันกรองไพ่ตาม filter
+  const getFilteredCards = () => {
+    if (filter === 'all') return cards;
+    if (filter === 'major') return majorArcana;
+    if (filter === 'cups') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('cups') || (card.name || '').includes('ถ้วย'));
+    if (filter === 'pentacles') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('pentacles') || (card.name || '').includes('เหรียญ'));
+    if (filter === 'swords') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('swords') || (card.name || '').includes('ดาบ'));
+    if (filter === 'wands') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('wands') || (card.name || '').includes('ไม้'));
+    return cards;
+  };
+  const filteredCards = getFilteredCards();
 
   // ตรวจสอบ prefers-reduced-motion เพื่อปิด animation ในอุปกรณ์ที่ต้องการลดการเคลื่อนไหว
   const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -105,6 +127,18 @@ const AllCards = () => {
         <p className="text-center mystic-gold-text mb-4 font-serif">
           จำนวนไพ่ทั้งหมด: {cards.length} ใบ
         </p>
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          {filterOptions.map(opt => (
+            <button
+              key={opt.value}
+              className={`px-3 py-1 rounded-full border transition font-serif text-sm ${filter === opt.value ? 'bg-yellow-300 text-purple-900 font-bold border-yellow-400' : 'bg-white/80 text-gray-700 border-gray-300 hover:bg-yellow-100'}`}
+              onClick={() => setFilter(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
         <div className="inline-flex items-center justify-center w-full relative">
           <hr className="mystic-divider w-64 h-1 my-6" />
           <div className="absolute px-4 -translate-x-1/2 bg-transparent left-1/2">
@@ -121,67 +155,32 @@ const AllCards = () => {
         </div>
       </div>
 
-      {/* Major Arcana Section */}
-      <div className="mb-8">
-        <h2 className="mystic-heading text-xl font-semibold text-center mb-4">Major Arcana ({majorArcana.length} ใบ)</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {majorArcana.length > 0 ? (
-            majorArcana.map((card, index) => (
-              <div
-                key={card.card_id || index}
-                className={`mystic-card text-center transition-transform duration-300 ease-in-out transform ${activeCard === index && !isReducedMotion ? 'scale-110' : 'scale-100'} hover:scale-105 cursor-pointer`}
-                onClick={() => handleCardInteraction(index)}
-              >
-                <div className="relative w-full" style={{ paddingTop: '150%' }}>
-                  <img
-                    src={card.image_url}
-                    alt={card.name}
-                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg border-2 border-yellow-300 shadow-lg"
-                    style={{ maxWidth: '100%', maxHeight: '260px', minHeight: '180px' }}
-                    loading="lazy"
-                    onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
-                  />
-                </div>
-                <p className="mystic-gold-text text-sm font-medium mt-2 font-serif" style={{ fontSize: '0.82rem' }}>{card.name}</p>
+      {/* Card Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        {filteredCards.length > 0 ? (
+          filteredCards.map((card, index) => (
+            <div
+              key={card.card_id || index}
+              className={`mystic-card text-center transition-transform duration-300 ease-in-out transform hover:scale-105 cursor-pointer`}
+              onClick={() => handleCardInteraction(index)}
+            >
+              <div className="relative w-full" style={{ paddingTop: '150%' }}>
+                <img
+                  src={card.image_url}
+                  alt={card.name}
+                  className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg border-2 border-yellow-300 shadow-lg"
+                  style={{ maxWidth: '100%', maxHeight: '260px', minHeight: '180px' }}
+                  loading="lazy"
+                  onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
+                />
               </div>
-            ))
-          ) : (
-            <p className="text-center mystic-gold-text col-span-3">ไม่มีไพ่ Major Arcana</p>
-          )}
-        </div>
+              <p className="mystic-gold-text text-sm font-medium mt-2 font-serif" style={{ fontSize: '0.82rem' }}>{card.name}</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-center mystic-gold-text col-span-3">ไม่พบไพ่ตามตัวกรองที่เลือก</p>
+        )}
       </div>
-
-      {/* Minor Arcana Section */}
-      <div>
-        <h2 className="mystic-heading text-xl font-semibold text-center mb-4">Minor Arcana ({minorArcana.length} ใบ)</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {minorArcana.length > 0 ? (
-            minorArcana.map((card, index) => (
-              <div
-                key={card.card_id || index + 22}
-                className={`mystic-card text-center transition-transform duration-300 ease-in-out transform ${activeCard === index + 22 && !isReducedMotion ? 'scale-110' : 'scale-100'} hover:scale-105 cursor-pointer`}
-                onClick={() => handleCardInteraction(index + 22)}
-              >
-                <div className="relative w-full" style={{ paddingTop: '150%' }}>
-                  <img
-                    src={card.image_url}
-                    alt={card.name}
-                    className="absolute top-0 left-0 w-full h-full object-contain rounded-t-lg border-2 border-yellow-300 shadow-lg"
-                    style={{ maxWidth: '100%', maxHeight: '260px', minHeight: '180px' }}
-                    loading="lazy"
-                    onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
-                  />
-                </div>
-                <p className="mystic-gold-text text-sm font-medium mt-2 font-serif" style={{ fontSize: '0.82rem' }}>{card.name}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-center mystic-gold-text col-span-3">ไม่มีไพ่ Minor Arcana</p>
-          )}
-        </div>
-      </div>
-
-
     </div>
   );
 };

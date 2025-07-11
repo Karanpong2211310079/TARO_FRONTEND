@@ -117,9 +117,9 @@ const showCardDescriptionByCategory = (description, cardName) => {
       return `
                 <button 
                     onclick="window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')"
-                    class="w-full mb-3 px-4 py-3 text-white rounded-lg text-mobile-base font-medium category-button ${categoryColors[key]} transition-all duration-200"
+                    class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
                 >
-                    ${categoryLabels[key]}
+                    <span class='btn-icon'>${categoryLabels[key].split(' ')[0]}</span> ${categoryLabels[key].replace(/^[^ ]+ /, '')}
                 </button>
             `;
     }).join('');
@@ -174,7 +174,7 @@ const showCardDescriptionByCategory = (description, cardName) => {
       html: `<div class="category-content mystic-gold-shadow text-[clamp(0.875rem,3.5vw,1rem)]">${formattedContent}</div>`,
       showConfirmButton: false,
       showCancelButton: true,
-      cancelButtonText: 'ย้อนกลับ',
+      cancelButtonText: '👈',
       customClass: {
         popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
         title: 'mystic-heading text-[clamp(1rem,4vw,1.25rem)] font-bold text-blue-800 mb-3',
@@ -298,6 +298,37 @@ const User = () => {
 
   const uniqueCards = Object.values(groupedCards).sort((a, b) => a.card_id - b.card_id);
 
+  // ตัวกรองไพ่
+  const filterOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'Major Arcana', value: 'major' },
+    { label: 'Cups', value: 'cups' },
+    { label: 'Pentacles', value: 'pentacles' },
+    { label: 'Swords', value: 'swords' },
+    { label: 'Wands', value: 'wands' },
+  ];
+  const [filter, setFilter] = useState('all');
+
+  // แยก Major/Minor ด้วยชื่อ
+  const isMinor = (name) =>
+    ['cups', 'ถ้วย', 'pentacles', 'เหรียญ', 'swords', 'ดาบ', 'wands', 'ไม้']
+      .some(keyword => (name || '').toLowerCase().includes(keyword));
+
+  const majorArcana = useMemo(() => uniqueCards.filter(card => !isMinor(card.name)), [uniqueCards]);
+  const minorArcana = useMemo(() => uniqueCards.filter(card => isMinor(card.name)), [uniqueCards]);
+
+  // ฟังก์ชันกรองไพ่ตาม filter (Minor Arcana แยกตามชื่อไพ่)
+  const getFilteredCards = () => {
+    if (filter === 'all') return uniqueCards;
+    if (filter === 'major') return majorArcana;
+    if (filter === 'cups') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('cups') || (card.name || '').includes('ถ้วย'));
+    if (filter === 'pentacles') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('pentacles') || (card.name || '').includes('เหรียญ'));
+    if (filter === 'swords') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('swords') || (card.name || '').includes('ดาบ'));
+    if (filter === 'wands') return minorArcana.filter(card => (card.name || '').toLowerCase().includes('wands') || (card.name || '').includes('ไม้'));
+    return uniqueCards;
+  };
+  const filteredCards = getFilteredCards();
+
   if (isLoading) {
     return (
       <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-12 py-6">
@@ -346,12 +377,24 @@ const User = () => {
       <div>
         <h2 className="mystic-heading text-lg font-semibold mb-2 text-center">ไพ่ของฉัน</h2>
         <p className="text-sm text-center mb-4 mystic-gold-text font-serif">
-          {uniqueCards.length > 0 ? `จำนวนครอบครอง ${uniqueCards.length} ไพ่` : 'ยังไม่มีการ์ดในครอบครอง..เลยหรอ???'}
+          {filteredCards.length > 0 ? `จำนวนครอบครอง ${filteredCards.length} ไพ่` : 'ยังไม่มีการ์ดในครอบครอง..เลยหรอ???'}
         </p>
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          {filterOptions.map(opt => (
+            <button
+              key={opt.value}
+              className={`px-3 py-1 rounded-full border transition font-serif text-sm ${filter === opt.value ? 'bg-yellow-300 text-purple-900 font-bold border-yellow-400' : 'bg-white/80 text-gray-700 border-gray-300 hover:bg-yellow-100'}`}
+              onClick={() => setFilter(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-2 border-yellow-300 rounded-xl p-4 glassmorphism">
-          {uniqueCards.length > 0 ? (
+          {filteredCards.length > 0 ? (
             <>
-              {uniqueCards.slice(0, visibleCards).map((cardInfo) => (
+              {filteredCards.slice(0, visibleCards).map((cardInfo) => (
                 <div
                   key={cardInfo.id || cardInfo.name}
                   className="mystic-card glassmorphism rounded-xl shadow-lg p-4 flex flex-col items-center transition-transform duration-300 hover:scale-105 cursor-pointer border-2 border-yellow-300"
@@ -367,6 +410,7 @@ const User = () => {
                       onError={(e) => (e.target.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found')}
                     />
                   </div>
+                  {/* ชื่อไพ่ใต้รูป */}
                   <p className="mystic-gold-text text-xs font-medium mt-2 font-serif line-clamp-2 text-center">{cardInfo.name}</p>
                   <button
                     className="user-card-btn mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white text-[0.75rem] px-2 py-1 rounded-md font-medium mt-1 shadow-lg border-2 border-yellow-300 sm:text-sm sm:px-3 sm:py-1.5"
@@ -376,7 +420,7 @@ const User = () => {
                   </button>
                 </div>
               ))}
-              {visibleCards < uniqueCards.length && (
+              {visibleCards < filteredCards.length && (
                 <button
                   onClick={loadMore}
                   className="mt-4 px-6 py-3 mystic-btn bg-gradient-to-r from-purple-600 via-purple-500 to-yellow-400 hover:from-yellow-400 hover:to-purple-600 text-white rounded-lg mx-auto block col-span-full text-mobile-base font-medium touch-button shadow-lg border-2 border-yellow-300"
