@@ -116,31 +116,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // เพิ่มการตรวจสอบ API URL
-      console.log('API URL:', API_BASE_URL);
-
-      // ตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่หรือไม่
-      try {
-        const healthCheck = await axios.get(`${API_BASE_URL}`, { timeout: 5000 });
-        console.log('Server health check:', healthCheck.status);
-      } catch (healthError) {
-        console.log('Server health check failed:', healthError.message);
-        playFailSound();
-        Swal.fire({
-          title: 'เซิร์ฟเวอร์ไม่พร้อมใช้งาน',
-          text: 'เซิร์ฟเวอร์อาจจะปิดอยู่หรือมีปัญหา กรุณาลองใหม่ในภายหลัง',
-          icon: 'error',
-          confirmButtonText: 'ตกลง',
-          customClass: {
-            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-            title: 'mystic-heading text-xl mb-2',
-            content: 'mystic-gold-text font-serif',
-            confirmButton: 'mystic-btn w-full mt-4',
-            cancelButton: 'mystic-btn w-full mt-4',
-          }
-        });
-        return;
-      }
+      // ลบ health check ออก (ไม่ต้องเช็ค server ก่อน login)
 
       // ลอง endpoint ต่างๆ
       const endpoints = ['login', 'api/login', 'auth/login', 'user/login'];
