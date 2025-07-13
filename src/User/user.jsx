@@ -120,14 +120,14 @@ const showCardDescriptionByCategory = (description, cardName) => {
   const buttonsHTML = Object.entries(categories)
     .filter(([key, value]) => value.trim())
     .map(([key, value]) => {
-      // ใช้ JSON.stringify เพื่อหลีกเลี่ยงปัญหา encoding
-      const encodedValue = JSON.stringify(value);
-      const encodedCardName = JSON.stringify(cardName);
-
+      // ใช้ data attributes แทนการส่งผ่าน onclick
       return `
                 <button 
-                    onclick=\"${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescription('${key}', '${encodedValue}', '${encodedCardName}')\"
-                    class=\"w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base\"
+                    data-category="${key}"
+                    data-content="${encodeURIComponent(value)}"
+                    data-card-name="${encodeURIComponent(cardName)}"
+                    onclick="${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescriptionFromData(this)"
+                    class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
                 >
                     <span class='btn-icon'>${categoryLabels[key].split(' ')[0]}</span> ${categoryLabels[key].replace(/^[^ ]+ /, '')}
                 </button>
@@ -154,8 +154,12 @@ const showCardDescriptionByCategory = (description, cardName) => {
     }
   });
 
-  // เพิ่มฟังก์ชัน global สำหรับแสดงหมวดหมู่
-  window.showCategoryDescription = (category, encodedContent, encodedCardName) => {
+  // เพิ่มฟังก์ชัน global สำหรับแสดงหมวดหมู่จาก data attributes
+  window.showCategoryDescriptionFromData = (buttonElement) => {
+    const category = buttonElement.getAttribute('data-category');
+    const encodedContent = buttonElement.getAttribute('data-content');
+    const encodedCardName = buttonElement.getAttribute('data-card-name');
+
     const categoryLabels = {
       love: '🔮',
       work: '🔮',
@@ -172,9 +176,9 @@ const showCardDescriptionByCategory = (description, cardName) => {
       advice: 'category-advice'
     };
 
-    // Decode ข้อมูลจาก JSON
-    const content = JSON.parse(encodedContent);
-    const cardName = JSON.parse(encodedCardName);
+    // Decode ข้อมูลจาก URI component
+    const content = decodeURIComponent(encodedContent);
+    const cardName = decodeURIComponent(encodedCardName);
 
     // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
     const formattedContent = content.replace(/\n/g, '<br>');
