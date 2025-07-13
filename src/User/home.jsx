@@ -277,8 +277,8 @@ const showCardDescriptionByCategory = (description, cardName) => {
             advice: 'category-advice'
         };
         // Decode ข้อมูลจาก base64
-        const content = decodeURIComponent(escape(atob(encodedContent)));
-        const cardName = decodeURIComponent(escape(atob(encodedCardName)));
+        const content = decodeURIComponent(unescape(atob(encodedContent)));
+        const cardName = decodeURIComponent(unescape(atob(encodedCardName)));
         // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
         const formattedContent = content.replace(/\n/g, '<br>');
         Swal.fire({
@@ -344,35 +344,85 @@ const Home = () => {
 
     const updateUserCards = useCallback(async (cardId) => {
         try {
-            await axios.post(
+            console.log('Adding user card:', { user_id: userData.userId, card_id: cardId });
+
+            // ใช้ endpoint add-usercard โดยตรง
+            const response = await axios.post(
                 `${API_BASE_URL}add-usercard`,
-                { user_id: userData.userId, card_id: cardId },
                 {
-                    headers: { Authorization: `Bearer ${userData.token}` },
-                    timeout: API_TIMEOUT
+                    user_id: userData.userId,
+                    card_id: cardId
+                },
+                {
+                    timeout: API_TIMEOUT,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
                 }
             );
+            console.log('User card added successfully:', response.data);
         } catch (error) {
             console.error('Error adding user card:', error);
-            // ไม่ throw error เพื่อไม่ให้กระทบการแสดงการ์ด
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+            console.error('Error message:', error.response?.data?.message);
+            console.error('Full error response:', JSON.stringify(error.response?.data, null, 2));
+            console.error('Request data sent:', { user_id: userData.userId, card_id: cardId });
+            console.error('API URL:', `${API_BASE_URL}add-usercard`);
+
+            // ตรวจสอบว่าเป็นการ์ดที่มีอยู่แล้วหรือไม่
+            if (error.response?.data?.message === 'User Card Already Exist') {
+                console.log('User already has this card, throwing error for handling...');
+                throw error; // Throw error เพื่อให้ drawCard จัดการ
+            }
+
+            // ลองใช้ endpoint user-card เป็น fallback (เฉพาะกรณีที่ไม่ใช่การ์ดที่มีอยู่แล้ว)
+            try {
+                console.log('Trying fallback endpoint: user-card');
+                const fallbackResponse = await axios.post(
+                    `${API_BASE_URL}user-card`,
+                    {
+                        user_id: userData.userId,
+                        card_id: cardId,
+                        action: 'add'
+                    },
+                    {
+                        timeout: API_TIMEOUT,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+                console.log('User card added successfully with fallback:', fallbackResponse.data);
+            } catch (fallbackError) {
+                console.error('Fallback endpoint also failed:', fallbackError.response?.data);
+                console.error('Fallback error message:', fallbackError.response?.data?.message);
+                throw fallbackError; // Throw error เพื่อให้ drawCard จัดการ
+            }
         }
-    }, [userData.userId, userData.token]);
+    }, [userData.userId]);
 
     const updateUserPoint = useCallback(async (newPoint) => {
         try {
-            await axios.put(
+            console.log('Updating user point:', { id: userData.userId, point: newPoint });
+            const response = await axios.put(
                 `${API_BASE_URL}user-point`,
                 { id: userData.userId, point: newPoint },
                 {
-                    headers: { Authorization: `Bearer ${userData.token}` },
-                    timeout: API_TIMEOUT
+                    timeout: API_TIMEOUT,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
                 }
             );
+            console.log('User point updated successfully:', response.data);
         } catch (error) {
             console.error('Error updating user point:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
             // ไม่ throw error เพื่อไม่ให้กระทบการแสดงการ์ด
         }
-    }, [userData.userId, userData.token]);
+    }, [userData.userId]);
 
     const redeemCode = useCallback(async (code) => {
         const response = await axios.post(
@@ -389,14 +439,28 @@ const Home = () => {
             const user = localStorage.getItem('user');
             if (user) {
                 const userData = JSON.parse(user);
+                console.log('Raw user data from localStorage:', userData);
+
                 const userInfo = userData.user;
-                setUserData({
+                console.log('User info:', userInfo);
+
+                // ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
+                if (!userInfo || !userInfo.user_id) {
+                    console.error('Invalid user data structure:', userInfo);
+                    return false;
+                }
+
+                const userDataState = {
                     userId: userInfo.user_id,
-                    token: userInfo.token,
-                    point: userInfo.token
-                });
+                    token: userInfo.token || null,
+                    point: userInfo.point || userInfo.token || 0 // ใช้ point หรือ token เป็น fallback
+                };
+
+                console.log('Setting user data state:', userDataState);
+                setUserData(userDataState);
                 return true;
             }
+            console.log('No user data found in localStorage');
             return false;
         } catch (error) {
             console.error('Error loading user data:', error);
@@ -572,24 +636,56 @@ const Home = () => {
                     console.error('Error updating user point:', error);
                 });
 
-                updateUserCards(randomCard.card_id).catch(error => {
-                    console.error('Error updating user cards:', error);
-                });
-
-                // แจ้งเตือนว่าการ์ดถูกเพิ่มเข้าไปในคอลเลกชัน
-                playMagicSound();
-                showAlert(
-                    '🎉 ได้รับไพ่ใหม่!',
-                    `ไพ่ "${randomCard.name}" ถูกเพิ่มเข้าไปในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
-                    'success',
-                    {
-                        customClass: {
-                            title: 'text-green-600',
-                            confirmButton: 'bg-green-600 hover:bg-green-700'
-                        },
-                        confirmButtonText: '🃏ดูคำทำนาย'
+                // เรียก API เพิ่มการ์ดและตรวจสอบผลลัพธ์
+                try {
+                    await updateUserCards(randomCard.card_id);
+                    // แจ้งเตือนว่าการ์ดถูกเพิ่มเข้าไปในคอลเลกชัน
+                    playMagicSound();
+                    showAlert(
+                        '🎉 ได้รับไพ่ใหม่!',
+                        `ไพ่ "${randomCard.name}" ถูกเพิ่มเข้าไปในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
+                        'success',
+                        {
+                            customClass: {
+                                title: 'text-green-600',
+                                confirmButton: 'bg-green-600 hover:bg-green-700'
+                            },
+                            confirmButtonText: '🃏ดูคำทำนาย'
+                        }
+                    );
+                } catch (cardError) {
+                    // ตรวจสอบว่าเป็นการ์ดที่มีอยู่แล้วหรือไม่
+                    if (cardError.response?.data?.message === 'User Card Already Exist') {
+                        playMagicSound();
+                        showAlert(
+                            '🃏 ไพ่ใบนี้มีอยู่แล้ว!',
+                            `ไพ่ "${randomCard.name}" มีอยู่ในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
+                            'info',
+                            {
+                                customClass: {
+                                    title: 'text-blue-600',
+                                    confirmButton: 'bg-blue-600 hover:bg-blue-700'
+                                },
+                                confirmButtonText: '🃏ดูคำทำนาย'
+                            }
+                        );
+                    } else {
+                        // กรณีอื่นๆ ให้แสดงข้อความปกติ
+                        playMagicSound();
+                        showAlert(
+                            '🎉 ได้รับไพ่ใหม่!',
+                            `ไพ่ "${randomCard.name}" ถูกเพิ่มเข้าไปในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
+                            'success',
+                            {
+                                customClass: {
+                                    title: 'text-green-600',
+                                    confirmButton: 'bg-green-600 hover:bg-green-700'
+                                },
+                                confirmButtonText: '🃏ดูคำทำนาย'
+                            }
+                        );
                     }
-                );
+                }
             } catch (error) {
                 console.error('Error drawing card:', error);
                 // แสดง error เฉพาะเมื่อไม่สามารถสุ่มการ์ดได้
@@ -670,26 +766,26 @@ const Home = () => {
 
     return (
         <div
-            className="flex flex-col min-h-screen px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] login-home-bg"
+            className="flex flex-col min-h-screen px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] login-home-bg layout-stable no-layout-shift"
             style={{ position: 'relative' }}
         >
-            {/* Twinkle stars background - now always first */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-6 left-[10%] animate-twinkle"></div>
-                <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full top-12 right-[15%] animate-twinkle animation-delay-150"></div>
-                <div className="absolute w-1 h-1 bg-white rounded-full bottom-8 left-[25%] animate-twinkle animation-delay-300"></div>
-                <div className="absolute w-1.5 h-1.5 bg-yellow-200 rounded-full top-20 right-[30%] animate-twinkle animation-delay-450"></div>
-                <div className="absolute w-1 h-1 bg-white rounded-full bottom-16 left-[40%] animate-twinkle animation-delay-600"></div>
-                <div className="absolute w-1 h-1 bg-yellow-100 rounded-full top-10 left-[60%] animate-twinkle animation-delay-200"></div>
-                <div className="absolute w-1.5 h-1.5 bg-white rounded-full top-24 left-[80%] animate-twinkle animation-delay-350"></div>
-                <div className="absolute w-1 h-1 bg-yellow-200 rounded-full bottom-20 right-[10%] animate-twinkle animation-delay-500"></div>
-                <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full bottom-10 right-[25%] animate-twinkle animation-delay-700"></div>
-                <div className="absolute w-1 h-1 bg-white rounded-full top-1/2 left-[15%] animate-twinkle animation-delay-800"></div>
-                <div className="absolute w-1.5 h-1.5 bg-yellow-200 rounded-full top-[70%] left-[50%] animate-twinkle animation-delay-900"></div>
-                <div className="absolute w-1 h-1 bg-yellow-100 rounded-full bottom-[30%] right-[40%] animate-twinkle animation-delay-1000"></div>
-                <div className="absolute w-1.5 h-1.5 bg-white rounded-full top-[60%] left-[80%] animate-twinkle animation-delay-1100"></div>
-                <div className="absolute w-1 h-1 bg-yellow-200 rounded-full top-[80%] left-[20%] animate-twinkle animation-delay-1200"></div>
-                <div className="absolute w-1.5 h-1.5 bg-yellow-100 rounded-full bottom-[15%] left-[60%] animate-twinkle animation-delay-1300"></div>
+            {/* Twinkle stars background - optimized for layout stability */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ contain: 'layout' }}>
+                <div className="star-element star-small bg-yellow-200 top-6 left-[10%] animate-twinkle"></div>
+                <div className="star-element star-medium bg-yellow-100 top-12 right-[15%] animate-twinkle animation-delay-150"></div>
+                <div className="star-element star-small bg-white bottom-8 left-[25%] animate-twinkle animation-delay-300"></div>
+                <div className="star-element star-medium bg-yellow-200 top-20 right-[30%] animate-twinkle animation-delay-450"></div>
+                <div className="star-element star-small bg-white bottom-16 left-[40%] animate-twinkle animation-delay-600"></div>
+                <div className="star-element star-small bg-yellow-100 top-10 left-[60%] animate-twinkle animation-delay-200"></div>
+                <div className="star-element star-medium bg-white top-24 left-[80%] animate-twinkle animation-delay-350"></div>
+                <div className="star-element star-small bg-yellow-200 bottom-20 right-[10%] animate-twinkle animation-delay-500"></div>
+                <div className="star-element star-medium bg-yellow-100 bottom-10 right-[25%] animate-twinkle animation-delay-700"></div>
+                <div className="star-element star-small bg-white top-1/2 left-[15%] animate-twinkle animation-delay-800"></div>
+                <div className="star-element star-medium bg-yellow-200 top-[70%] left-[50%] animate-twinkle animation-delay-900"></div>
+                <div className="star-element star-small bg-yellow-100 bottom-[30%] right-[40%] animate-twinkle animation-delay-1000"></div>
+                <div className="star-element star-medium bg-white top-[60%] left-[80%] animate-twinkle animation-delay-1100"></div>
+                <div className="star-element star-small bg-yellow-200 top-[80%] left-[20%] animate-twinkle animation-delay-1200"></div>
+                <div className="star-element star-medium bg-yellow-100 bottom-[15%] left-[60%] animate-twinkle animation-delay-1300"></div>
             </div>
             <div className="flex-grow flex items-center justify-center p-2 sm:p-4">
                 <div className="mystic-card w-full max-w-md mx-auto text-center relative">

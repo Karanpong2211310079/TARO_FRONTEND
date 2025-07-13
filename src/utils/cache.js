@@ -1,5 +1,5 @@
 // Cache management utilities
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 10 * 60 * 1000; // เพิ่มเป็น 10 นาที
 
 export const cacheUtils = {
     // Check if cache is valid
@@ -74,6 +74,28 @@ export const cacheUtils = {
             return data;
         } catch (error) {
             console.error(`Error preloading data for ${key}:`, error);
+            return null;
+        }
+    },
+
+    // Check if cache exists without validation
+    hasCache: (key) => {
+        try {
+            return localStorage.getItem(key) !== null;
+        } catch (error) {
+            return false;
+        }
+    },
+
+    // Get cache timestamp
+    getCacheTimestamp: (key) => {
+        try {
+            const cached = localStorage.getItem(key);
+            if (!cached) return null;
+
+            const { timestamp } = JSON.parse(cached);
+            return timestamp;
+        } catch (error) {
             return null;
         }
     }

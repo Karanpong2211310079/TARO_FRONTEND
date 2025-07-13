@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { cacheUtils } from '../utils/cache';
+import { authUtils } from '../utils/auth';
 import clickSound from '../assets/click.mp3';
 const clickSoundObj = new window.Audio(clickSound);
 import failSound from '../assets/fail.mp3';
@@ -171,36 +172,55 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // ลบ health check ออก (ไม่ต้องเช็ค server ก่อน login)
-
-      // ลอง endpoint ต่างๆ
-      const endpoints = ['login', 'api/login', 'auth/login', 'user/login'];
+      // ลอง endpoint หลักก่อน
       let res = null;
       let lastError = null;
 
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`Trying endpoint: ${API_BASE_URL}${endpoint}`);
-          res = await axios.post(
-            `${API_BASE_URL}${endpoint}`,
-            { name, phone: password },
-            {
-              timeout: 10000,
-              headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache',
-              },
+      try {
+        console.log(`Trying main endpoint: ${API_BASE_URL}login`);
+        res = await axios.post(
+          `${API_BASE_URL}login`,
+          { name, phone: password },
+          {
+            timeout: 15000, // เพิ่ม timeout เป็น 15 วินาที
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache',
+            },
+          }
+        );
+        console.log('Login successful with main endpoint');
+      } catch (error) {
+        console.log('Main endpoint failed:', error.response?.status);
+        lastError = error;
+
+        // ถ้า endpoint หลักไม่สำเร็จ ให้ลอง endpoint อื่นๆ
+        if (error.response?.status === 404) {
+          const fallbackEndpoints = ['api/login', 'auth/login', 'user/login'];
+
+          for (const endpoint of fallbackEndpoints) {
+            try {
+              console.log(`Trying fallback endpoint: ${API_BASE_URL}${endpoint}`);
+              res = await axios.post(
+                `${API_BASE_URL}${endpoint}`,
+                { name, phone: password },
+                {
+                  timeout: 10000,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache',
+                  },
+                }
+              );
+              console.log(`Success with fallback endpoint: ${endpoint}`);
+              break;
+            } catch (fallbackError) {
+              console.log(`Fallback endpoint ${endpoint} failed:`, fallbackError.response?.status);
+              lastError = fallbackError;
+              if (fallbackError.response?.status !== 404) {
+                break; // ถ้าไม่ใช่ 404 ให้หยุด
+              }
             }
-          );
-          console.log(`Success with endpoint: ${endpoint}`);
-          break; // ถ้าสำเร็จให้หยุด loop
-        } catch (error) {
-          console.log(`Failed with endpoint ${endpoint}:`, error.response?.status);
-          lastError = error;
-          if (error.response?.status === 404) {
-            continue; // ลอง endpoint ถัดไป
-          } else {
-            break; // ถ้าไม่ใช่ 404 ให้หยุด
           }
         }
       }
@@ -208,50 +228,84 @@ const Login = () => {
       if (!res) {
         console.log('All endpoints failed, last error:', lastError);
         playFailSound();
-        Swal.fire({
-          title: 'ชื่อนี้ถูกใช้แล้วหรือรหัสผ่านไม่ถูกต้อง',
-          text: 'หากลืมรหัสผ่านกรุณาติดต่อแอดมิน ทักIG: _moodma_',
-          icon: 'error',
-          confirmButtonText: 'ตกลง',
-          customClass: {
-            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-            title: 'mystic-heading text-xl mb-2',
-            content: 'mystic-gold-text font-serif',
-            confirmButton: 'mystic-btn w-full mt-4',
-            cancelButton: 'mystic-btn w-full mt-4',
-          }
-        });
+
+        // ตรวจสอบ error type และแสดงข้อความที่เหมาะสม
+        const errorStatus = lastError?.response?.status;
+        const errorMessage = lastError?.response?.data?.message || '';
+
+        if (errorStatus === 401 || errorMessage.includes('Invalid') || errorMessage.includes('incorrect')) {
+          Swal.fire({
+            title: 'รหัสผ่านไม่ถูกต้อง',
+            text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+            icon: 'error',
+            confirmButtonText: 'ลองใหม่',
+            customClass: {
+              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+              title: 'mystic-heading text-xl mb-2',
+              content: 'mystic-gold-text font-serif',
+              confirmButton: 'mystic-btn w-full mt-4',
+              cancelButton: 'mystic-btn w-full mt-4',
+            }
+          });
+        } else if (errorStatus === 404) {
+          Swal.fire({
+            title: 'ไม่พบ API endpoint',
+            text: 'กรุณาติดต่อแอดมิน',
+            icon: 'error',
+            confirmButtonText: 'ตกลง',
+            customClass: {
+              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+              title: 'mystic-heading text-xl mb-2',
+              content: 'mystic-gold-text font-serif',
+              confirmButton: 'mystic-btn w-full mt-4',
+              cancelButton: 'mystic-btn w-full mt-4',
+            }
+          });
+        } else {
+          Swal.fire({
+            title: 'ชื่อนี้ถูกใช้แล้วหรือรหัสผ่านไม่ถูกต้อง',
+            text: 'หากลืมรหัสผ่านกรุณาติดต่อแอดมิน ทักIG: _moodma_',
+            icon: 'error',
+            confirmButtonText: 'ตกลง',
+            customClass: {
+              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+              title: 'mystic-heading text-xl mb-2',
+              content: 'mystic-gold-text font-serif',
+              confirmButton: 'mystic-btn w-full mt-4',
+              cancelButton: 'mystic-btn w-full mt-4',
+            }
+          });
+        }
         return;
       }
 
       if ((res.status === 200 || res.status === 201) && res.data?.user?.role) {
-        // Save user data immediately
-        localStorage.setItem('user', JSON.stringify(res.data));
-        localStorage.setItem('lastLogin', Date.now().toString());
+        // Save user data using authUtils
+        if (authUtils.setSession(res.data)) {
+          // Navigate immediately without preloading to prevent delay
+          navigate(res.data.user.role === 'admin' ? '/admin' : '/home', { replace: true });
+        } else {
+          throw new Error('Failed to save user session');
+        }
 
-        // Preload some data in background before navigation
-        const preloadData = async () => {
-          try {
-            // Preload cards data if not cached
-            const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
-            if (!cachedCards) {
-              const cardsRes = await axios.get(`${API_BASE_URL}taro-card`, {
-                timeout: 5000,
-                headers: { 'Cache-Control': 'no-cache' }
-              });
-              cacheUtils.setCachedData('tarotCardsCache', cardsRes.data.data);
+        // Preload data in background after navigation
+        setTimeout(() => {
+          const preloadData = async () => {
+            try {
+              const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+              if (!cachedCards) {
+                const cardsRes = await axios.get(`${API_BASE_URL}taro-card`, {
+                  timeout: 5000,
+                  headers: { 'Cache-Control': 'no-cache' }
+                });
+                cacheUtils.setCachedData('tarotCardsCache', cardsRes.data.data);
+              }
+            } catch (error) {
+              console.error('Background preload failed:', error);
             }
-          } catch (error) {
-            console.error('Background preload failed:', error);
-            // Don't block navigation for preload errors
-          }
-        };
-
-        // Start preloading in background
-        preloadData();
-
-        // Navigate immediately
-        navigate(res.data.user.role === 'admin' ? '/admin' : '/home', { replace: true });
+          };
+          preloadData();
+        }, 1000); // Delay preload by 1 second
       } else {
         Swal.fire({
           title: 'ล็อกอินไม่สำเร็จ',
@@ -274,50 +328,19 @@ const Login = () => {
       console.error('Error message:', error.message);
       console.error('Error response:', error.response);
 
-      // รวม error message ที่เกี่ยวกับรหัสผิด
-      const msg = error.response?.data?.message || '';
-      if (
-        error.response?.status === 401 ||
-        msg.includes('Invalid') ||
-        msg.includes('incorrect') ||
-        msg.includes('Phone number does not match the registered name')
-      ) {
-        playFailSound();
-        Swal.fire({
-          title: 'รหัสไม่ถูกต้อง',
-          text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
-          icon: 'error',
-          confirmButtonText: 'ลองใหม่',
-          customClass: {
-            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-            title: 'mystic-heading text-xl mb-2',
-            content: 'mystic-gold-text font-serif',
-            confirmButton: 'mystic-btn w-full mt-4',
-            cancelButton: 'mystic-btn w-full mt-4',
-          }
-        });
-        return;
-      }
-
       playFailSound();
       let errorMessage = 'กรุณาลองใหม่';
+
       if (error.code === 'ECONNABORTED') {
         errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง (Timeout) กรุณาลองใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
       } else if (error.code === 'ERR_NETWORK') {
         errorMessage = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
-      } else if (error.response?.status === 404) {
-        errorMessage = 'ไม่พบ API endpoint กรุณาติดต่อแอดมิน';
       } else if (error.response?.status === 500) {
         errorMessage = 'เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่ในภายหลัง';
-      } else if (msg.includes('Username already exists with a different password')) {
-        errorMessage = 'ชื่อนี้มีคนใช้แล้ว ลองรหัสผ่านอื่นนะ';
-      } else if (msg.includes('Username already in use')) {
-        errorMessage = 'ชื่อนี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น';
       } else if (error.message?.includes('Network Error')) {
         errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
       }
 
-      playFailSound();
       Swal.fire({
         title: 'เกิดข้อผิดพลาด',
         text: errorMessage,

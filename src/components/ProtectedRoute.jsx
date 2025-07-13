@@ -6,8 +6,8 @@ import LoadingSpinner from './LoadingSpinner';
 const ProtectedRoute = ({ children, requiredRole = null }) => {
     const { user, loading, initialized, isAuthenticated, isAdmin } = useAuth();
 
-    // Show loading while checking authentication
-    if (loading || !initialized) {
+    // Show loading only if not initialized yet
+    if (!initialized) {
         return <LoadingSpinner />;
     }
 
