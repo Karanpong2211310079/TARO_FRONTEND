@@ -148,29 +148,15 @@ const parseCardDescription = (description) => {
         const trimmedLine = line.trim();
 
         // ตรวจสอบหมวดหมู่จากคำสำคัญและ emoji
-        if (trimmedLine.includes('💘 ความรัก') || trimmedLine.includes('❤️') || trimmedLine.includes('💕') ||
-            trimmedLine.includes('ความสัมพันธ์') || trimmedLine.includes('คู่รัก') || trimmedLine.includes('คนรัก') ||
-            trimmedLine.includes('การแต่งงาน') || trimmedLine.includes('ความโรแมนติก') || trimmedLine.includes('แฟน')) {
+        if (trimmedLine.includes('💘 ความรัก')) {
             currentCategory = 'love';
-        } else if (trimmedLine.includes('💼 การงาน') || trimmedLine.includes('งาน') || trimmedLine.includes('🏢') || trimmedLine.includes('💼') ||
-            trimmedLine.includes('อาชีพ') || trimmedLine.includes('ธุรกิจ') || trimmedLine.includes('การทำงาน') ||
-            trimmedLine.includes('เพื่อนร่วมงาน') || trimmedLine.includes('เจ้านาย') || trimmedLine.includes('บริษัท') ||
-            trimmedLine.includes('โครงการ') || trimmedLine.includes('ตำแหน่ง')) {
+        } else if (trimmedLine.includes('💼 การงาน')) {
             currentCategory = 'work';
-        } else if (trimmedLine.includes('💸 การเงิน') || trimmedLine.includes('เงิน') || trimmedLine.includes('💰') || trimmedLine.includes('💵') ||
-            trimmedLine.includes('การลงทุน') || trimmedLine.includes('ธุรกิจ') || trimmedLine.includes('ความมั่งคั่ง') ||
-            trimmedLine.includes('การออม') || trimmedLine.includes('รายได้') || trimmedLine.includes('กำไร') ||
-            trimmedLine.includes('ขาดทุน') || trimmedLine.includes('งบประมาณ')) {
+        } else if (trimmedLine.includes('💸 การเงิน')) {
             currentCategory = 'money';
-        } else if (trimmedLine.includes('🩺 สุขภาพ') || trimmedLine.includes('ร่างกาย') || trimmedLine.includes('🏥') || trimmedLine.includes('💊') ||
-            trimmedLine.includes('การรักษา') || trimmedLine.includes('ความเจ็บป่วย') || trimmedLine.includes('การออกกำลังกาย') ||
-            trimmedLine.includes('จิตใจ') || trimmedLine.includes('ความเครียด') || trimmedLine.includes('โรค') ||
-            trimmedLine.includes('อาการ') || trimmedLine.includes('การพักผ่อน')) {
+        } else if (trimmedLine.includes('🩺 สุขภาพ')) {
             currentCategory = 'health';
-        } else if (trimmedLine.includes('🧭 คำแนะนำ') || trimmedLine.includes('แนะนำ') || trimmedLine.includes('💡') || trimmedLine.includes('✨') ||
-            trimmedLine.includes('ควร') || trimmedLine.includes('ไม่ควร') || trimmedLine.includes('วิธี') ||
-            trimmedLine.includes('เคล็ดลับ') || trimmedLine.includes('ข้อควรระวัง') || trimmedLine.includes('#') ||
-            trimmedLine.includes('ข้อคิด') || trimmedLine.includes('แนวทาง')) {
+        } else if (trimmedLine.includes('🧭 คำแนะนำ')) {
             currentCategory = 'advice';
         }
 

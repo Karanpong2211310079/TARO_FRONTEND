@@ -117,10 +117,11 @@ const Login = () => {
       return;
     }
 
-    if (!API_BASE_URL) {
+    // เพิ่มการตรวจสอบ API URL format
+    if (!API_BASE_URL.startsWith('http')) {
       Swal.fire({
         title: 'ข้อผิดพลาด',
-        text: 'ไม่พบที่อยู่เซิร์ฟเวอร์ กรุณาติดต่อแอดมิน',
+        text: 'ที่อยู่เซิร์ฟเวอร์ไม่ถูกต้อง กรุณาติดต่อแอดมิน',
         icon: 'error',
         confirmButtonText: 'ตกลง',
         customClass: {
@@ -134,12 +135,12 @@ const Login = () => {
       return;
     }
 
-    // เพิ่มการตรวจสอบ API URL format
-    if (!API_BASE_URL.startsWith('http')) {
+    // ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
+    if (!navigator.onLine) {
       Swal.fire({
-        title: 'ข้อผิดพลาด',
-        text: 'ที่อยู่เซิร์ฟเวอร์ไม่ถูกต้อง กรุณาติดต่อแอดมิน',
-        icon: 'error',
+        title: 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
+        text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ',
+        icon: 'warning',
         confirmButtonText: 'ตกลง',
         customClass: {
           popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
@@ -182,7 +183,7 @@ const Login = () => {
           `${API_BASE_URL}login`,
           { name, phone: password },
           {
-            timeout: 15000, // เพิ่ม timeout เป็น 15 วินาที
+            timeout: 8000, // ลด timeout เป็น 8 วินาที
             headers: {
               'Content-Type': 'application/json',
               'Cache-Control': 'no-cache',
@@ -191,36 +192,32 @@ const Login = () => {
         );
         console.log('Login successful with main endpoint');
       } catch (error) {
-        console.log('Main endpoint failed:', error.response?.status);
+        console.log('Main endpoint failed:', error.response?.status, error.code);
         lastError = error;
 
-        // ถ้า endpoint หลักไม่สำเร็จ ให้ลอง endpoint อื่นๆ
-        if (error.response?.status === 404) {
-          const fallbackEndpoints = ['api/login', 'auth/login', 'user/login'];
+        // ลอง fallback endpoints สำหรับทุกกรณี (ไม่ใช่แค่ 404)
+        const fallbackEndpoints = ['api/login', 'auth/login', 'user/login'];
 
-          for (const endpoint of fallbackEndpoints) {
-            try {
-              console.log(`Trying fallback endpoint: ${API_BASE_URL}${endpoint}`);
-              res = await axios.post(
-                `${API_BASE_URL}${endpoint}`,
-                { name, phone: password },
-                {
-                  timeout: 10000,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache',
-                  },
-                }
-              );
-              console.log(`Success with fallback endpoint: ${endpoint}`);
-              break;
-            } catch (fallbackError) {
-              console.log(`Fallback endpoint ${endpoint} failed:`, fallbackError.response?.status);
-              lastError = fallbackError;
-              if (fallbackError.response?.status !== 404) {
-                break; // ถ้าไม่ใช่ 404 ให้หยุด
+        for (const endpoint of fallbackEndpoints) {
+          try {
+            console.log(`Trying fallback endpoint: ${API_BASE_URL}${endpoint}`);
+            res = await axios.post(
+              `${API_BASE_URL}${endpoint}`,
+              { name, phone: password },
+              {
+                timeout: 5000, // ลด timeout สำหรับ fallback
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Cache-Control': 'no-cache',
+                },
               }
-            }
+            );
+            console.log(`Success with fallback endpoint: ${endpoint}`);
+            break;
+          } catch (fallbackError) {
+            console.log(`Fallback endpoint ${endpoint} failed:`, fallbackError.response?.status, fallbackError.code);
+            lastError = fallbackError;
+            // ไม่หยุด loop เพื่อลอง endpoint ถัดไป
           }
         }
       }
@@ -231,12 +228,28 @@ const Login = () => {
 
         // ตรวจสอบ error type และแสดงข้อความที่เหมาะสม
         const errorStatus = lastError?.response?.status;
+        const errorCode = lastError?.code;
         const errorMessage = lastError?.response?.data?.message || '';
 
-        if (errorStatus === 401 || errorMessage.includes('Invalid') || errorMessage.includes('incorrect')) {
+        // จัดการ timeout และ network errors ก่อน
+        if (errorCode === 'ECONNABORTED') {
           Swal.fire({
-            title: 'รหัสผ่านไม่ถูกต้อง',
-            text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
+            title: 'เซิร์ฟเวอร์ไม่ตอบสนอง',
+            text: 'การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต',
+            icon: 'warning',
+            confirmButtonText: 'ลองใหม่',
+            customClass: {
+              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
+              title: 'mystic-heading text-xl mb-2',
+              content: 'mystic-gold-text font-serif',
+              confirmButton: 'mystic-btn w-full mt-4',
+              cancelButton: 'mystic-btn w-full mt-4',
+            }
+          });
+        } else if (errorCode === 'ERR_NETWORK' || errorMessage.includes('Network Error')) {
+          Swal.fire({
+            title: 'ไม่สามารถเชื่อมต่อได้',
+            text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตและลองใหม่',
             icon: 'error',
             confirmButtonText: 'ลองใหม่',
             customClass: {
