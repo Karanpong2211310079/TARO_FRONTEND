@@ -226,9 +226,9 @@ const showCardDescriptionByCategory = (description, cardName) => {
     const buttonsHTML = Object.entries(categories)
         .filter(([key, value]) => value.trim())
         .map(([key, value]) => {
-            // ใช้ base64 encoding เพื่อหลีกเลี่ยงปัญหา escape characters
-            const encodedValue = btoa(unescape(encodeURIComponent(value)));
-            const encodedCardName = btoa(unescape(encodeURIComponent(cardName)));
+            // ใช้ JSON.stringify เพื่อหลีกเลี่ยงปัญหา encoding
+            const encodedValue = JSON.stringify(value);
+            const encodedCardName = JSON.stringify(cardName);
 
             return `
                 <button 
@@ -276,9 +276,9 @@ const showCardDescriptionByCategory = (description, cardName) => {
             health: 'category-health',
             advice: 'category-advice'
         };
-        // Decode ข้อมูลจาก base64
-        const content = decodeURIComponent(unescape(atob(encodedContent)));
-        const cardName = decodeURIComponent(unescape(atob(encodedCardName)));
+        // Decode ข้อมูลจาก JSON
+        const content = JSON.parse(encodedContent);
+        const cardName = JSON.parse(encodedCardName);
         // แปลงข้อความให้รักษารูปแบบ (แปลง \n เป็น <br>)
         const formattedContent = content.replace(/\n/g, '<br>');
         Swal.fire({
