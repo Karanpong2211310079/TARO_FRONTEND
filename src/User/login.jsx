@@ -178,7 +178,6 @@ const Login = () => {
       let lastError = null;
 
       try {
-        console.log(`Trying main endpoint: ${API_BASE_URL}login`);
         res = await axios.post(
           `${API_BASE_URL}login`,
           { name, phone: password },
@@ -190,9 +189,7 @@ const Login = () => {
             },
           }
         );
-        console.log('Login successful with main endpoint');
       } catch (error) {
-        console.log('Main endpoint failed:', error.response?.status, error.code);
         lastError = error;
 
         // ลอง fallback endpoints สำหรับทุกกรณี (ไม่ใช่แค่ 404)
@@ -200,7 +197,6 @@ const Login = () => {
 
         for (const endpoint of fallbackEndpoints) {
           try {
-            console.log(`Trying fallback endpoint: ${API_BASE_URL}${endpoint}`);
             res = await axios.post(
               `${API_BASE_URL}${endpoint}`,
               { name, phone: password },
@@ -212,10 +208,8 @@ const Login = () => {
                 },
               }
             );
-            console.log(`Success with fallback endpoint: ${endpoint}`);
             break;
           } catch (fallbackError) {
-            console.log(`Fallback endpoint ${endpoint} failed:`, fallbackError.response?.status, fallbackError.code);
             lastError = fallbackError;
             // ไม่หยุด loop เพื่อลอง endpoint ถัดไป
           }
@@ -223,47 +217,30 @@ const Login = () => {
       }
 
       if (!res) {
-        console.log('All endpoints failed, last error:', lastError);
         playFailSound();
 
         // ตรวจสอบ error type และแสดงข้อความที่เหมาะสม
         const errorStatus = lastError?.response?.status;
         const errorCode = lastError?.code;
-        const errorMessage = lastError?.response?.data?.message || '';
 
-        // จัดการ timeout และ network errors ก่อน
+        // แสดงข้อความ error ที่เรียบง่าย
         if (errorCode === 'ECONNABORTED') {
           Swal.fire({
             title: 'เซิร์ฟเวอร์ไม่ตอบสนอง',
-            text: 'การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต',
+            text: 'กรุณาลองใหม่',
             icon: 'warning',
-            confirmButtonText: 'ลองใหม่',
+            confirmButtonText: 'ตกลง',
             customClass: {
               popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
               title: 'mystic-heading text-xl mb-2',
               content: 'mystic-gold-text font-serif',
               confirmButton: 'mystic-btn w-full mt-4',
-              cancelButton: 'mystic-btn w-full mt-4',
             }
           });
-        } else if (errorCode === 'ERR_NETWORK' || errorMessage.includes('Network Error')) {
+        } else if (errorCode === 'ERR_NETWORK') {
           Swal.fire({
             title: 'ไม่สามารถเชื่อมต่อได้',
-            text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตและลองใหม่',
-            icon: 'error',
-            confirmButtonText: 'ลองใหม่',
-            customClass: {
-              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-              title: 'mystic-heading text-xl mb-2',
-              content: 'mystic-gold-text font-serif',
-              confirmButton: 'mystic-btn w-full mt-4',
-              cancelButton: 'mystic-btn w-full mt-4',
-            }
-          });
-        } else if (errorStatus === 404) {
-          Swal.fire({
-            title: 'ไม่พบ API endpoint',
-            text: 'กรุณาติดต่อแอดมิน',
+            text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต',
             icon: 'error',
             confirmButtonText: 'ตกลง',
             customClass: {
@@ -271,13 +248,13 @@ const Login = () => {
               title: 'mystic-heading text-xl mb-2',
               content: 'mystic-gold-text font-serif',
               confirmButton: 'mystic-btn w-full mt-4',
-              cancelButton: 'mystic-btn w-full mt-4',
             }
           });
         } else {
+          // ข้อความทั่วไปสำหรับ login ไม่สำเร็จ
           Swal.fire({
-            title: 'ชื่อนี้ถูกใช้แล้วหรือรหัสผ่านไม่ถูกต้อง',
-            text: 'หากลืมรหัสผ่านกรุณาติดต่อแอดมิน ทักIG: _moodma_',
+            title: 'ชื่อนี้ถูกใช้เเล้วหรือรหัสผ่านไม่ถูกต้อง',
+            text: 'กรุณาเปลี่ยนชื่อผู้ใช้หรือตรวจสอบรหัสผ่านอีกครั้ง',
             icon: 'error',
             confirmButtonText: 'ตกลง',
             customClass: {
@@ -285,7 +262,6 @@ const Login = () => {
               title: 'mystic-heading text-xl mb-2',
               content: 'mystic-gold-text font-serif',
               confirmButton: 'mystic-btn w-full mt-4',
-              cancelButton: 'mystic-btn w-full mt-4',
             }
           });
         }
@@ -335,23 +311,17 @@ const Login = () => {
         });
       }
     } catch (error) {
-      // เพิ่มการ log error เพื่อ debug
-      console.error('Login error:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-      console.error('Error response:', error.response);
-
       playFailSound();
       let errorMessage = 'กรุณาลองใหม่';
 
       if (error.code === 'ECONNABORTED') {
-        errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง (Timeout) กรุณาลองใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+        errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่';
       } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+        errorMessage = 'ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
       } else if (error.response?.status === 500) {
-        errorMessage = 'เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่ในภายหลัง';
+        errorMessage = 'เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่';
       } else if (error.message?.includes('Network Error')) {
-        errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ';
+        errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้';
       }
 
       Swal.fire({
