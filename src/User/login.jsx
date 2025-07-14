@@ -223,25 +223,12 @@ const Login = () => {
         const errorStatus = lastError?.response?.status;
         const errorCode = lastError?.code;
 
-        // แสดงข้อความ error ที่เรียบง่าย
-        if (errorCode === 'ECONNABORTED') {
+        // ปรับปรุงข้อความ error สำหรับกรณี server cold start หรือ network error
+        if (errorCode === 'ECONNABORTED' || errorCode === 'ERR_NETWORK') {
           Swal.fire({
-            title: 'เซิร์ฟเวอร์ไม่ตอบสนอง',
-            text: 'กรุณาลองใหม่',
+            title: 'ระบบกำลังตื่น',
+            text: 'โปรดลองใหม่อีกครั้งใน 5-10 วินาที',
             icon: 'warning',
-            confirmButtonText: 'ตกลง',
-            customClass: {
-              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-              title: 'mystic-heading text-xl mb-2',
-              content: 'mystic-gold-text font-serif',
-              confirmButton: 'mystic-btn w-full mt-4',
-            }
-          });
-        } else if (errorCode === 'ERR_NETWORK') {
-          Swal.fire({
-            title: 'ไม่สามารถเชื่อมต่อได้',
-            text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต',
-            icon: 'error',
             confirmButtonText: 'ตกลง',
             customClass: {
               popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
