@@ -1,14 +1,14 @@
 import { useState, lazy, Suspense, useEffect } from 'react';
 import './App.css';
-import Navbar from './User/main/navbar';
-import Login from './User/login';
-import AllCards from './User/allcards';
-import User from './User/user';
-import Manage from '../Admin/main/manage';
+const Navbar = lazy(() => import('./User/main/navbar'));
+const Login = lazy(() => import('./User/login'));
+const AllCards = lazy(() => import('./User/allcards'));
+const User = lazy(() => import('./User/user'));
+const Manage = lazy(() => import('../Admin/main/manage'));
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
-import ProtectedRoute from './components/ProtectedRoute';
-import NotFound from './components/NotFound';
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const NotFound = lazy(() => import('./components/NotFound'));
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Lazy load components for better performance
@@ -45,49 +45,51 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <PageWithNavbar>
-                  <Home />
-                </PageWithNavbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/allcards"
-            element={
-              <ProtectedRoute>
-                <PageWithNavbar>
-                  <AllCards />
-                </PageWithNavbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/user"
-            element={
-              <ProtectedRoute>
-                <PageWithNavbar>
-                  <User />
-                </PageWithNavbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <Manage />
-              </ProtectedRoute>
-            }
-          />
-          {/* 404 - Catch all unmatched routes */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <PageWithNavbar>
+                    <Home />
+                  </PageWithNavbar>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/allcards"
+              element={
+                <ProtectedRoute>
+                  <PageWithNavbar>
+                    <AllCards />
+                  </PageWithNavbar>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user"
+              element={
+                <ProtectedRoute>
+                  <PageWithNavbar>
+                    <User />
+                  </PageWithNavbar>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <Manage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 404 - Catch all unmatched routes */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </Router>
     </ErrorBoundary>
   );
