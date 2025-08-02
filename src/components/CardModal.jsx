@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { playSound } from '../utils/gameUtils';
 
 const CardModal = ({ card, playerName, onClose }) => {
     useEffect(() => {
@@ -17,7 +18,7 @@ const CardModal = ({ card, playerName, onClose }) => {
 
     return (
         <div className="custom-card-modal">
-            <button className="card-close-btn" onClick={onClose}>×</button>
+            <button className="card-close-btn" onClick={() => { playSound('pop'); onClose(); }}>×</button>
             <div className="card-popup-container">
                 <div className="card-popup">
                     <div className="card-back">
@@ -41,6 +42,15 @@ const CardModal = ({ card, playerName, onClose }) => {
                                 className="punishment-btn"
                                 type="button"
                                 onClick={() => {
+                                    playSound('flipcard');
+                                    // เพิ่มคลาสเพื่อแสดงอนิเมะชั่นพลิก popup card
+                                    const popup = document.querySelector('.card-popup');
+                                    if (popup) {
+                                        popup.classList.add('flip-animation');
+                                        setTimeout(() => {
+                                            popup.classList.remove('flip-animation');
+                                        }, 700); // ระยะเวลาอนิเมะชั่น (ms)
+                                    }
                                     // ยังไม่มีเนื้อหาหมวดบทลงโทษ ให้หน้าว่างๆ (ไม่ต้องแสดงอะไร)
                                     // สามารถเพิ่ม logic แสดงบทลงโทษแบบสุ่มได้ในอนาคต
                                     const cardBody = document.querySelector('.card-body .card-description');

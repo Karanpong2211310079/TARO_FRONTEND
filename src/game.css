@@ -55,6 +55,35 @@
     height: 170px;
 }
 
+/* Player card animation: pulse glow for current player's turn (infinite) */
+.player-card.player-card-animate {
+    animation: playerTurnPulse 1.2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+    box-shadow: 0 0 32px 8px #fbbf24, 0 0 0 4px #a78bfa;
+    z-index: 3;
+}
+
+@keyframes playerTurnPulse {
+    0% {
+        transform: scale(1.12) rotate(-2deg);
+        box-shadow: 0 0 16px 2px #fbbf24, 0 0 0 0 #a78bfa;
+    }
+
+    40% {
+        transform: scale(1.22) rotate(-2deg);
+        box-shadow: 0 0 32px 8px #fbbf24, 0 0 0 4px #a78bfa;
+    }
+
+    70% {
+        transform: scale(1.18) rotate(-2deg);
+        box-shadow: 0 0 24px 4px #fbbf24, 0 0 0 2px #a78bfa;
+    }
+
+    100% {
+        transform: scale(1.12) rotate(-2deg);
+        box-shadow: 0 0 16px 2px #fbbf24, 0 0 0 0 #a78bfa;
+    }
+}
+
 .player-card .player-icon {
     font-size: 2.1rem;
     margin-bottom: 0.2rem;
@@ -650,6 +679,14 @@
     }
 }
 
+.card-front {
+    background: var(--theme-card);
+    border: 3px solid #fbbf24;
+    transform: rotateY(0deg);
+    display: flex;
+    flex-direction: column;
+}
+
 .card-front::before {
     content: '';
     position: absolute;
@@ -671,6 +708,14 @@
     }
 }
 
+.card-header {
+    background: var(--theme-card);
+    padding: 1.5rem 1.5rem 1rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
 .card-header::before {
     content: '';
     position: absolute;
@@ -682,17 +727,7 @@
     animation: headerShimmer 4s ease-in-out infinite;
 }
 
-@keyframes headerShimmer {
 
-    0%,
-    100% {
-        opacity: 0;
-    }
-
-    50% {
-        opacity: 1;
-    }
-}
 
 .card-icon {
     font-size: 3rem;
@@ -711,6 +746,37 @@
     50% {
         transform: translateY(-3px);
     }
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fbbf24;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+    line-height: 1.2;
+    position: relative;
+    z-index: 1;
+}
+
+.card-player {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 1;
+}
+
+.card-body {
+    padding: 1.5rem;
+    background: var(--theme-glass);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
 }
 
 .card-body::before {
@@ -737,6 +803,15 @@
     50% {
         transform: rotate(180deg);
     }
+}
+
+.card-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    background: var(--theme-card);
+    border-top: 2px solid #fbbf24;
+    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .card-footer::before {
@@ -917,5 +992,31 @@
         min-width: 40px;
         font-size: 0.7rem;
         padding: 0.25rem 0.5rem !important;
+    }
+}
+
+/* Flip animation for card-popup (triggered by .flip-animation) */
+.card-popup.flip-animation {
+    animation: cardFlipY 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@keyframes cardFlipY {
+    0% {
+        transform: translate(-50%, -50%) rotateY(0deg);
+    }
+
+    40% {
+        transform: translate(-50%, -50%) rotateY(90deg) scale(1.05);
+        filter: blur(2px) brightness(1.2);
+    }
+
+    60% {
+        transform: translate(-50%, -50%) rotateY(100deg) scale(1.05);
+        filter: blur(2px) brightness(1.2);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotateY(0deg);
+        filter: none;
     }
 }

@@ -14,12 +14,6 @@ const PLAYER_ICONS = [
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 const MAX_DRAW = 78;
 
-
-
-
-
-
-
 const GamePage = () => {
     const {
         cards, setCards,
@@ -38,6 +32,7 @@ const GamePage = () => {
     const [currentCard, setCurrentCard] = useState(null);
     // Assign a random icon to each player (stable per session)
     const [playerIcons, setPlayerIcons] = useState([]);
+    const [animatePlayer, setAnimatePlayer] = useState(null);
 
     // Fetch cards
     const fetchCards = useCallback(async () => {
@@ -79,6 +74,7 @@ const GamePage = () => {
 
     const handlePlayerCountSubmit = (e) => {
         e.preventDefault();
+        playSound('pop');
         const count = parseInt(playerCount);
         if (isNaN(count) || count < 2 || count > 10) {
             setFormError("กรุณาใส่จำนวนผู้เล่น 2-10 คน");
@@ -91,6 +87,7 @@ const GamePage = () => {
 
     const handlePlayerNamesSubmit = (e) => {
         e.preventDefault();
+        playSound('pop');
         const names = playerNameInputs.map(n => n.trim());
         if (names.some(n => !n)) {
             setFormError("กรุณากรอกชื่อผู้เล่นให้ครบทุกคน");
@@ -114,21 +111,24 @@ const GamePage = () => {
     };
 
     // Draw card (minimal, clean)
+    const [actionLock, setActionLock] = useState(false);
     const handleDrawCard = useCallback(() => {
-        if (drawCount <= 0) {
+        if (drawCount <= 0 || actionLock) {
             playSound('fail');
             showWarning('เกมส์จบเเล้ว', 'ขอบคุณที่เล่นเกมส์ของเรา หากชอบโปรดรีวิวให้กับเราเพื่อเป็นกำลังใจให้เราต่อไป');
             return;
         }
+        setActionLock(true);
         const currentPlayerName = players[currentPlayerIndex];
-        playSound('click');
         const randomIndex = Math.floor(Math.random() * availableCards.length);
         const card = availableCards[randomIndex];
+        const isMajor = isMajorArcana(card.name);
+        playSound(isMajor ? 'magic' : 'flipcard'); // magic.mp3 สำหรับ Major Arcana
         const newAvailableCards = availableCards.filter((_, index) => index !== randomIndex);
         const cardWithPlayer = {
             ...card,
             player: currentPlayerName,
-            isMajorArcana: isMajorArcana(card.name)
+            isMajorArcana: isMajor
         };
         setAvailableCards(newAvailableCards);
         setDrawnCards(prev => [...prev, cardWithPlayer]);
@@ -136,13 +136,17 @@ const GamePage = () => {
         if (cardWithPlayer.isMajorArcana) setMajorArcanaCards(prev => [...prev, cardWithPlayer]);
         setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
         setCurrentCard({ card, playerName: currentPlayerName });
-    }, [drawCount, availableCards, players, currentPlayerIndex, setAvailableCards, setDrawnCards, setDrawCount, setMajorArcanaCards, setCurrentPlayerIndex]);
+        setTimeout(() => setActionLock(false), 900); // กัน spam 0.9s
+    }, [drawCount, availableCards, players, currentPlayerIndex, setAvailableCards, setDrawnCards, setDrawCount, setMajorArcanaCards, setCurrentPlayerIndex, actionLock]);
 
     // Skip turn (move to next player)
     const handleSkipTurn = useCallback(() => {
+        if (actionLock) return;
+        setActionLock(true);
         setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
-        playSound('click');
-    }, [currentPlayerIndex, players.length, setCurrentPlayerIndex]);
+        playSound('whoosh'); // ใช้ src/assets/whoosh.mp3
+        setTimeout(() => setActionLock(false), 700); // กัน spam 0.7s
+    }, [currentPlayerIndex, players.length, setCurrentPlayerIndex, actionLock]);
 
     // View player cards (minimal, clean)
     const handleViewPlayerCards = useCallback((playerName) => {
@@ -162,10 +166,17 @@ const GamePage = () => {
         ));
         const updatedCards = showPlayerCards.cards.filter((_, index) => index !== cardIndex);
         setShowPlayerCards(updatedCards.length === 0 ? null : { ...showPlayerCards, cards: updatedCards });
-        showSuccess('ใช้ไพ่แล้ว', `ใช้ไพ่ ${cardToUse.name} ของ ${cardToUse.player} แล้ว`);
+        // ไม่ต้องขึ้น popup เตือน
     }, [showPlayerCards, setMajorArcanaCards]);
 
     const currentPlayerName = useMemo(() => players[currentPlayerIndex] || '', [players, currentPlayerIndex]);
+
+    useEffect(() => {
+        if (!gameStarted || players.length === 0) return;
+        setAnimatePlayer(currentPlayerIndex);
+        const timeout = setTimeout(() => setAnimatePlayer(null), 1000);
+        return () => clearTimeout(timeout);
+    }, [currentPlayerIndex, gameStarted, players.length]);
 
     return (
         <>
@@ -228,7 +239,7 @@ const GamePage = () => {
                                             <span className="text-2xl">✨</span>
                                             <span>เริ่มเกม</span>
                                         </button>
-                                        <button type="button" onClick={() => setSetupStep(0)} className="text-sm text-gray-400 underline mt-2">ย้อนกลับ</button>
+                                        <button type="button" onClick={() => { playSound('pop'); setSetupStep(0); }} className="text-sm text-gray-400 underline mt-2">ย้อนกลับ</button>
                                     </form>
                                 )}
                             </div>
@@ -272,12 +283,12 @@ const GamePage = () => {
                                                 return (
                                                     <div key={player} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                                         <div
-                                                            className={`player-card${index === currentPlayerIndex ? ' current' : ''}`}
+                                                            className={`player-card${index === currentPlayerIndex ? ' current player-card-animate' : ''}`}
                                                             style={{
                                                                 '--player-bg': playerBg,
                                                                 cursor: 'pointer',
                                                             }}
-                                                            onClick={() => handleViewPlayerCards(player)}
+                                                            onClick={() => { playSound('pop'); handleViewPlayerCards(player); }}
                                                             title={player}
                                                         >
                                                             <span className="player-icon" style={{ fontSize: 28 }}>{playerIcons[index] || '🧙‍♂️'}</span>
@@ -303,10 +314,13 @@ const GamePage = () => {
                                                     fontWeight: 'bold',
                                                     boxShadow: '0 3px 16px 0 #a78bfa',
                                                     transition: 'all 0.2s',
+                                                    opacity: (drawCount <= 0 || isLoading || actionLock) ? 0.6 : 1,
+                                                    pointerEvents: (drawCount <= 0 || isLoading || actionLock) ? 'none' : 'auto',
                                                 }}
                                                 onClick={handleDrawCard}
-                                                disabled={drawCount <= 0 || isLoading}
+                                                disabled={drawCount <= 0 || isLoading || actionLock}
                                             >
+                                                {actionLock && !isLoading ? <span className="animate-spin mr-2"></span> : null}
                                                 จั่วไพ่
                                             </button>
                                             <button
@@ -323,10 +337,13 @@ const GamePage = () => {
                                                     fontWeight: 'bold',
                                                     boxShadow: '0 3px 16px 0 #fbbf24',
                                                     transition: 'all 0.2s',
+                                                    opacity: (isLoading || actionLock) ? 0.6 : 1,
+                                                    pointerEvents: (isLoading || actionLock) ? 'none' : 'auto',
                                                 }}
                                                 onClick={handleSkipTurn}
-                                                disabled={isLoading}
+                                                disabled={isLoading || actionLock}
                                             >
+                                                {actionLock && !isLoading ? <span className="animate-spin mr-2"></span> : null}
                                                 ข้าม
                                             </button>
                                         </div>
@@ -347,4 +364,4 @@ const GamePage = () => {
     );
 };
 
-export default GamePage; 
+export default GamePage;

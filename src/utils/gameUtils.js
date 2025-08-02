@@ -1,11 +1,19 @@
 import Swal from 'sweetalert2';
 import clickSound from '../assets/click.mp3';
+import popSound from '../assets/casual-click-pop-ui-3-262120.mp3';
 import failSound from '../assets/fail.mp3';
+import flipcardSound from '../assets/flipcard.mp3';
+import magicSound from '../assets/magic.mp3';
+import whooshSound from '../assets/whoosh.mp3';
 
 // Audio objects
 const audioObjects = {
     click: new window.Audio(clickSound),
-    fail: new window.Audio(failSound)
+    pop: new window.Audio(popSound),
+    fail: new window.Audio(failSound),
+    flipcard: new window.Audio(flipcardSound),
+    whoosh: new window.Audio(whooshSound),
+    magic: new window.Audio(magicSound)
 };
 
 // Major Arcana card names
