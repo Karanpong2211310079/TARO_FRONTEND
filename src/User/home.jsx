@@ -815,61 +815,79 @@ const Home = () => {
                             </p>
                         </div>
                     ) : drawnCards.length > 0 ? (
-                        <div className="mb-4">
-                            <div className="flex flex-col justify-center items-center gap-4">
-                                {drawnCards.map((card) => (
-                                    <motion.div
-                                        key={card.card_id}
+                        <div className="mb-4 flex flex-col justify-center items-center gap-4">
+                            {drawnCards.map((card) => (
+                                <div key={card.card_id} className="w-full text-center">
+                                    <motion.img
                                         initial={{ opacity: 0, rotateY: 180 }}
                                         animate={{ opacity: 1, rotateY: 0 }}
                                         transition={{ duration: 0.5 }}
-                                        className="w-full text-center"
-                                    >
-                                        <img
-                                            src={card.image_url}
-                                            alt={card.name}
-                                            className="w-full max-w-[10rem] sm:max-w-[12rem] aspect-[2/3] object-contain rounded-lg shadow-2xl mx-auto border-2 border-yellow-300"
-                                            loading="lazy"
-                                            onError={(e) => {
-                                                console.error(`Failed to load card image: ${card.image_url}`);
-                                                e.target.style.display = 'none';
-                                            }}
-                                        />
-                                        <h2 className="text-lg font-bold mt-2 mystic-gold-text drop-shadow-lg">{card.name}</h2>
+                                        src={card.image_url}
+                                        alt={card.name}
+                                        className="w-full max-w-[10rem] sm:max-w-[12rem] aspect-[2/3] object-contain rounded-lg shadow-2xl mx-auto border-2 border-yellow-300"
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            console.error(`Failed to load card image: ${card.image_url}`);
+                                            e.target.style.display = 'none';
+                                        }}
+                                    />
+                                    <h2 className="text-lg font-bold mt-2 mystic-gold-text drop-shadow-lg">{card.name}</h2>
+                                    <div className="flex flex-col gap-4 w-full items-center mt-4">
                                         <button
                                             onClick={() => { playClickSound(); showCardDescription(card.description, card.name); }}
-                                            className="mystic-btn w-full flex items-center justify-center gap-2 mt-2"
+                                            className="mystic-btn w-66 flex items-center justify-center gap-2 mx-auto"
                                         >
                                             <span className="btn-icon">👁️</span> ดูคำทำนายของไพ่ใบนี้
                                         </button>
-                                    </motion.div>
-                                ))}
-                            </div>
+                                        <button
+                                            className="mystic-btn w-66 px-4 py-3 flex items-center justify-center gap-2 text-base bg-gradient-to-r from-yellow-400 to-purple-600 text-white font-bold shadow-lg hover:scale-105 transition-all duration-200 mx-auto"
+                                            onClick={() => { playClickSound(); navigate('/game'); }}
+                                        >
+                                            <span className="btn-icon">🎮</span> เล่นเกม
+                                        </button>
+                                        <button
+                                            className="mystic-btn w-66 px-4 py-3 flex items-center justify-center gap-2 text-base bg-gradient-to-r from-gray-300 to-gray-500 text-black font-bold shadow-lg hover:scale-105 transition-all duration-200 mx-auto"
+                                            onClick={() => { playClickSound(); setDrawnCards([]); }}
+                                        >
+                                            <span className="btn-icon">🔙</span> ย้อนกลับ
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : (
                         <p className="italic text-yellow-200 mb-4 text-sm">🫵 โปรดเติมพลังก่อนสุ่มไพ่ทาโรต์!</p>
                     )}
 
-                    <div className="my-3">
-                        <button
-                            onClick={(e) => { playClickSound(); handleRedeemCode(e); }}
-                            disabled={apiLoading}
-                            type="button"
-                            className="mystic-btn w-full flex items-center justify-center gap-2"
-                        >
-                            <span className="btn-icon">✨</span> {apiLoading ? 'กำลังเชื่อมจิต...' : 'กรอกโค้ดลับ'}
-                        </button>
-                    </div>
+                    {/* ปุ่มอ่านคำทำนาย, กรอกโค้ดลับ, ใช้พลังทำนาย */}
+                    {drawnCards.length === 0 && (
+                        <>
+                            <div className="my-3">
+                                <button
+                                    onClick={(e) => { playClickSound(); handleRedeemCode(e); }}
+                                    disabled={apiLoading}
+                                    type="button"
+                                    className="mystic-btn w-66 flex items-center justify-center gap-2 mx-auto"
+                                >
+                                    <span className="btn-icon">✨</span> {apiLoading ? 'กำลังเชื่อมจิต...' : 'กรอกโค้ดลับ'}
+                                </button>
+                            </div>
+                            <div>
+                                <button
+                                    onClick={(e) => {
+                                        playClickSound();
+                                        sessionStorage.setItem('resetGameDraw', '1'); // สำหรับรีเซ็ตหน้าเกม
+                                        drawCard(e);
+                                    }}
+                                    disabled={!canDrawCard}
+                                    className={`mystic-btn w-66 flex items-center justify-center gap-2 font-bold shadow-md mx-auto ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <span className="btn-icon">🔮</span> {userData.point > 0 ? `ใช้พลังทำนาย: ${userData.point}` : 'สุ่มไพ่ทาโรต์'}
+                                </button>
+                            </div>
+                        </>
+                    )}
 
-                    <div>
-                        <button
-                            onClick={(e) => { playClickSound(); drawCard(e); }}
-                            disabled={!canDrawCard}
-                            className={`mystic-btn w-full flex items-center justify-center gap-2 font-bold shadow-md ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <span className="btn-icon">🔮</span> {userData.point > 0 ? `ใช้พลังทำนาย: ${userData.point}` : 'สุ่มไพ่ทาโรต์'}
-                        </button>
-                    </div>
                 </div>
             </div>
 

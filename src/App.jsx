@@ -13,6 +13,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Lazy load components for better performance
 const Home = lazy(() => import('./User/home'));
+const GamePage = lazy(() => import('./User/game'));
 
 // Wrapper component for pages with navbar
 const PageWithNavbar = ({ children }) => (
@@ -74,6 +75,17 @@ function App() {
                 <ProtectedRoute>
                   <PageWithNavbar>
                     <User />
+                  </PageWithNavbar>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game"
+              element={
+                <ProtectedRoute>
+                  <PageWithNavbar>
+                    {/* Lazy load GamePage */}
+                    <GamePage />
                   </PageWithNavbar>
                 </ProtectedRoute>
               }
