@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -14,35 +15,30 @@ const Manage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Fetch users
   const getUsers = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}user-profile`);
-      console.log('User data:', response.data.data); // Debug: ตรวจสอบโครงสร้างข้อมูล
       const userData = response.data.data;
       setUsers(userData);
       setStats(prev => ({ ...prev, totalUsers: userData.length }));
-      userData.forEach(user => {
-        if (!user.phone_number) {
-          console.warn(`User ${user.name} (ID: ${user.user_id}) has no phone_number field`);
-        }
-      });
     } catch (error) {
-      console.error('Error fetching users:', error);
       setError('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
     }
   };
 
+  // Fetch cards
   const getCards = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}taro-card`);
       setCards(response.data.data);
       setStats(prev => ({ ...prev, totalCards: response.data.data.length }));
     } catch (error) {
-      console.error('Error fetching cards:', error);
       setError('ไม่สามารถโหลดข้อมูลการ์ดได้');
     }
   };
 
+  // Add new card
   const handleCardSubmit = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Add New Card',
@@ -78,7 +74,6 @@ const Manage = () => {
         });
         await getCards();
       } catch (error) {
-        console.error('Error adding card:', error);
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -88,81 +83,18 @@ const Manage = () => {
     }
   };
 
-  const handleDeleteUserCard = async (userId, cardId) => {
-    console.log('Attempting to delete card:', { userId, cardId }); // Debug
-    const result = await Swal.fire({
-      title: 'ยืนยันการลบ',
-      text: 'คุณแน่ใจหรือไม่ว่าต้องการลบการ์ดนี้?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'ลบ',
-      cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        // ลองใช้ POST ก่อน
-        const response = await axios.post(`${API_BASE_URL}delete-user-card`, { user_id: userId, card_id: cardId });
-        console.log('Delete response:', response.data); // Debug
-        Swal.fire({
-          icon: 'success',
-          title: 'ลบการ์ดสำเร็จ',
-          showConfirmButton: false,
-          timer: 1500
-        });
-        // รีเฟรชข้อมูลการ์ดของผู้ใช้
-        handleViewUserCards(userId);
-      } catch (error) {
-        console.error('Error deleting card:', error.response?.status, error.response?.data || error.message);
-        // ลองใช้ DELETE หาก POST ไม่ทำงาน
-        try {
-          const response = await axios.delete(`${API_BASE_URL}delete-user-card`, { data: { user_id: userId, card_id: cardId } });
-          console.log('Delete response (DELETE):', response.data); // Debug
-          Swal.fire({
-            icon: 'success',
-            title: 'ลบการ์ดสำเร็จ',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          handleViewUserCards(userId);
-        } catch (deleteError) {
-          console.error('Error deleting card (DELETE):', deleteError.response?.status, deleteError.response?.data || deleteError.message);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'ไม่สามารถลบการ์ดได้: ' + (deleteError.response?.data?.message || deleteError.message)
-          });
-        }
-      }
-    }
-  };
-
+  // View user cards (lean: no star/toggle logic, just show cards)
   const handleViewUserCards = async (userId) => {
     try {
       const res = await axios.post(`${API_BASE_URL}user-card`, { user_id: userId });
-      console.log('User cards data:', res.data.data); // Debug
       if (res.data && res.data.data && res.data.data.length > 0) {
         const cardsHTML = `
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
             ${res.data.data.map(userCard => {
-          if (!userCard.cards) {
-            console.warn('No cards data for userCard:', userCard); // Debug
-            return '';
-          }
-          if (!userCard.cards.id) {
-            console.warn('No card ID for card:', userCard.cards); // Debug
-          }
+          if (!userCard.cards) return '';
           return `
-                <div style="position: relative; border-radius: 8px; overflow: hidden;">
+                <div style="border-radius: 8px; overflow: hidden;">
                   <img src="${userCard.cards.image_url}" alt="Card" style="width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px;" />
-                  <button
-                    onclick="document.dispatchEvent(new CustomEvent('deleteCard', { detail: { userId: '${userId}', cardId: '${userCard.cards.id}' } }))"
-                    style="position: absolute; top: 8px; right: 8px; background: #d33; color: white; padding: 6px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px;"
-                  >
-                    ลบ
-                  </button>
                 </div>
               `;
         }).join('')}
@@ -172,14 +104,8 @@ const Manage = () => {
           title: `การ์ดของ User ID: ${userId}`,
           html: `<div style="max-height: 80vh; overflow-y: auto;">${cardsHTML}</div>`,
           width: '90%',
-          confirmButtonText: 'Close'
+          confirmButtonText: 'Close',
         });
-
-        // จัดการ event ลบ
-        document.addEventListener('deleteCard', (event) => {
-          const { userId, cardId } = event.detail;
-          handleDeleteUserCard(userId, cardId);
-        }, { once: true });
       } else {
         Swal.fire({
           title: 'No Cards',
@@ -189,7 +115,6 @@ const Manage = () => {
         });
       }
     } catch (error) {
-      console.error('API Error:', error.response?.status, error.response?.data || error.message);
       Swal.fire({
         title: 'Error',
         text: 'ไม่สามารถโหลดข้อมูลได้',
@@ -209,7 +134,6 @@ const Manage = () => {
       try {
         await Promise.all([getUsers(), getCards()]);
       } catch (err) {
-        console.error('Fetch error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -224,7 +148,6 @@ const Manage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* ปุ่มเมนูสำหรับมือถือ */}
       <button
         onClick={toggleSidebar}
         className="fixed top-4 left-4 z-50 p-2 text-gray-500 bg-white rounded-lg md:hidden"
@@ -238,10 +161,8 @@ const Manage = () => {
         </svg>
       </button>
 
-      {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform bg-gray-50 dark:bg-gray-800 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+        className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform bg-gray-50 dark:bg-gray-800 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="h-full px-3 py-4 overflow-y-auto">
           <button
@@ -263,7 +184,7 @@ const Manage = () => {
                   setActiveTab('dashboard');
                   setIsSidebarOpen(false);
                 }}
-                className="w-full text-left flex items-center p-2 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                className="w-full text-left flex items-center p-2 rounded-lg hover:bg-gray-100 dark:text white dark:hover:bg-gray-700"
               >
                 <span className="ml-3">Dashboard</span>
               </button>
@@ -294,7 +215,6 @@ const Manage = () => {
         </div>
       </aside>
 
-      {/* เนื้อหาหลัก */}
       <div className="p-3 md:ml-64 min-h-screen">
         <div className="p-3 border-2 border-dashed rounded-lg dark:border-gray-700">
           {loading && <p className="text-center text-gray-600">Loading...</p>}

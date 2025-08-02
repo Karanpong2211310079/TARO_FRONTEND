@@ -1,3 +1,120 @@
+/* ===== THEME: Glassy Purple-Black ===== */
+:root {
+    --theme-bg: linear-gradient(135deg, rgba(40, 30, 60, 0.92) 0%, rgba(30, 20, 40, 0.96) 100%);
+    --theme-card: linear-gradient(135deg, rgba(80, 60, 120, 0.92) 0%, rgba(30, 20, 40, 0.98) 100%);
+    --theme-glass: rgba(60, 40, 80, 0.45);
+    --theme-accent: #a78bfa;
+    --theme-gold: #fbbf24;
+    --theme-text: #fff;
+}
+
+/* --- Player Grid & Card: Clean, Responsive, Card-Style, Colorful --- */
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2.2rem;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 2rem auto;
+}
+
+.player-card {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    box-shadow: 0 2px 8px #fbbf24;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.05rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #fbbf24;
+    cursor: pointer;
+    background: var(--theme-card);
+    color: var(--theme-text);
+    backdrop-filter: blur(8px) saturate(1.2);
+    box-shadow: 0 2px 16px 0 var(--theme-accent), 0 0 0 2px var(--theme-gold);
+}
+
+.player-card.current {
+    background: linear-gradient(135deg, #fbbf24 0%, #a78bfa 100%);
+    color: #222;
+    box-shadow: 0 0 16px #fbbf24, 0 2px 8px #fbbf24;
+    transform: scale(1.12) rotate(-2deg);
+    border: 3px solid #fbbf24;
+    z-index: 2;
+    border-radius: 50%;
+    width: 170px;
+    height: 170px;
+}
+
+.player-card .player-icon {
+    font-size: 2.1rem;
+    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 54px;
+}
+
+.player-name {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: bold;
+    word-break: break-all;
+    margin-top: 0.2rem;
+    margin-bottom: 0.1rem;
+    line-height: 1.1;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .player-grid {
+        gap: 0.7rem;
+        max-width: 98vw;
+        margin-bottom: 0.5rem;
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .player-card {
+        width: 58px;
+        height: 58px;
+        font-size: 0.8rem;
+        border-radius: 50%;
+        padding: 0.1rem 0.1rem;
+    }
+
+    .player-card.current {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+    }
+
+    .player-card .player-icon {
+        font-size: 1.3rem;
+        height: 32px;
+    }
+
+    .player-name {
+        font-size: 0.8rem;
+        margin-top: 0.1rem;
+    }
+}
+
+/* --- End Player Grid/Card --- */
+
 /* Custom Card Modal Styles */
 .custom-card-modal {
     position: fixed;
@@ -83,6 +200,7 @@
     height: 1100px;
     position: fixed;
     top: 50%;
+    /* ขยับ popup card ลงมาอยู่ที่ 50% ของหน้าจอ (ตรงกลาง) */
     left: 50%;
     transform-style: preserve-3d;
     transform: translate(-50%, -50%);
@@ -95,6 +213,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background: var(--theme-bg);
+    backdrop-filter: blur(12px) saturate(1.2);
 }
 
 
@@ -239,12 +359,21 @@
     text-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
     z-index: 1;
     letter-spacing: 0.5rem;
+    animation: textGlow 2s ease-in-out infinite alternate;
 }
 
+@keyframes textGlow {
+    0% {
+        text-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+    }
 
+    100% {
+        text-shadow: 0 0 30px rgba(251, 191, 36, 1), 0 0 40px rgba(251, 191, 36, 0.6);
+    }
+}
 
 .card-front {
-    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #fbbf24 100%);
+    background: var(--theme-card);
     border: 3px solid #fbbf24;
     transform: rotateY(0deg);
     display: flex;
@@ -259,15 +388,23 @@
     right: 0;
     bottom: 0;
     background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
 }
 
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
 
+    100% {
+        transform: translateX(100%);
+    }
+}
 
 .card-header {
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+    background: var(--theme-card);
     padding: 1.5rem 1.5rem 1rem;
     text-align: center;
-    border-bottom: 2px solid #fbbf24;
     position: relative;
     z-index: 1;
 }
@@ -314,7 +451,7 @@
 
 .card-body {
     padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
+    background: var(--theme-glass);
     flex: 1;
     display: flex;
     align-items: center;
@@ -355,7 +492,7 @@
 
 .card-footer {
     padding: 1rem 1.5rem 1.5rem;
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+    background: var(--theme-card);
     border-top: 2px solid #fbbf24;
     text-align: center;
     position: relative;
@@ -375,24 +512,27 @@
 
 
 .punishment-btn {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    color: white;
-    border: 2px solid #fbbf24;
-    border-radius: 12px;
-    padding: 0.75rem 1.5rem;
-    font-weight: bold;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4), 0 0 0 1px rgba(251, 191, 36, 0.3);
+    background: var(--theme-card);
+    color: var(--theme-gold);
+    border: 2px solid var(--theme-gold);
+    text-shadow: 0 1px 8px #3a2a4d, 0 0 2px #fff;
+    backdrop-filter: blur(6px) saturate(1.2);
+    box-shadow: 0 4px 16px 0 var(--theme-accent), 0 0 0 1px var(--theme-gold);
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    min-width: 120px;
+    gap: 0.7rem;
+    min-width: 150px;
+    padding: 0.6rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 1.8rem;
     justify-content: center;
     position: relative;
     z-index: 1;
     overflow: hidden;
+}
+
+.card-front>.flex.justify-center.mt-4 {
+    margin-bottom: 2.2rem;
 }
 
 .punishment-btn::before {
@@ -403,6 +543,7 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
 
@@ -706,6 +847,10 @@
         padding: 0.5rem;
     }
 
+    .card-front>.flex.justify-center.mt-4 {
+        margin-bottom: 1.1rem;
+    }
+
     .card-close-btn {
         top: 0.5rem;
         right: 0.5rem;
@@ -751,9 +896,10 @@
     }
 
     .punishment-btn {
-        padding: 0.6rem 1.25rem;
-        font-size: 0.85rem;
-        min-width: 100px;
+        padding: 0.45rem 1.1rem;
+        font-size: 0.95rem;
+        min-width: 110px;
+        border-radius: 1.3rem;
     }
 
     .player-cards-content {

@@ -1,53 +1,16 @@
 import React, { useEffect } from 'react';
-import Swal from 'sweetalert2';
 
 const CardModal = ({ card, playerName, onClose }) => {
     useEffect(() => {
         const handleClick = (e) => {
-            if (e.target.className === 'custom-card-modal') {
-                onClose();
-            }
+            if (e.target.className === 'custom-card-modal') onClose();
         };
-
-        // ปุ่มบทลงโทษ: SweetAlert ทับ popup card, popup card ไม่ปิดเอง
-        const handlePunishment = () => {
-            const modal = document.querySelector('.custom-card-modal');
-            // ให้ SweetAlert อยู่บนสุดจริงๆ ด้วย z-index สูงกว่า popup card
-            // และบังคับ z-index ของ .swal2-container
-            Swal.fire({
-                title: '<div class="text-center"><div class="text-2xl mb-2">⚡</div><div class="text-xl font-bold text-red-600">บทลงโทษ</div></div>',
-                html: '<div class="bg-gradient-to-r from-red-100 to-pink-100 p-4 rounded-lg border-2 border-red-200"><p class="text-gray-700">ยังไม่มีข้อมูลบทลงโทษ</p></div>',
-                showConfirmButton: true,
-                confirmButtonText: 'ตกลง',
-                confirmButtonColor: '#ef4444',
-                didOpen: () => {
-                    const swal = document.querySelector('.swal2-container');
-                    if (swal) swal.style.zIndex = 10001;
-                    if (modal) modal.style.zIndex = 9999;
-                },
-                didClose: () => {
-                    if (modal) modal.style.zIndex = 9999;
-                }
-            });
-        };
-
         const modal = document.querySelector('.custom-card-modal');
-        const punishmentBtn = document.querySelector('#punishment-btn');
-
         if (modal) modal.addEventListener('click', handleClick);
-        if (punishmentBtn) punishmentBtn.addEventListener('click', handlePunishment);
-
-        // Add keyboard event listener for Escape key
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
+        const handleKeyDown = (e) => { if (e.key === 'Escape') onClose(); };
         document.addEventListener('keydown', handleKeyDown);
-
         return () => {
             if (modal) modal.removeEventListener('click', handleClick);
-            if (punishmentBtn) punishmentBtn.removeEventListener('click', handlePunishment);
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [onClose]);
@@ -72,10 +35,19 @@ const CardModal = ({ card, playerName, onClose }) => {
                                 <p>{card.description?.split('\n')[0] || 'ไม่มีคำอธิบาย'}</p>
                             </div>
                         </div>
-                        <div className="card-footer">
-                            <button id="punishment-btn" className="punishment-btn">
-                                <span className="btn-icon">⚡</span>
-                                <span className="btn-text">บทลงโทษ</span>
+                        {/* ปุ่มบทลงโทษกลับไปอยู่ล่าง card-body */}
+                        <div className="flex justify-center mt-4">
+                            <button
+                                className="punishment-btn"
+                                type="button"
+                                onClick={() => {
+                                    // ยังไม่มีเนื้อหาหมวดบทลงโทษ ให้หน้าว่างๆ (ไม่ต้องแสดงอะไร)
+                                    // สามารถเพิ่ม logic แสดงบทลงโทษแบบสุ่มได้ในอนาคต
+                                    const cardBody = document.querySelector('.card-body .card-description');
+                                    if (cardBody) cardBody.innerHTML = '';
+                                }}
+                            >
+                                <span className="btn-text">โดนของ</span>
                             </button>
                         </div>
                     </div>
@@ -85,4 +57,4 @@ const CardModal = ({ card, playerName, onClose }) => {
     );
 };
 
-export default CardModal; 
+export default CardModal;
