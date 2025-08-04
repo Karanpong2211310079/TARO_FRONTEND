@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useGameState } from '../hooks/useGameState';
-import { playSound, isMajorArcana, showError, showSuccess, showInfo, showWarning } from '../utils/gameUtils';
+import { playSound, isMajorArcana, showError, showInfo, showWarning } from '../utils/gameUtils';
 import CardModal from '../components/CardModal';
 import PlayerCardsModal from '../components/PlayerCardsModal';
-import StarBackground from '../components/StarBackground';
 import '../game.css';
 
 const PLAYER_ICONS = [
@@ -42,19 +41,15 @@ const GamePage = () => {
             if (res.data?.data) {
                 const cardsArray = Object.values(res.data.data);
                 setCards(cardsArray);
-                if (!availableCards.length) {
-                    setAvailableCards(cardsArray);
-                }
+                if (!availableCards.length) setAvailableCards(cardsArray);
             }
         } catch (error) {
-            console.error('Error fetching cards:', error);
             showError('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลไพ่ได้ กรุณาลองใหม่');
         } finally {
             setIsLoading(false);
         }
-    }, [setAvailableCards, availableCards.length]);
+    }, [setAvailableCards, availableCards.length, setCards]);
 
-    // Initialize game
     useEffect(() => {
         fetchCards();
         const resetFlag = sessionStorage.getItem('resetGameDraw');
@@ -66,7 +61,6 @@ const GamePage = () => {
 
     // Game functions
 
-    // Step-based form for player count and names (minimal, clean)
     const [setupStep, setSetupStep] = useState(0); // 0 = count, 1 = names
     const [playerCount, setPlayerCount] = useState(2);
     const [playerNameInputs, setPlayerNameInputs] = useState(["", ""]);
@@ -110,7 +104,6 @@ const GamePage = () => {
         setFormError("");
     };
 
-    // Draw card (minimal, clean)
     const [actionLock, setActionLock] = useState(false);
     const handleDrawCard = useCallback(() => {
         if (drawCount <= 0 || actionLock) {
@@ -123,7 +116,7 @@ const GamePage = () => {
         const randomIndex = Math.floor(Math.random() * availableCards.length);
         const card = availableCards[randomIndex];
         const isMajor = isMajorArcana(card.name);
-        playSound(isMajor ? 'magic' : 'flipcard'); // magic.mp3 สำหรับ Major Arcana
+        playSound(isMajor ? 'magic' : 'flipcard');
         const newAvailableCards = availableCards.filter((_, index) => index !== randomIndex);
         const cardWithPlayer = {
             ...card,
@@ -136,19 +129,17 @@ const GamePage = () => {
         if (cardWithPlayer.isMajorArcana) setMajorArcanaCards(prev => [...prev, cardWithPlayer]);
         setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
         setCurrentCard({ card, playerName: currentPlayerName });
-        setTimeout(() => setActionLock(false), 900); // กัน spam 0.9s
+        setTimeout(() => setActionLock(false), 900);
     }, [drawCount, availableCards, players, currentPlayerIndex, setAvailableCards, setDrawnCards, setDrawCount, setMajorArcanaCards, setCurrentPlayerIndex, actionLock]);
 
-    // Skip turn (move to next player)
     const handleSkipTurn = useCallback(() => {
         if (actionLock) return;
         setActionLock(true);
         setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
-        playSound('whoosh'); // ใช้ src/assets/whoosh.mp3
-        setTimeout(() => setActionLock(false), 700); // กัน spam 0.7s
+        playSound('whoosh');
+        setTimeout(() => setActionLock(false), 700);
     }, [currentPlayerIndex, players.length, setCurrentPlayerIndex, actionLock]);
 
-    // View player cards (minimal, clean)
     const handleViewPlayerCards = useCallback((playerName) => {
         const playerCards = majorArcanaCards.filter(card => card.player === playerName);
         if (playerCards.length === 0) {
@@ -158,7 +149,6 @@ const GamePage = () => {
         setShowPlayerCards({ player: playerName, cards: playerCards });
     }, [majorArcanaCards]);
 
-    // Use card (minimal, clean)
     const handleUseCard = useCallback((cardIndex) => {
         const cardToUse = showPlayerCards.cards[cardIndex];
         setMajorArcanaCards(prev => prev.filter(card =>
@@ -166,7 +156,6 @@ const GamePage = () => {
         ));
         const updatedCards = showPlayerCards.cards.filter((_, index) => index !== cardIndex);
         setShowPlayerCards(updatedCards.length === 0 ? null : { ...showPlayerCards, cards: updatedCards });
-        // ไม่ต้องขึ้น popup เตือน
     }, [showPlayerCards, setMajorArcanaCards]);
 
     const currentPlayerName = useMemo(() => players[currentPlayerIndex] || '', [players, currentPlayerIndex]);
@@ -195,7 +184,7 @@ const GamePage = () => {
             />
 
             <div className="flex flex-col min-h-screen px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] login-home-bg layout-stable no-layout-shift" style={{ position: 'relative' }}>
-                <StarBackground />
+
 
                 <div className="flex-grow flex items-center justify-center p-2 sm:p-4">
                     <div className="mystic-card glassmorphism border-2 border-yellow-300 rounded-xl shadow-xl p-6 mt-8 w-full max-w-md text-center relative flex flex-col items-center justify-center z-30">
@@ -263,31 +252,11 @@ const GamePage = () => {
                                                 // ชื่อย่อ: 2 ตัวแรก + ... + 2 ตัวท้าย ถ้ายาว > 8
                                                 let displayName = player;
                                                 if (player.length > 8) displayName = player.slice(0, 2) + '...' + player.slice(-2);
-                                                // สีผู้เล่นแต่ละคน (10 สีเวทมนตร์/แฟนตาซี)
-                                                const playerColors = [
-                                                    'linear-gradient(135deg, #a78bfa 0%, #fbbf24 100%)',
-                                                    'linear-gradient(135deg, #f472b6 0%, #38bdf8 100%)',
-                                                    'linear-gradient(135deg, #34d399 0%, #fbbf24 100%)',
-                                                    'linear-gradient(135deg, #f87171 0%, #6366f1 100%)',
-                                                    'linear-gradient(135deg, #f59e42 0%, #10b981 100%)',
-                                                    'linear-gradient(135deg, #facc15 0%, #a78bfa 100%)',
-                                                    'linear-gradient(135deg, #fbbf24 0%, #f472b6 100%)',
-                                                    'linear-gradient(135deg, #38bdf8 0%, #f87171 100%)',
-                                                    'linear-gradient(135deg, #6366f1 0%, #f59e42 100%)',
-                                                    'linear-gradient(135deg, #10b981 0%, #facc15 100%)',
-                                                ];
-                                                // ใช้ CSS variable --player-bg เพื่อวนสีแต่ละ card
-                                                const playerBg = index === currentPlayerIndex
-                                                    ? 'linear-gradient(135deg, #fbbf24 0%, #a78bfa 100%)'
-                                                    : playerColors[index % playerColors.length];
                                                 return (
                                                     <div key={player} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                                         <div
                                                             className={`player-card${index === currentPlayerIndex ? ' current player-card-animate' : ''}`}
-                                                            style={{
-                                                                '--player-bg': playerBg,
-                                                                cursor: 'pointer',
-                                                            }}
+                                                            style={{ cursor: 'pointer' }}
                                                             onClick={() => { playSound('pop'); handleViewPlayerCards(player); }}
                                                             title={player}
                                                         >
