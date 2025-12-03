@@ -3,7 +3,6 @@ import './App.css';
 const Navbar = lazy(() => import('./User/main/navbar'));
 const Login = lazy(() => import('./User/login'));
 const AllCards = lazy(() => import('./User/allcards'));
-const User = lazy(() => import('./User/user'));
 const Manage = lazy(() => import('../Admin/main/manage'));
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -13,8 +12,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Lazy load components for better performance
 const Home = lazy(() => import('./User/home'));
-const GamePage = lazy(() => import('./User/game'));
-
 // Wrapper component for pages with navbar
 const PageWithNavbar = ({ children }) => (
   <Suspense fallback={<LoadingSpinner />}>
@@ -65,27 +62,6 @@ function App() {
                 <ProtectedRoute>
                   <PageWithNavbar>
                     <AllCards />
-                  </PageWithNavbar>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user"
-              element={
-                <ProtectedRoute>
-                  <PageWithNavbar>
-                    <User />
-                  </PageWithNavbar>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/game"
-              element={
-                <ProtectedRoute>
-                  <PageWithNavbar>
-                    {/* Lazy load GamePage */}
-                    <GamePage />
                   </PageWithNavbar>
                 </ProtectedRoute>
               }

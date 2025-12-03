@@ -321,8 +321,8 @@ const Home = () => {
     }, [cardsData.cards]);
 
     const canDrawCard = useMemo(() => {
-        return userData.point > 0 && !isRevealing && !apiLoading;
-    }, [userData.point, isRevealing, apiLoading]);
+        return !isRevealing && !apiLoading;
+    }, [isRevealing, apiLoading]);
 
     // API functions
     const fetchCards = useCallback(async () => {
@@ -417,15 +417,6 @@ const Home = () => {
         }
     }, [userData.userId]);
 
-    const redeemCode = useCallback(async (code) => {
-        const response = await axios.post(
-            `${API_BASE_URL}redeem-code`,
-            { code, user_id: userData.userId },
-            { timeout: API_TIMEOUT }
-        );
-        return response.data;
-    }, [userData.userId]);
-
     // Business logic functions
     const loadUserData = useCallback(() => {
         try {
@@ -514,89 +505,8 @@ const Home = () => {
         preloadCards();
     }, [fetchCards]);
 
-    const handleRedeemCode = useCallback(async () => {
-        const result = await showAlert(
-            'เพิ่มพลังด้วยโค้ดลับ!',
-            null,
-            'question',
-            {
-                input: 'text',
-                inputLabel: 'ขูด!เเล้วกรอกโค้ดจากหน้าซองเลย',
-                showCancelButton: true,
-                confirmButtonText: '✨เพิ่มพลัง✨',
-                cancelButtonText: 'พลังยังไม่มา',
-                customClass: {
-                    title: 'text-purple-800',
-                    confirmButton: 'bg-purple-700 hover:bg-purple-800'
-                }
-            }
-        );
-
-        if (!result.isConfirmed || !result.value?.trim()) {
-            playFailSound();
-            showAlert(
-                '✋เชื่อมจิตไม่ผ่าน✋',
-                'เอ๊ะ! โค้ดลับผิดนะ (อักษรพิมพ์ใหญ่นะจ๊ะ)',
-                'error',
-                { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
-            );
-            return;
-        }
-
-        try {
-            const response = await callApi(
-                () => redeemCode(result.value.trim()),
-                (data) => {
-                    if (data.success) {
-                        setUserData(prev => ({ ...prev, point: data.user.token }));
-                        showAlert(
-                            '✨เชื่อมจิตได้สำเร็จ✨',
-                            '🔮 ตั้งจิตให้สงบ คิดคำถามในใจ แล้วค่อยกด OK!',
-                            'success',
-                            { customClass: { title: 'text-green-600', confirmButton: 'bg-green-600 hover:bg-green-700' } }
-                        );
-                    } else {
-                        const isUsedCode = data.message?.toLowerCase().includes('already used') ||
-                            data.message?.toLowerCase().includes('used');
-
-                        showAlert(
-                            isUsedCode ? '💀โค้ดลับถูกใช้แล้ว💀' : 'โค้ดผิดพลาด!',
-                            isUsedCode
-                                ? 'หากโค้ดยังไม่เคยใช้ ติดต่อแอดมินหน้า login ได้เลยจ๊ะหนู🫶'
-                                : data.message || 'โค้ดนี้ไม่ถูกต้อง กรุณาลองใหม่',
-                            'error',
-                            {
-                                customClass: {
-                                    title: isUsedCode ? 'text-yellow-600' : 'text-red-600',
-                                    confirmButton: isUsedCode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-red-600 hover:bg-red-700'
-                                }
-                            }
-                        );
-                    }
-                }
-            );
-        } catch (error) {
-            playFailSound();
-            showAlert(
-                '✋เชื่อมจิตไม่ผ่าน✋',
-                'เอ๊ะ! โค้ดลับผิดนะ (อักษรพิมพ์ใหญ่นะจ๊ะ)',
-                'error',
-                { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
-            );
-        }
-    }, [callApi, redeemCode]);
-
     const drawCard = useCallback(async () => {
         if (!canDrawCard) {
-            if (userData.point <= 0) {
-                playFailSound();
-                showAlert(
-                    '👀พลังทำนายหมด!',
-                    'เติมพลังด้วยโค้ดลับ!',
-                    'warning',
-                    { customClass: { title: 'text-yellow-600', confirmButton: 'bg-yellow-600 hover:bg-yellow-700' } }
-                );
-            }
             return;
         }
 
@@ -632,56 +542,20 @@ const Home = () => {
                 // เรียก API เพิ่มการ์ดและตรวจสอบผลลัพธ์
                 try {
                     await updateUserCards(randomCard.card_id);
-                    // แจ้งเตือนว่าการ์ดถูกเพิ่มเข้าไปในคอลเลกชัน
+                    // ลบการแจ้งเตือนออก - แสดงการ์ดเฉยๆ
                     playMagicSound();
-                    showAlert(
-                        '🎉 ได้รับไพ่ใหม่!',
-                        `ไพ่ "${randomCard.name}" ถูกเพิ่มเข้าไปในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
-                        'success',
-                        {
-                            customClass: {
-                                title: 'text-green-600',
-                                confirmButton: 'bg-green-600 hover:bg-green-700'
-                            },
-                            confirmButtonText: '🃏ดูคำทำนาย'
-                        }
-                    );
                 } catch (cardError) {
                     // ตรวจสอบว่าเป็นการ์ดที่มีอยู่แล้วหรือไม่
                     if (cardError.response?.data?.message === 'User Card Already Exist') {
+                        // ไม่แสดงแจ้งเตือนเมื่อไพ่ซ้ำ
                         playMagicSound();
-                        showAlert(
-                            '🃏 ไพ่ใบนี้มีอยู่แล้ว!',
-                            `ไพ่ "${randomCard.name}" มีอยู่ในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
-                            'success',
-                            {
-                                customClass: {
-                                    title: 'text-blue-600',
-                                    confirmButton: 'bg-blue-600 hover:bg-blue-700'
-                                },
-                                confirmButtonText: '🃏ดูคำทำนาย'
-                            }
-                        );
                     } else {
-                        // กรณีอื่นๆ ให้แสดงข้อความปกติ
+                        // กรณีอื่นๆ ไม่แสดงแจ้งเตือน
                         playMagicSound();
-                        showAlert(
-                            '🎉 ได้รับไพ่ใหม่!',
-                            `ไพ่ "${randomCard.name}" ถูกเพิ่มเข้าไปในคอลเลกชันของคุณแล้ว! ไปดูที่หน้า "My Card" ตรงขีด3ขีดขวาบนได้เลย`,
-                            'success',
-                            {
-                                customClass: {
-                                    title: 'text-green-600',
-                                    confirmButton: 'bg-green-600 hover:bg-green-700'
-                                },
-                                confirmButtonText: '🃏ดูคำทำนาย'
-                            }
-                        );
                     }
                 }
             } catch (error) {
                 console.error('Error drawing card:', error);
-                // แสดง error เฉพาะเมื่อไม่สามารถสุ่มการ์ดได้
                 playFailSound();
                 showAlert(
                     'เกิดข้อผิดพลาด!',
@@ -693,7 +567,7 @@ const Home = () => {
                 setIsRevealing(false);
             }
         }, ANIMATION_DURATION);
-    }, [canDrawCard, userData.point, cardsData.cards, updateUserPoint, updateUserCards]);
+    }, [canDrawCard, cardsData.cards, updateUserPoint, updateUserCards]);
 
     const showCardDescription = useCallback((description, cardName) => {
         showCardDescriptionByCategory(description, cardName);
@@ -839,39 +713,17 @@ const Home = () => {
                                         >
                                             <span className="btn-icon">👁️</span> ดูคำทำนายของไพ่ใบนี้
                                         </button>
-                                        <button
-                                            className="mystic-btn w-66 px-4 py-3 flex items-center justify-center gap-2 text-base bg-gradient-to-r from-yellow-400 to-purple-600 text-white font-bold shadow-lg hover:scale-105 transition-all duration-200 mx-auto"
-                                            onClick={() => { playClickSound(); navigate('/game'); }}
-                                        >
-                                            <span className="btn-icon">🎮</span> เล่นเกม
-                                        </button>
-                                        <button
-                                            className="mystic-btn w-66 px-4 py-3 flex items-center justify-center gap-2 text-base bg-gradient-to-r from-gray-300 to-gray-500 text-black font-bold shadow-lg hover:scale-105 transition-all duration-200 mx-auto"
-                                            onClick={() => { playClickSound(); setDrawnCards([]); }}
-                                        >
-                                            <span className="btn-icon">🔙</span> ย้อนกลับ
-                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="italic text-yellow-200 mb-4 text-sm">🫵 โปรดเติมพลังก่อนสุ่มไพ่ทาโรต์!</p>
+                        <p className="italic text-yellow-200 mb-4 text-sm">🫵 พร้อมสุ่มไพ่ทาโรต์!</p>
                     )}
 
-                    {/* ปุ่มอ่านคำทำนาย, กรอกโค้ดลับ, ใช้พลังทำนาย */}
+                    {/* ปุ่มอ่านคำทำนาย, ใช้พลังทำนาย */}
                     {drawnCards.length === 0 && (
                         <>
-                            <div className="my-3">
-                                <button
-                                    onClick={(e) => { playClickSound(); handleRedeemCode(e); }}
-                                    disabled={apiLoading}
-                                    type="button"
-                                    className="mystic-btn w-66 flex items-center justify-center gap-2 mx-auto"
-                                >
-                                    <span className="btn-icon">✨</span> {apiLoading ? 'กำลังเชื่อมจิต...' : 'กรอกโค้ดลับ'}
-                                </button>
-                            </div>
                             <div>
                                 <button
                                     onClick={(e) => {
@@ -882,7 +734,7 @@ const Home = () => {
                                     disabled={!canDrawCard}
                                     className={`mystic-btn w-66 flex items-center justify-center gap-2 font-bold shadow-md mx-auto ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    <span className="btn-icon">🔮</span> {userData.point > 0 ? `ใช้พลังทำนาย: ${userData.point}` : 'สุ่มไพ่ทาโรต์'}
+                                    <span className="btn-icon">🔮</span> สุ่มไพ่ทาโรต์
                                 </button>
                             </div>
                         </>
