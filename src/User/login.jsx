@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { cacheUtils } from '../utils/cache';
-import { authUtils } from '../utils/auth';
-import clickSound from '../assets/click.mp3';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { cacheUtils } from "../utils/cache";
+import { authUtils } from "../utils/auth";
+import clickSound from "../assets/click.mp3";
 const clickSoundObj = new window.Audio(clickSound);
-import failSound from '../assets/fail.mp3';
+import failSound from "../assets/fail.mp3";
 const failSoundObj = new window.Audio(failSound);
 
 // ฟังก์ชันเล่นเสียงที่ปลอดภัยสำหรับ Safari
@@ -20,18 +20,20 @@ const playClickSound = () => {
       const playPromise = clickSoundObj.play();
 
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
+        playPromise.catch((error) => {
           // Safari อาจจะไม่ให้เล่นเสียงถ้าไม่มี user interaction
-          if (isSafari && error.name === 'NotAllowedError') {
-            console.log('Safari blocked audio play - user interaction required');
+          if (isSafari && error.name === "NotAllowedError") {
+            console.log(
+              "Safari blocked audio play - user interaction required"
+            );
           } else {
-            console.log('Click sound play failed:', error);
+            console.log("Click sound play failed:", error);
           }
         });
       }
     }
   } catch (error) {
-    console.log('Click sound error:', error);
+    console.log("Click sound error:", error);
   }
 };
 
@@ -45,18 +47,20 @@ const playFailSound = () => {
       const playPromise = failSoundObj.play();
 
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
+        playPromise.catch((error) => {
           // Safari อาจจะไม่ให้เล่นเสียงถ้าไม่มี user interaction
-          if (isSafari && error.name === 'NotAllowedError') {
-            console.log('Safari blocked audio play - user interaction required');
+          if (isSafari && error.name === "NotAllowedError") {
+            console.log(
+              "Safari blocked audio play - user interaction required"
+            );
           } else {
-            console.log('Fail sound play failed:', error);
+            console.log("Fail sound play failed:", error);
           }
         });
       }
     }
   } catch (error) {
-    console.log('Fail sound error:', error);
+    console.log("Fail sound error:", error);
   }
 };
 
@@ -64,17 +68,21 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const goToNextPage = () => {
+    navigate("/home");
+  };
 
   // Preload images on mount (for background & logo)
   useEffect(() => {
     [
-      'https://i.postimg.cc/XNgSymzG/IMG-0869.webp',
-      'https://i.postimg.cc/sX987Gwd/IMG-0870.webp',
-    ].forEach(src => {
+      "https://i.postimg.cc/XNgSymzG/IMG-0869.webp",
+      "https://i.postimg.cc/sX987Gwd/IMG-0870.webp",
+    ].forEach((src) => {
       const img = new window.Image();
       img.src = src;
     });
@@ -88,7 +96,7 @@ const Login = () => {
         failSoundObj.load();
       }
     } catch (error) {
-      console.log('Audio preload failed:', error);
+      console.log("Audio preload failed:", error);
     }
   }, []);
 
@@ -102,35 +110,35 @@ const Login = () => {
 
     if (!navigator.onLine) {
       Swal.fire({
-        title: 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
-        text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ',
-        icon: 'warning',
-        confirmButtonText: 'ตกลง',
+        title: "ไม่มีการเชื่อมต่ออินเทอร์เน็ต",
+        text: "กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ",
+        icon: "warning",
+        confirmButtonText: "ตกลง",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
-        }
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
+        },
       });
       return;
     }
 
     // เพิ่มการตรวจสอบ API URL format
-    if (!API_BASE_URL.startsWith('http')) {
+    if (!API_BASE_URL.startsWith("http")) {
       Swal.fire({
-        title: 'ข้อผิดพลาด',
-        text: 'ที่อยู่เซิร์ฟเวอร์ไม่ถูกต้อง กรุณาติดต่อแอดมิน',
-        icon: 'error',
-        confirmButtonText: 'ตกลง',
+        title: "ข้อผิดพลาด",
+        text: "ที่อยู่เซิร์ฟเวอร์ไม่ถูกต้อง กรุณาติดต่อแอดมิน",
+        icon: "error",
+        confirmButtonText: "ตกลง",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
-        }
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
+        },
       });
       return;
     }
@@ -138,34 +146,34 @@ const Login = () => {
     // ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
     if (!navigator.onLine) {
       Swal.fire({
-        title: 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
-        text: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ',
-        icon: 'warning',
-        confirmButtonText: 'ตกลง',
+        title: "ไม่มีการเชื่อมต่ออินเทอร์เน็ต",
+        text: "กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ",
+        icon: "warning",
+        confirmButtonText: "ตกลง",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
-        }
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
+        },
       });
       return;
     }
 
     if (password.length < 6) {
       Swal.fire({
-        title: 'รหัสผ่านไม่ถูกต้อง',
-        text: 'รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษรนะจ๊ะ',
-        icon: 'warning',
-        confirmButtonText: 'ตกลง',
+        title: "รหัสผ่านไม่ถูกต้อง",
+        text: "รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษรนะจ๊ะ",
+        icon: "warning",
+        confirmButtonText: "ตกลง",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
-        }
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
+        },
       });
       return;
     }
@@ -184,8 +192,8 @@ const Login = () => {
           {
             timeout: 8000, // ลด timeout เป็น 8 วินาที
             headers: {
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-cache',
+              "Content-Type": "application/json",
+              "Cache-Control": "no-cache",
             },
           }
         );
@@ -193,7 +201,7 @@ const Login = () => {
         lastError = error;
 
         // ลอง fallback endpoints สำหรับทุกกรณี (ไม่ใช่แค่ 404)
-        const fallbackEndpoints = ['api/login', 'auth/login', 'user/login'];
+        const fallbackEndpoints = ["api/login", "auth/login", "user/login"];
 
         for (const endpoint of fallbackEndpoints) {
           try {
@@ -203,8 +211,8 @@ const Login = () => {
               {
                 timeout: 5000, // ลด timeout สำหรับ fallback
                 headers: {
-                  'Content-Type': 'application/json',
-                  'Cache-Control': 'no-cache',
+                  "Content-Type": "application/json",
+                  "Cache-Control": "no-cache",
                 },
               }
             );
@@ -224,32 +232,32 @@ const Login = () => {
         const errorCode = lastError?.code;
 
         // ปรับปรุงข้อความ error สำหรับกรณี server cold start หรือ network error
-        if (errorCode === 'ECONNABORTED' || errorCode === 'ERR_NETWORK') {
+        if (errorCode === "ECONNABORTED" || errorCode === "ERR_NETWORK") {
           Swal.fire({
-            title: 'ระบบกำลังตื่น',
-            text: 'โปรดลองใหม่อีกครั้งใน 5-10 วินาที',
-            icon: 'warning',
-            confirmButtonText: 'ตกลง',
+            title: "ระบบกำลังตื่น",
+            text: "โปรดลองใหม่อีกครั้งใน 5-10 วินาที",
+            icon: "warning",
+            confirmButtonText: "ตกลง",
             customClass: {
-              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-              title: 'mystic-heading text-xl mb-2',
-              content: 'mystic-gold-text font-serif',
-              confirmButton: 'mystic-btn w-full mt-4',
-            }
+              popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+              title: "mystic-heading text-xl mb-2",
+              content: "mystic-gold-text font-serif",
+              confirmButton: "mystic-btn w-full mt-4",
+            },
           });
         } else {
           // ข้อความทั่วไปสำหรับ login ไม่สำเร็จ
           Swal.fire({
-            title: 'ชื่อนี้ถูกใช้เเล้วหรือรหัสผ่านไม่ถูกต้อง',
-            text: 'กรุณาเปลี่ยนชื่อผู้ใช้หรือตรวจสอบรหัสผ่านอีกครั้ง',
-            icon: 'error',
-            confirmButtonText: 'ตกลง',
+            title: "ชื่อนี้ถูกใช้เเล้วหรือรหัสผ่านไม่ถูกต้อง",
+            text: "กรุณาเปลี่ยนชื่อผู้ใช้หรือตรวจสอบรหัสผ่านอีกครั้ง",
+            icon: "error",
+            confirmButtonText: "ตกลง",
             customClass: {
-              popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-              title: 'mystic-heading text-xl mb-2',
-              content: 'mystic-gold-text font-serif',
-              confirmButton: 'mystic-btn w-full mt-4',
-            }
+              popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+              title: "mystic-heading text-xl mb-2",
+              content: "mystic-gold-text font-serif",
+              confirmButton: "mystic-btn w-full mt-4",
+            },
           });
         }
         return;
@@ -259,70 +267,73 @@ const Login = () => {
         // Save user data using authUtils
         if (authUtils.setSession(res.data)) {
           // Navigate immediately without preloading to prevent delay
-          navigate(res.data.user.role === 'admin' ? '/admin' : '/home', { replace: true });
+          navigate(res.data.user.role === "admin" ? "/admin" : "/home", {
+            replace: true,
+          });
         } else {
-          throw new Error('Failed to save user session');
+          throw new Error("Failed to save user session");
         }
 
         // Preload data in background after navigation
         setTimeout(() => {
           const preloadData = async () => {
             try {
-              const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+              const cachedCards = cacheUtils.getCachedData("tarotCardsCache");
               if (!cachedCards) {
                 const cardsRes = await axios.get(`${API_BASE_URL}taro-card`, {
                   timeout: 5000,
-                  headers: { 'Cache-Control': 'no-cache' }
+                  headers: { "Cache-Control": "no-cache" },
                 });
-                cacheUtils.setCachedData('tarotCardsCache', cardsRes.data.data);
+                cacheUtils.setCachedData("tarotCardsCache", cardsRes.data.data);
               }
             } catch (error) {
-              console.error('Background preload failed:', error);
+              console.error("Background preload failed:", error);
             }
           };
           preloadData();
         }, 1000); // Delay preload by 1 second
       } else {
         Swal.fire({
-          title: 'ล็อกอินไม่สำเร็จ',
-          text: 'กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน',
-          icon: 'error',
-          confirmButtonText: 'ลองใหม่',
+          title: "ล็อกอินไม่สำเร็จ",
+          text: "กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน",
+          icon: "error",
+          confirmButtonText: "ลองใหม่",
           customClass: {
-            popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-            title: 'mystic-heading text-xl mb-2',
-            content: 'mystic-gold-text font-serif',
-            confirmButton: 'mystic-btn w-full mt-4',
-            cancelButton: 'mystic-btn w-full mt-4',
-          }
+            popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+            title: "mystic-heading text-xl mb-2",
+            content: "mystic-gold-text font-serif",
+            confirmButton: "mystic-btn w-full mt-4",
+            cancelButton: "mystic-btn w-full mt-4",
+          },
         });
       }
     } catch (error) {
       playFailSound();
-      let errorMessage = 'กรุณาลองใหม่';
+      let errorMessage = "กรุณาลองใหม่";
 
-      if (error.code === 'ECONNABORTED') {
-        errorMessage = 'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่';
-      } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = 'ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+      if (error.code === "ECONNABORTED") {
+        errorMessage = "เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่";
+      } else if (error.code === "ERR_NETWORK") {
+        errorMessage =
+          "ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
       } else if (error.response?.status === 500) {
-        errorMessage = 'เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่';
-      } else if (error.message?.includes('Network Error')) {
-        errorMessage = 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้';
+        errorMessage = "เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่";
+      } else if (error.message?.includes("Network Error")) {
+        errorMessage = "ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้";
       }
 
       Swal.fire({
-        title: 'เกิดข้อผิดพลาด',
+        title: "เกิดข้อผิดพลาด",
         text: errorMessage,
-        icon: 'error',
-        confirmButtonText: 'ลองใหม่',
+        icon: "error",
+        confirmButtonText: "ลองใหม่",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
-        }
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
+        },
       });
     } finally {
       setIsLoading(false);
@@ -373,111 +384,35 @@ const Login = () => {
       `}</style>
       <div className="flex justify-center items-center min-h-screen login-background px-2 sm:px-4">
         <div className="w-full max-w-md sm:max-w-sm xs:max-w-xs p-4 sm:p-6 mystic-shadow transition-all duration-300 hover:shadow-2xl relative login-content">
+          {/* Logo */}
           <div className="flex justify-center mb-4">
             <img
               src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
               alt="โลโก้"
               loading="eager"
               className="h-24 sm:h-28 xs:h-18 w-auto object-contain drop-shadow-lg"
-              onError={e => (e.target.style.display = 'none')}
+              onError={(e) => (e.target.style.display = "none")}
             />
           </div>
-          <h2 className="text-2xl sm:text-xl mystic-heading text-center mb-4 flex items-center justify-center gap-2">
-            <span className="text-xl">🔮</span> Login เพื่อรับคำทำนาย <span className="text-3xl">✨</span>
+
+          {/* Title */}
+          <h2 className="text-2xl sm:text-xl mystic-heading text-center mb-6 font-semibold tracking-wide leading-tight">
+            <span className="block text-xl">ยินดีต้อนรับสู่</span>
+            <span className="block font-bold text-purple-600 text-3xl mt-1">
+              ✨ Taro Mammoo ✨
+            </span>
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="name" className="block mb-1 text-sm font-medium mystic-gold-text">
-                ชื่อผู้ใช้:
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="กรอกชื่อผู้ใช้ของคุณ"
-                required
-                autoComplete="username"
-                className="w-full p-2 sm:p-1.5 text-base border-2 border-yellow-300 bg-white bg-opacity-90 rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-yellow-400 transition-all duration-200 text-black placeholder:text-gray-500 shadow-inner"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block mb-1 text-sm font-medium mystic-gold-text">
-                รหัสผ่าน:
-              </label>
-              <div className="password-container">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="กรอกรหัสผ่านของคุณ(ไม่ใช่โค้ดดูดวง)"
-                  required
-                  autoComplete="current-password"
-                  className="w-full p-2 sm:p-1.5 text-base border-2 border-yellow-300 bg-white bg-opacity-90 rounded-lg focus:ring-2 focus:ring-[#D497FF] focus:border-yellow-400 transition-all duration-200 text-black placeholder:text-gray-500 shadow-inner"
-                />
-                {showPassword ? (
-                  // ตาเปิด - เห็นรหัสผ่าน
-                  <svg
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="password-toggle"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M1 12C2.73 7.61 7.11 4.5 12 4.5C16.89 4.5 21.27 7.61 23 12C21.27 16.39 16.89 19.5 12 19.5C7.11 19.5 2.73 16.39 1 12Z" stroke="#ffd700" strokeWidth="2" />
-                    <circle cx="12" cy="12" r="3.5" stroke="#ffd700" strokeWidth="2" />
-                  </svg>
-                ) : (
-                  // ตาปิด - ไม่เห็นรหัสผ่าน
-                  <svg
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="password-toggle"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="#ffd700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <line x1="1" y1="1" x2="23" y2="23" stroke="#ffd700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="mystic-btn w-full flex items-center justify-center gap-2 mt-2"
-              disabled={isLoading}
-              onClick={playClickSound}
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 mr-2 text-yellow-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
-                  กำลังเชื่อมจิต...
-                </>
-              ) : (
-                '✨เชื่อมจิต✨'
-              )}
-            </button>
-            <p className="mt-2 text-sm text-red-500 font-semibold">
-              **รหัสสำหรับ Login ไม่ใช่โค้ดดูดวง❗เข้าครั้งเเรกให้ตั้งรหัสผ่านของคุณเพื่อนำไปใช้ในครั้งถัดไป<br />
-              **หากลืมรหัสผ่านหรือเว็ปไซด์มีปัญหา ติดต่อแอดมินที่ IG:
-              <a
-                href="https://www.instagram.com/_moodma_?igsh=NGZvZTNmZWJtNjln"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-blue-600"
-              >
-                @_moodma_
-              </a>
-            </p>
-          </form>
+
+          {/* Main Button */}
+          <button
+            onClick={() => {
+              playClickSound();
+              goToNextPage();
+            }}
+            className="mystic-btn w-full flex items-center justify-center gap-2 mt-2 font-semibold tracking-wide text-lg"
+          >
+            ✨ เริ่มทำนาย ✨
+          </button>
         </div>
       </div>
     </>

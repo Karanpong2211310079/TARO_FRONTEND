@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import tarotLogo from '../../assets/cards.png';
-import { useNavigate, Link } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import clickSound from '../../assets/click.mp3';
+import React, { useEffect, useState } from "react";
+import tarotLogo from "../../assets/cards.png";
+import { useNavigate, Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import clickSound from "../../assets/click.mp3";
 const clickSoundObj = new window.Audio(clickSound);
 
 // authService.js
 const getUser = () => {
-  const user = localStorage.getItem('user');
+  const user = localStorage.getItem("user");
   if (!user) return null; // ตรวจสอบก่อน parse เพื่อลดการประมวลผล
   try {
     return JSON.parse(user);
   } catch (error) {
-    console.error('Error parsing user data:', error);
+    console.error("Error parsing user data:", error);
     return null;
   }
 };
 
 const signOut = () => {
-  localStorage.removeItem('user');
+  localStorage.removeItem("user");
 };
 
 // ฟังก์ชันเล่นเสียงคลิก
@@ -32,60 +32,62 @@ const playClickSound = () => {
       const playPromise = clickSoundObj.play();
 
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
+        playPromise.catch((error) => {
           // Safari อาจจะไม่ให้เล่นเสียงถ้าไม่มี user interaction
-          if (isSafari && error.name === 'NotAllowedError') {
-            console.log('Safari blocked audio play - user interaction required');
+          if (isSafari && error.name === "NotAllowedError") {
+            console.log(
+              "Safari blocked audio play - user interaction required"
+            );
           } else {
-            console.log('Click sound play failed:', error);
+            console.log("Click sound play failed:", error);
           }
         });
       }
     }
   } catch (error) {
-    console.log('Click sound error:', error);
+    console.log("Click sound error:", error);
   }
 };
 
 const Navbar = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
       signOut();
       setIsLoggedIn(false);
-      setName('');
+      setName("");
       setMobileMenuOpen(false);
-      navigate('/');
+      navigate("/");
       await Swal.fire({
-        title: 'Sign Out สำเร็จ',
-        text: 'คุณออกจากระบบเรียบร้อยแล้ว',
-        icon: 'success',
-        confirmButtonText: 'ตกลง',
+        title: "Sign Out สำเร็จ",
+        text: "คุณออกจากระบบเรียบร้อยแล้ว",
+        icon: "success",
+        confirmButtonText: "ตกลง",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
         },
       });
     } catch (error) {
-      console.error('Error during sign out:', error);
+      console.error("Error during sign out:", error);
       await Swal.fire({
-        title: 'เกิดข้อผิดพลาด',
-        text: 'มีบางอย่างผิดพลาดขณะออกจากระบบ',
-        icon: 'error',
-        confirmButtonText: 'ตกลง',
+        title: "เกิดข้อผิดพลาด",
+        text: "มีบางอย่างผิดพลาดขณะออกจากระบบ",
+        icon: "error",
+        confirmButtonText: "ตกลง",
         customClass: {
-          popup: 'mystic-modal w-[95vw] max-w-md rounded-xl mx-2',
-          title: 'mystic-heading text-xl mb-2',
-          content: 'mystic-gold-text font-serif',
-          confirmButton: 'mystic-btn w-full mt-4',
-          cancelButton: 'mystic-btn w-full mt-4',
+          popup: "mystic-modal w-[95vw] max-w-md rounded-xl mx-2",
+          title: "mystic-heading text-xl mb-2",
+          content: "mystic-gold-text font-serif",
+          confirmButton: "mystic-btn w-full mt-4",
+          cancelButton: "mystic-btn w-full mt-4",
         },
       });
     }
@@ -98,7 +100,7 @@ const Navbar = () => {
       setName(userData.user.name);
     } else {
       setIsLoggedIn(false);
-      setName('');
+      setName("");
     }
 
     // Preload audio for Safari compatibility
@@ -107,12 +109,14 @@ const Navbar = () => {
         clickSoundObj.load();
       }
     } catch (error) {
-      console.log('Audio preload failed:', error);
+      console.log("Audio preload failed:", error);
     }
   }, []);
 
   // ตรวจสอบ prefers-reduced-motion เพื่อปิด animation ในอุปกรณ์ที่ต้องการลดการเคลื่อนไหว
-  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
 
   return (
     <>
@@ -131,75 +135,83 @@ const Navbar = () => {
               width={40}
               height={40}
             />
-            <Link to="/home" className="text-2xl mystic-heading tracking-wide flex items-center gap-2">
-              <span className="text-2xl" style={{ minWidth: '1.5em', display: 'inline-block' }}>🪄</span> Tarot Mamoo <span className="text-2xl" style={{ minWidth: '1.5em', display: 'inline-block' }}>🔮</span>
+            <Link
+              to="/home"
+              className="text-2xl mystic-heading tracking-wide flex items-center gap-2"
+            >
+              <span
+                className="text-2xl"
+                style={{ minWidth: "1.5em", display: "inline-block" }}
+              >
+                🪄
+              </span>{" "}
+              Tarot Mamoo{" "}
+              <span
+                className="text-2xl"
+                style={{ minWidth: "1.5em", display: "inline-block" }}
+              >
+                🔮
+              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6" style={{ minHeight: '40px' }}>
-            {isLoggedIn ? (
-              <>
-                <div className="flex items-center space-x-2">
-                  <img
-                    src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
-                    alt="Profile"
-                    className="h-8 w-8 rounded-full object-cover border-2 border-yellow-300 shadow-md"
-                    loading="lazy"
-                  />
-                  <span className="text-base font-medium mystic-gold-text drop-shadow-lg">{name}</span>
-                </div>
-                <Link
-                  to="/user"
-                  className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
-                  onClick={playClickSound}
-                >
-                  My Card
-                </Link>
-                <Link
-                  to="/allcards"
-                  className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
-                  onClick={playClickSound}
-                >
-                  All Cards
-                </Link>
-                <Link
-                  to="/home"
-                  className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
-                  onClick={playClickSound}
-                >
-                  ทำนาย
-                </Link>
-                <button
-                  onClick={() => { playClickSound(); handleSignOut(); }}
-                  className="mystic-btn text-base py-1 px-4 !rounded-lg !text-sm !font-semibold !shadow-md !bg-gradient-to-r !from-purple-700 !to-yellow-400 !border-0 !text-white hover:scale-105 hover:drop-shadow-lg transition-all duration-200"
-                >
-                  <span className="btn-icon">🚪</span> Sign Out
-                </button>
-              </>
-            ) : (
+          <div
+            className="hidden md:flex items-center space-x-6"
+            style={{ minHeight: "40px" }}
+          >
+            <>
+              <div className="flex items-center space-x-2">
+                <img
+                  src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
+                  alt="Profile"
+                  className="h-8 w-8 rounded-full object-cover border-2 border-yellow-300 shadow-md"
+                  loading="lazy"
+                />
+                <span className="text-base font-medium mystic-gold-text drop-shadow-lg">
+                  {name}
+                </span>
+              </div>
+
               <Link
-                to="/"
-                className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200"
+                to="/allcards"
+                className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
                 onClick={playClickSound}
               >
-                Login
+                การ์ดทั้งหมด
               </Link>
-            )}
+              <Link
+                to="/home"
+                className="text-base font-medium mystic-gold-text hover:text-white hover:drop-shadow-lg transition-all duration-200 nav-animate-btn"
+                onClick={playClickSound}
+              >
+                ทำนาย
+              </Link>
+            </>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-yellow-200 rounded bg-gradient-to-r from-purple-700 to-yellow-400 p-1 shadow-md"
-            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d={isMobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                d={
+                  isMobileMenuOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
               ></path>
             </svg>
           </button>
@@ -218,7 +230,9 @@ const Navbar = () => {
                       className="h-8 w-8 rounded-full object-cover border-2 border-yellow-300 shadow-md"
                       loading="lazy" // เพิ่ม lazy loading สำหรับรูปโปรไฟล์
                     />
-                    <span className="text-base font-medium mystic-gold-text drop-shadow-lg">{name}</span>
+                    <span className="text-base font-medium mystic-gold-text drop-shadow-lg">
+                      {name}
+                    </span>
                   </div>
                   <Link
                     to="/user"
@@ -245,7 +259,10 @@ const Navbar = () => {
                     ทำนาย
                   </Link>
                   <button
-                    onClick={() => { playClickSound(); handleSignOut(); }}
+                    onClick={() => {
+                      playClickSound();
+                      handleSignOut();
+                    }}
                     className="mystic-btn text-base py-1 px-4 !rounded-lg !text-sm !font-semibold !shadow-md !bg-gradient-to-r !from-purple-700 !to-yellow-400 !border-0 !text-white hover:scale-105 hover:drop-shadow-lg transition-all duration-200 text-left"
                   >
                     <span className="btn-icon">🚪</span> Sign Out

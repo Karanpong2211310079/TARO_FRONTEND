@@ -1,19 +1,18 @@
-import { useState, lazy, Suspense, useEffect } from 'react';
-import './App.css';
-const Navbar = lazy(() => import('./User/main/navbar'));
-const Login = lazy(() => import('./User/login'));
-const AllCards = lazy(() => import('./User/allcards'));
-const User = lazy(() => import('./User/user'));
-const Manage = lazy(() => import('../Admin/main/manage'));
-import ErrorBoundary from './components/ErrorBoundary';
-import LoadingSpinner from './components/LoadingSpinner';
-const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
-const NotFound = lazy(() => import('./components/NotFound'));
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState, lazy, Suspense, useEffect } from "react";
+import "./App.css";
+const Navbar = lazy(() => import("./User/main/navbar"));
+const Login = lazy(() => import("./User/login"));
+const AllCards = lazy(() => import("./User/allcards"));
+const User = lazy(() => import("./User/user"));
+const Manage = lazy(() => import("../Admin/main/manage"));
+import ErrorBoundary from "./components/ErrorBoundary";
+import LoadingSpinner from "./components/LoadingSpinner";
+const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
+const NotFound = lazy(() => import("./components/NotFound"));
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Lazy load components for better performance
-const Home = lazy(() => import('./User/home'));
-const GamePage = lazy(() => import('./User/game'));
+const Home = lazy(() => import("./User/home"));
 
 // Wrapper component for pages with navbar
 const PageWithNavbar = ({ children }) => (
@@ -27,11 +26,11 @@ const PageWithNavbar = ({ children }) => (
 const preloadCriticalData = () => {
   // Preload images
   const criticalImages = [
-    'https://i.postimg.cc/XNgSymzG/IMG-0869.webp',
-    'https://i.postimg.cc/sX987Gwd/IMG-0870.webp',
+    "https://i.postimg.cc/XNgSymzG/IMG-0869.webp",
+    "https://i.postimg.cc/sX987Gwd/IMG-0870.webp",
   ];
 
-  criticalImages.forEach(src => {
+  criticalImages.forEach((src) => {
     const img = new Image();
     img.src = src;
   });
@@ -52,42 +51,25 @@ function App() {
             <Route
               path="/home"
               element={
-                <ProtectedRoute>
-                  <PageWithNavbar>
-                    <Home />
-                  </PageWithNavbar>
-                </ProtectedRoute>
+                <PageWithNavbar>
+                  <Home />
+                </PageWithNavbar>
               }
             />
             <Route
               path="/allcards"
               element={
-                <ProtectedRoute>
-                  <PageWithNavbar>
-                    <AllCards />
-                  </PageWithNavbar>
-                </ProtectedRoute>
+                <PageWithNavbar>
+                  <AllCards />
+                </PageWithNavbar>
               }
             />
             <Route
               path="/user"
               element={
-                <ProtectedRoute>
-                  <PageWithNavbar>
-                    <User />
-                  </PageWithNavbar>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/game"
-              element={
-                <ProtectedRoute>
-                  <PageWithNavbar>
-                    {/* Lazy load GamePage */}
-                    <GamePage />
-                  </PageWithNavbar>
-                </ProtectedRoute>
+                <PageWithNavbar>
+                  <User />
+                </PageWithNavbar>
               }
             />
             <Route
