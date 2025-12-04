@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -420,21 +419,3 @@ const Login = () => {
   );
 };
 export default Login;
-=======
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const Login = () => {
-  const navigate = useNavigate();
-
-  // เปิดเว็บด้วยหน้า home.jsx โดยไม่ต้อง login
-  useEffect(() => {
-    navigate('/home', { replace: true });
-  }, [navigate]);
-
-  // ไม่แสดง UI ของ login หน้านี้
-  return null;
-};
-
-export default Login;
->>>>>>> 3b0de2f63b8d6c3ba8daa1a29e3d98b22c0e64d1

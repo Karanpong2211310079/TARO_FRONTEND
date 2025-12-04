@@ -1,10 +1,8 @@
-<<<<<<< HEAD
 import { useState, lazy, Suspense, useEffect } from "react";
 import "./App.css";
 const Navbar = lazy(() => import("./User/main/navbar"));
 const Login = lazy(() => import("./User/login"));
 const AllCards = lazy(() => import("./User/allcards"));
-const User = lazy(() => import("./User/user"));
 const Manage = lazy(() => import("../Admin/main/manage"));
 import ErrorBoundary from "./components/ErrorBoundary";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -15,22 +13,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // Lazy load components for better performance
 const Home = lazy(() => import("./User/home"));
 
-=======
-import { useState, lazy, Suspense, useEffect } from 'react';
-import './App.css';
-const Navbar = lazy(() => import('./User/main/navbar'));
-const Login = lazy(() => import('./User/login'));
-const AllCards = lazy(() => import('./User/allcards'));
-const Manage = lazy(() => import('../Admin/main/manage'));
-import ErrorBoundary from './components/ErrorBoundary';
-import LoadingSpinner from './components/LoadingSpinner';
-const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
-const NotFound = lazy(() => import('./components/NotFound'));
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-// Lazy load components for better performance
-const Home = lazy(() => import('./User/home'));
->>>>>>> 3b0de2f63b8d6c3ba8daa1a29e3d98b22c0e64d1
 // Wrapper component for pages with navbar
 const PageWithNavbar = ({ children }) => (
   <Suspense fallback={<LoadingSpinner />}>
@@ -81,18 +63,8 @@ function App() {
                 </PageWithNavbar>
               }
             />
+
             <Route
-<<<<<<< HEAD
-              path="/user"
-              element={
-                <PageWithNavbar>
-                  <User />
-                </PageWithNavbar>
-              }
-            />
-            <Route
-=======
->>>>>>> 3b0de2f63b8d6c3ba8daa1a29e3d98b22c0e64d1
               path="/admin"
               element={
                 <ProtectedRoute requiredRole="admin">
