@@ -142,69 +142,13 @@ const Navbar = () => {
         {/* MOBILE MENU */}
         {isMobileMenuOpen && (
           <div className="container mx-auto flex flex-col space-y-3 max-w-3xl mt-3">
-            {isLoggedIn ? (
-              <>
-                <div className="flex items-center space-x-2 px-3">
-                  <img
-                    src="https://i.postimg.cc/sX987Gwd/IMG-0870.webp"
-                    alt="Profile"
-                    className="h-8 w-8 rounded-full border-2 border-yellow-300"
-                  />
-                  <span>{name}</span>
-                </div>
+            <Link to="/allcards" onClick={playClickSound}>
+              การ์ดทั้งหมด
+            </Link>
 
-                <Link
-                  to="/user"
-                  className="px-3"
-                  onClick={() => {
-                    playClickSound();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  My Card
-                </Link>
-
-                <Link
-                  to="/allcards"
-                  className="px-3"
-                  onClick={() => {
-                    playClickSound();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  การ์ดทั้งหมด
-                </Link>
-
-                <Link
-                  to="/home"
-                  className="px-3"
-                  onClick={() => {
-                    playClickSound();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  ทำนาย
-                </Link>
-
-                <button
-                  className="px-3 py-1 text-left text-white bg-gradient-to-r from-purple-700 to-yellow-400 rounded"
-                  onClick={handleSignOut}
-                >
-                  🚪 Sign Out
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/"
-                className="px-3"
-                onClick={() => {
-                  playClickSound();
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Login
-              </Link>
-            )}
+            <Link to="/home" onClick={playClickSound}>
+              ทำนาย
+            </Link>
           </div>
         )}
       </nav>

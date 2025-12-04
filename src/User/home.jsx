@@ -328,6 +328,7 @@ const Home = () => {
     token: null,
   });
   const [isRevealing, setIsRevealing] = useState(false);
+  const [successRandom, setSuccessRandom] = useState(true);
   const [isInitializing, setIsInitializing] = useState(true);
 
   // Custom hooks
@@ -564,6 +565,7 @@ const Home = () => {
   const drawCard = useCallback(() => {
     setIsRevealing(true);
     setDrawnCards([]);
+    setSuccessRandom(false);
 
     // เล่นเสียงตอนกดสุ่ม
     playMagicSound();
@@ -749,6 +751,7 @@ const Home = () => {
                   <h2 className="text-lg font-bold mt-2 mystic-gold-text drop-shadow-lg">
                     {card.name}
                   </h2>
+
                   <div className="flex flex-col gap-4 w-full items-center mt-4">
                     <button
                       onClick={() => {
@@ -758,16 +761,6 @@ const Home = () => {
                       className="mystic-btn w-66 flex items-center justify-center gap-2 mx-auto"
                     >
                       <span className="btn-icon">👁️</span> ดูคำทำนายของไพ่ใบนี้
-                    </button>
-
-                    <button
-                      className="mystic-btn w-66 px-4 py-3 flex items-center justify-center gap-2 text-base bg-gradient-to-r from-gray-300 to-gray-500 text-black font-bold shadow-lg hover:scale-105 transition-all duration-200 mx-auto"
-                      onClick={() => {
-                        playClickSound();
-                        setDrawnCards([]);
-                      }}
-                    >
-                      <span className="btn-icon">🔙</span> ย้อนกลับ
                     </button>
                   </div>
                 </div>
@@ -782,15 +775,17 @@ const Home = () => {
           <>
             <div className="my-3"></div>
             <div>
-              <button
-                className="mystic-btn w-66 flex items-center justify-center gap-2 font-bold shadow-md mx-auto"
-                onClick={(e) => {
-                  playClickSound();
-                  drawCard(e);
-                }}
-              >
-                <span className="btn-icon">🔮</span> สุ่มไพ่ทาโรต์
-              </button>
+              {successRandom && (
+                <button
+                  className="mystic-btn w-66 flex items-center justify-center gap-2 font-bold shadow-md mx-auto"
+                  onClick={(e) => {
+                    playClickSound();
+                    drawCard(e);
+                  }}
+                >
+                  <span className="btn-icon">🔮</span> สุ่มไพ่ทาโรต์
+                </button>
+              )}
             </div>
           </>
         </div>
