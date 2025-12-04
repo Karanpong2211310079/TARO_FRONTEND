@@ -340,9 +340,15 @@ const Home = () => {
     return shuffled.slice(0, 3);
   }, [cardsData.cards]);
 
+<<<<<<< HEAD
   const canDrawCard = useMemo(() => {
     return userData.point > 0 && !isRevealing && !apiLoading;
   }, [userData.point, isRevealing, apiLoading]);
+=======
+    const canDrawCard = useMemo(() => {
+        return !isRevealing && !apiLoading;
+    }, [isRevealing, apiLoading]);
+>>>>>>> 3b0de2f63b8d6c3ba8daa1a29e3d98b22c0e64d1
 
   // API functions
   const fetchCards = useCallback(async () => {
@@ -403,6 +409,7 @@ const Home = () => {
 
         // ลองใช้ endpoint user-card เป็น fallback (เฉพาะกรณีที่ไม่ใช่การ์ดที่มีอยู่แล้ว)
         try {
+<<<<<<< HEAD
           console.log("Trying fallback endpoint: user-card");
           const fallbackResponse = await axios.post(
             `${API_BASE_URL}user-card`,
@@ -487,6 +494,213 @@ const Home = () => {
           userId: userInfo.user_id,
           token: userInfo.token || null,
           point: userInfo.point || userInfo.token || 0, // ใช้ point หรือ token เป็น fallback
+=======
+            console.log('Updating user point:', { id: userData.userId, point: newPoint });
+            const response = await axios.put(
+                `${API_BASE_URL}user-point`,
+                { id: userData.userId, point: newPoint },
+                {
+                    timeout: API_TIMEOUT,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+            console.log('User point updated successfully:', response.data);
+        } catch (error) {
+            console.error('Error updating user point:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+            // ไม่ throw error เพื่อไม่ให้กระทบการแสดงการ์ด
+        }
+    }, [userData.userId]);
+
+    // Business logic functions
+    const loadUserData = useCallback(() => {
+        try {
+            const user = localStorage.getItem('user');
+            if (user) {
+                const userData = JSON.parse(user);
+                console.log('Raw user data from localStorage:', userData);
+
+                const userInfo = userData.user;
+                console.log('User info:', userInfo);
+
+                // ตรวจสอบว่ามีข้อมูลที่จำเป็นหรือไม่
+                if (!userInfo || !userInfo.user_id) {
+                    console.error('Invalid user data structure:', userInfo);
+                    return false;
+                }
+
+                const userDataState = {
+                    userId: userInfo.user_id,
+                    token: userInfo.token || null,
+                    point: userInfo.point || userInfo.token || 0 // ใช้ point หรือ token เป็น fallback
+                };
+
+                console.log('Setting user data state:', userDataState);
+                setUserData(userDataState);
+                return true;
+            }
+            console.log('No user data found in localStorage');
+            return false;
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            return false;
+        }
+    }, []);
+
+    const loadCardsData = useCallback(async () => {
+        try {
+            // Use cache utility to get cached data
+            const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+            if (cachedCards) {
+                setCardsData({ cards: cachedCards, timestamp: Date.now() });
+                return;
+            }
+
+            // Load from API if cache is invalid or doesn't exist
+            const cards = await callApi(fetchCards);
+            const timestamp = Date.now();
+            setCardsData({ cards, timestamp });
+
+            // Save to cache using utility
+            cacheUtils.setCachedData('tarotCardsCache', cards);
+        } catch (error) {
+            console.error('Error loading cards data:', error);
+            showAlert(
+                'เกิดข้อผิดพลาด!',
+                'ไม่สามารถโหลดไพ่ทาโรต์ได้ กรุณาลองใหม่',
+                'error',
+                { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
+            );
+        }
+    }, [callApi, fetchCards]);
+
+    // Preload cards data in background
+    useEffect(() => {
+        const preloadCards = async () => {
+            try {
+                // Use cache utility to check and preload
+                const cachedCards = cacheUtils.getCachedData('tarotCardsCache');
+                if (cachedCards) {
+                    setCardsData({ cards: cachedCards, timestamp: Date.now() });
+                    return;
+                }
+
+                // Load in background without blocking UI
+                fetchCards().then(cards => {
+                    setCardsData({ cards, timestamp: Date.now() });
+                    cacheUtils.setCachedData('tarotCardsCache', cards);
+                }).catch(error => {
+                    console.error('Background cards loading failed:', error);
+                });
+            } catch (error) {
+                console.error('Error in preload cards:', error);
+            }
+        };
+
+        preloadCards();
+    }, [fetchCards]);
+
+    const drawCard = useCallback(async () => {
+        if (!canDrawCard) {
+            return;
+        }
+
+        setIsRevealing(true);
+        setDrawnCards([]);
+
+        setTimeout(async () => {
+            try {
+                // ตรวจสอบว่ามีการ์ดในข้อมูลหรือไม่
+                if (!cardsData.cards || cardsData.cards.length === 0) {
+                    throw new Error('No cards available');
+                }
+
+                // สุ่มไพ่แบบเท่าเทียม - ทุกใบมีโอกาสเท่ากัน
+                const randomIndex = Math.floor(Math.random() * cardsData.cards.length);
+                const randomCard = cardsData.cards[randomIndex];
+
+                // ตรวจสอบว่าการ์ดที่สุ่มได้มีข้อมูลครบหรือไม่
+                if (!randomCard || !randomCard.card_id || !randomCard.name) {
+                    throw new Error('Invalid card data');
+                }
+
+                setDrawnCards([randomCard]);
+
+                const newPoint = userData.point - 1;
+                setUserData(prev => ({ ...prev, point: newPoint }));
+
+                // เรียก API แยกกันโดยไม่รอผล
+                updateUserPoint(newPoint).catch(error => {
+                    console.error('Error updating user point:', error);
+                });
+
+                // เรียก API เพิ่มการ์ดและตรวจสอบผลลัพธ์
+                try {
+                    await updateUserCards(randomCard.card_id);
+                    // ลบการแจ้งเตือนออก - แสดงการ์ดเฉยๆ
+                    playMagicSound();
+                } catch (cardError) {
+                    // ตรวจสอบว่าเป็นการ์ดที่มีอยู่แล้วหรือไม่
+                    if (cardError.response?.data?.message === 'User Card Already Exist') {
+                        // ไม่แสดงแจ้งเตือนเมื่อไพ่ซ้ำ
+                        playMagicSound();
+                    } else {
+                        // กรณีอื่นๆ ไม่แสดงแจ้งเตือน
+                        playMagicSound();
+                    }
+                }
+            } catch (error) {
+                console.error('Error drawing card:', error);
+                playFailSound();
+                showAlert(
+                    'เกิดข้อผิดพลาด!',
+                    'ไม่สามารถสุ่มไพ่ได้ กรุณาลองใหม่',
+                    'error',
+                    { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
+                );
+            } finally {
+                setIsRevealing(false);
+            }
+        }, ANIMATION_DURATION);
+    }, [canDrawCard, cardsData.cards, updateUserPoint, updateUserCards]);
+
+    const showCardDescription = useCallback((description, cardName) => {
+        showCardDescriptionByCategory(description, cardName);
+    }, []);
+
+    // Effects
+    useEffect(() => {
+        const initialize = async () => {
+            setIsInitializing(true);
+            try {
+                // Load user data first (fast, from localStorage)
+                const userLoaded = loadUserData();
+                if (!userLoaded) {
+                    throw new Error('User data not found');
+                }
+
+                // Set loading to false ทันทีหลังโหลด user data
+                setIsInitializing(false);
+
+                // Load cards data in parallel (can be slower, but won't block UI)
+                loadCardsData().catch(error => {
+                    console.error('Cards loading failed:', error);
+                    // Don't throw error here, let user continue with cached data
+                });
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showAlert(
+                    'เกิดข้อผิดพลาด!',
+                    'ไม่สามารถโหลดหน้าได้ กรุณาลองใหม่',
+                    'error',
+                    { customClass: { title: 'text-red-600', confirmButton: 'bg-red-600 hover:bg-red-700' } }
+                );
+                setIsInitializing(false);
+            }
+>>>>>>> 3b0de2f63b8d6c3ba8daa1a29e3d98b22c0e64d1
         };
 
         console.log("Setting user data state:", userDataState);
@@ -618,6 +832,7 @@ const Home = () => {
   // Loading state
   if (isInitializing) {
     return (
+<<<<<<< HEAD
       <div className="flex justify-center items-center min-h-screen login-home-bg">
         <div className="mystic-card flex flex-col items-center justify-center p-8 shadow-2xl">
           <svg
@@ -646,6 +861,124 @@ const Home = () => {
           <div className="text-yellow-200 text-center">
             โปรดรอสักครู่ กำลังเชื่อมจิตกับจักรวาล...
           </div>
+=======
+        <div
+            className="flex flex-col min-h-screen px-[env(safe-area-inset-left)] py-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] login-home-bg layout-stable no-layout-shift"
+            style={{ position: 'relative' }}
+        >
+            {/* Twinkle stars background - optimized for layout stability */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ contain: 'layout' }}>
+                <div className="star-element star-small bg-yellow-200 top-6 left-[10%] animate-twinkle"></div>
+                <div className="star-element star-medium bg-yellow-100 top-12 right-[15%] animate-twinkle animation-delay-150"></div>
+                <div className="star-element star-small bg-white bottom-8 left-[25%] animate-twinkle animation-delay-300"></div>
+                <div className="star-element star-medium bg-yellow-200 top-20 right-[30%] animate-twinkle animation-delay-450"></div>
+                <div className="star-element star-small bg-white bottom-16 left-[40%] animate-twinkle animation-delay-600"></div>
+                <div className="star-element star-small bg-yellow-100 top-10 left-[60%] animate-twinkle animation-delay-200"></div>
+                <div className="star-element star-medium bg-white top-24 left-[80%] animate-twinkle animation-delay-350"></div>
+                <div className="star-element star-small bg-yellow-200 bottom-20 right-[10%] animate-twinkle animation-delay-500"></div>
+                <div className="star-element star-medium bg-yellow-100 bottom-10 right-[25%] animate-twinkle animation-delay-700"></div>
+                <div className="star-element star-small bg-white top-1/2 left-[15%] animate-twinkle animation-delay-800"></div>
+                <div className="star-element star-medium bg-yellow-200 top-[70%] left-[50%] animate-twinkle animation-delay-900"></div>
+                <div className="star-element star-small bg-yellow-100 bottom-[30%] right-[40%] animate-twinkle animation-delay-1000"></div>
+                <div className="star-element star-medium bg-white top-[60%] left-[80%] animate-twinkle animation-delay-1100"></div>
+                <div className="star-element star-small bg-yellow-200 top-[80%] left-[20%] animate-twinkle animation-delay-1200"></div>
+                <div className="star-element star-medium bg-yellow-100 bottom-[15%] left-[60%] animate-twinkle animation-delay-1300"></div>
+            </div>
+            <div className="flex-grow flex items-center justify-center p-2 sm:p-4">
+                <div className="mystic-card w-full max-w-md mx-auto text-center relative">
+                    <div className="card-glow"></div>
+                    <h1 className="mystic-heading text-[clamp(1.5rem,4vw,1.75rem)] font-bold mb-4 flex items-center justify-center gap-2">
+                        <span className="text-3xl">🃏</span> ทำนายโชคชะตา <span className="text-3xl">✨</span>
+                    </h1>
+
+                    {isRevealing ? (
+                        <div className="mb-4 flex flex-col justify-center items-center gap-4">
+                            <div className="relative w-[10rem] h-[15rem] sm:w-[12rem] sm:h-[18rem] mx-auto">
+                                {animationCards.map((card, index) => (
+                                    <motion.img
+                                        key={`${card.card_id}-${index}`}
+                                        src={card.image_url}
+                                        alt={`Shuffling card ${card.name}`}
+                                        className="absolute w-[8rem] h-[12rem] sm:w-[10rem] sm:h-[15rem] aspect-[2/3] object-contain rounded-lg shadow-2xl border-2 border-yellow-300"
+                                        variants={cardVariants}
+                                        animate={index === 0 ? 'shuffle' : index === 1 ? 'shuffle2' : 'shuffle3'}
+                                        style={{
+                                            top: `${10 + index * 3}%`,
+                                            left: `${5 + index * 5}%`,
+                                        }}
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            console.error(`Failed to load card image: ${card.image_url}`);
+                                            e.target.style.display = 'none';
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            <p className="text-[clamp(1rem,3.5vw,1.25rem)] font-bold text-yellow-300 drop-shadow-lg">
+                                🔮 โชคชะตากำลังถูกเปิดเผย...
+                            </p>
+                        </div>
+                    ) : drawnCards.length > 0 ? (
+                        <div className="mb-4 flex flex-col justify-center items-center gap-4">
+                            {drawnCards.map((card) => (
+                                <div key={card.card_id} className="w-full text-center">
+                                    <motion.img
+                                        initial={{ opacity: 0, rotateY: 180 }}
+                                        animate={{ opacity: 1, rotateY: 0 }}
+                                        transition={{ duration: 0.5 }}
+                                        src={card.image_url}
+                                        alt={card.name}
+                                        className="w-full max-w-[10rem] sm:max-w-[12rem] aspect-[2/3] object-contain rounded-lg shadow-2xl mx-auto border-2 border-yellow-300"
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            console.error(`Failed to load card image: ${card.image_url}`);
+                                            e.target.style.display = 'none';
+                                        }}
+                                    />
+                                    <h2 className="text-lg font-bold mt-2 mystic-gold-text drop-shadow-lg">{card.name}</h2>
+                                    <div className="flex flex-col gap-4 w-full items-center mt-4">
+                                        <button
+                                            onClick={() => { playClickSound(); showCardDescription(card.description, card.name); }}
+                                            className="mystic-btn w-66 flex items-center justify-center gap-2 mx-auto"
+                                        >
+                                            <span className="btn-icon">👁️</span> ดูคำทำนายของไพ่ใบนี้
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="italic text-yellow-200 mb-4 text-sm">🫵 พร้อมสุ่มไพ่ทาโรต์!</p>
+                    )}
+
+                    {/* ปุ่มอ่านคำทำนาย, ใช้พลังทำนาย */}
+                    {drawnCards.length === 0 && (
+                        <>
+                            <div>
+                                <button
+                                    onClick={(e) => {
+                                        playClickSound();
+                                        sessionStorage.setItem('resetGameDraw', '1'); // สำหรับรีเซ็ตหน้าเกม
+                                        drawCard(e);
+                                    }}
+                                    disabled={!canDrawCard}
+                                    className={`mystic-btn w-66 flex items-center justify-center gap-2 font-bold shadow-md mx-auto ${!canDrawCard ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <span className="btn-icon">🔮</span> สุ่มไพ่ทาโรต์
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                </div>
+            </div>
+
+            <footer className="bg-transparent min-h-[48px] flex justify-center items-center p-4 mt-4">
+                <div className="text-center">
+                    <p className="text-sm font-light italic mystic-black-text">© 2025 Tarot Moodma. สงวนลิขสิทธิ์.</p>
+                </div>
+            </footer>
+>>>>>>> 3b0de2f63b8d6c3ba8daa1a29e3d98b22c0e64d1
         </div>
       </div>
     );
