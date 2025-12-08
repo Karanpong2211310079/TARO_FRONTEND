@@ -231,9 +231,8 @@ const showCardDescriptionByCategory = (description, cardName) => {
                     onclick="${playClickSoundJS}; window.__playClickSound(); window.showCategoryDescriptionFromData(this)"
                     class="w-full mb-3 px-4 py-3 mystic-category-btn mystic-category-btn-${key} flex items-center justify-center gap-2 text-base"
                 >
-                    <span class='btn-icon'>${
-                      categoryLabels[key].split(" ")[0]
-                    }</span> ${categoryLabels[key].replace(/^[^ ]+ /, "")}
+                    <span class='btn-icon'>${categoryLabels[key].split(" ")[0]
+        }</span> ${categoryLabels[key].replace(/^[^ ]+ /, "")}
                 </button>
             `;
     })
@@ -243,11 +242,10 @@ const showCardDescriptionByCategory = (description, cardName) => {
     title: `🔮 ${cardName}`,
     html: `
             <div class="text-center">
-                ${
-                  cardSubtitle
-                    ? `<p class="card-subtitle text-mobile-sm mystic-gold-text mb-2">${cardSubtitle}</p>`
-                    : ""
-                }
+                ${cardSubtitle
+        ? `<p class="card-subtitle text-mobile-sm mystic-gold-text mb-2">${cardSubtitle}</p>`
+        : ""
+      }
                 <div class="space-y-2">
                     ${buttonsHTML}
                 </div>
@@ -567,9 +565,6 @@ const Home = () => {
     setDrawnCards([]);
     setSuccessRandom(false);
 
-    // เล่นเสียงตอนกดสุ่ม
-    playMagicSound();
-
     setTimeout(() => {
       // สุ่มการ์ดอย่างเดียว
       const randomIndex = Math.floor(Math.random() * cardsData.cards.length);
@@ -708,8 +703,8 @@ const Home = () => {
                       index === 0
                         ? "shuffle"
                         : index === 1
-                        ? "shuffle2"
-                        : "shuffle3"
+                          ? "shuffle2"
+                          : "shuffle3"
                     }
                     style={{
                       top: `${10 + index * 3}%`,
